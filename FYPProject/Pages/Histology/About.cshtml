@@ -1,0 +1,36 @@
+﻿@page
+@model DataRowCollection 
+    ViewData["Title"] = "Tissue";
+}
+
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-@TempData["MsgType"]">
+        @TempData["Message"]
+    </div>
+}
+
+<table class="table table-condensed table-hover">
+    <thead>
+        <tr>
+            <th>Tissue ID</th> <!-- Update header names if necessary -->
+            <th>Description</th>
+            <th>Picture</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (DataRow row in Model)
+        {
+         <!-- Use DataRow to iterate over the DataRowCollection -->
+        
+            <tr>
+                <td>@row["Tissue_Id"]</td>  <!-- Ensure property names match your SQL query -->
+                <td>@row["Tissue_Description"]</td>
+                <td>
+                    <img src="@row["Photo_Id"]" alt="Picture of @row["Tissue_Description"]" /> <!-- Use the correct column name for Photo_ID -->
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
