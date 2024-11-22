@@ -20,3 +20,43 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+@media (min-width: 1px) and (max-width:376px ) {
+    .logo_phone {
+        position: relative;
+        bottom: 20px;
+        height: 70px;
+        width: 70px;
+        right: 70px;
+    }
+}
+
+@media (min-width: 377px) and (max-width:591px ) {
+    .logo_phone {
+        position: relative;
+        bottom: 20px;
+        height: 70px;
+        width: 70px;
+        right: 90px;
+    }
+}
+
+@media (min-width: 1px) and (max-width:591px ) {
+    .title_phone {
+        position: relative;
+        bottom: 80px;
+        left:15px;
+    }
+}
+
+@media (min-width: 1px) and (max-width:591px ) {
+    .hamburger_phone {
+      margin-top:20px;
+    }
+}
+
+@media (min-width: 1px) and (max-width:591px ) {
+    .topbar_phone {
+        height: 70px;
+    }
+}
