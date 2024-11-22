@@ -27,7 +27,7 @@ body {
         bottom: 20px;
         height: 70px;
         width: 70px;
-        right: 70px;
+        right: 90px;
     }
 }
 
@@ -37,7 +37,7 @@ body {
         bottom: 20px;
         height: 70px;
         width: 70px;
-        right: 90px;
+        right: 120px;
     }
 }
 
@@ -45,7 +45,8 @@ body {
     .title_phone {
         position: relative;
         bottom: 80px;
-        left:15px;
+        left:10px;
+        font-weight: bold;
     }
 }
 
@@ -58,5 +59,17 @@ body {
 @media (min-width: 1px) and (max-width:591px ) {
     .topbar_phone {
         height: 70px;
+    }
+}
+
+@media (min-width: 1px) and (max-width:591px ) {
+    .picture_phone {
+        display:none;
+    }
+}
+
+@media (min-width: 1px) and (max-width:591px ) {
+    .textsize_phone {
+       font-size:15px;
     }
 }
