@@ -1,0 +1,85 @@
+﻿/* General styling */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f9f9f9;
+}
+
+/* Form container styling */
+#quiz-form {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    max-width: 600px;
+    margin: 50px auto;
+}
+
+/* Form label styling */
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+/* Input field styling */
+input[type="text"], input[type="file"], select {
+    width: 100%;
+    margin-bottom: 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    box-sizing: border-box; /* Ensures padding and border are included in the total width */
+    padding: 8px; /* Add padding inside the input */
+    padding-right: 12px; /* Add extra padding on the right */
+}
+
+
+/* Styling for the answers container */
+#answers-container {
+    margin-bottom: 20px;
+}
+
+/* Styling for each answer div */
+.answer {
+    margin-bottom: 10px;
+}
+
+/* Checkbox styling */
+input[type="checkbox"] {
+    margin-left: 8px;
+}
+
+/* Button styling */
+button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+    /* Button hover effect */
+    button:hover {
+        background-color: #0056b3;
+    }
+
+/* Styling for the form elements on smaller screens */
+@media (max-width: 800px) {
+    #quiz-form {
+        padding: 20px;
+        margin: 20px;
+    }
+
+    input[type="text"], input[type="file"], select {
+        font-size: 14px;
+    }
+
+    button {
+        font-size: 14px;
+    }
+}
