@@ -1,0 +1,16 @@
+﻿@page
+@model FYPProject.Pages.ControlPanelModel
+@{
+    ViewData["Title"] = "Admin/Lecturer Control Panel";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<div>
+    <h2>Welcome, @Model.UserName</h2>
+    <ul>
+        <li><a href="#">Manage Users</a></li>
+        <li><a href="#">Manage Content</a></li>
+        <li><a href="#">Settings</a></li>
+    </ul>
+</div>

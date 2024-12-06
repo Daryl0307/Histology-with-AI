@@ -21,7 +21,7 @@
         let model, labelContainer, maxPredictions;
 
         // Initialize the model
-        async function init() {
+        async function init()   {
             const modelURL = URL + 'model.json';
             const metadataURL = URL + 'metadata.json';
 
@@ -44,7 +44,7 @@
             const image = document.getElementById('imagePreview');
             // Clear previous predictions
             labelContainer.innerHTML = '';
-            const prediction = await model.predict(image, false);
+            const prediction = await model.predict(image, false     );
 
             // Display predictions
             prediction.forEach((p) => {
