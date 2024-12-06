@@ -3,6 +3,15 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 
+builder.Services.AddAuthentication("Cookies")
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Login";
+        options.AccessDeniedPath = "/AccessDenied";
+    });
+
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -23,3 +32,7 @@ app.UseAuthorization();
 app.MapRazorPages();
 
 app.Run();
+
+
+
+

@@ -6,23 +6,42 @@ namespace FYPProject.Pages
     public class LoginModel : PageModel
     {
         [BindProperty]
-        public string Username { get; set; } = string.Empty; // empty value until they put a username
+        public string Username { get; set; } = string.Empty;
 
         [BindProperty]
-        public string Password { get; set; } = string.Empty; // empty value until they put a password
+        public string Password { get; set; } = string.Empty;
 
         public IActionResult OnPost()
         {
-            // Validate login logic (checking credentials)
-            if (Username == "admin" && Password == "password") // placeholder
+            // To be repalced with SQL query
+            string role = string.Empty;
+
+            if (Username == "admin" && Password == "password")
             {
-                return RedirectToPage("/ControlPanel");
+                role = "Admin"; // admin role credential
+            }
+            else if (Username == "lecturer" && Password == "password")
+            {
+                role = "Lecturer"; // lecturer credential
+            }
+            else if (Username == "user" && Password == "password")
+            {
+                role = "User"; // regular student credential
             }
             else
             {
-                // Handle invalid login (redirect to login page with error message)
                 ModelState.AddModelError(string.Empty, "Invalid login attempt.");
                 return Page();
+            }
+
+            // Redirect based on role
+            if (role == "Admin" || role == "Lecturer")
+            {
+                return RedirectToPage("/Histology/Home"); 
+            }
+            else
+            {
+                return RedirectToPage("/Histology/Home"); 
             }
         }
     }
