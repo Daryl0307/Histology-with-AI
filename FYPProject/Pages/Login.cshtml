@@ -15,7 +15,10 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f0f2f5;
+            background-image: url('images/f6-smInt-thumbnail.png');
+            background-size: cover; /* Ensures the image covers the whole screen */
+            background-repeat: no-repeat; /* Prevents the image from repeating */
+            background-position: center center; /* Centers the image */
             margin: 0;
             padding: 0;
             display: flex;
@@ -94,14 +97,14 @@
     </style>
 </head>
 <body>
-    <div class="login-card">
+    <div class="login-card" style="margin:50px auto;">
         <img src="images/logo.png" alt="Logo">
         <h1>@ViewData["Title"]</h1>
         <p>Sign in to start your session</p>
         <form method="post">
             @Html.AntiForgeryToken()
-            <input name="Username" type="text" id="Username" class="form-control" placeholder="Enter User ID" required />
-            <input name="Password" type="password" id="Password" class="form-control" placeholder="Enter Password" required />
+            <input name="Username" type="text" id="Username" class="form-control" style="box-sizing: border-box;" placeholder="Enter User ID" required />
+            <input name="Password" type="password" id="Password" class="form-control" style="box-sizing: border-box;" placeholder="Enter Password" required />
             <button type="submit" class="btn-primary">Sign In</button>
         </form>
         <p>Don't have an account? <a href="/Signup">Sign up here</a></p>
