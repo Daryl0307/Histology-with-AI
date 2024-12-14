@@ -1,0 +1,59 @@
+﻿body {
+    font-family: 'Raleway', sans-serif;
+    background-color: #f4f7f6;
+    margin-top: 70px;
+}
+
+
+
+.card {
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff;
+}
+
+    .card img {
+        border-top-left-radius: 15px;
+        border-top-right-radius: 15px;
+        height: 200px;
+        object-fit: cover;
+    }
+
+.card-body {
+    padding: 20px;
+}
+
+.card-title {
+    color: #1ABC9C;
+    font-weight: 700;
+}
+
+.card-text {
+    color: #2C3E50;
+}
+
+.stats-card {
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+    .stats-card h3 {
+        font-size: 2rem;
+        margin-bottom: 10px;
+    }
+
+.stats-icon {
+    font-size: 2rem;
+}
+
+.table-header {
+    background-color: #1ABC9C;
+    color: #ffffff;
+    text-align: center;
+}
+
+#errorMsg {
+    color: #E74C3C;
+    font-weight: bold;
+}

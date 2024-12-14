@@ -1,0 +1,58 @@
+﻿
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quizzes Management</title>
+    <link rel="icon" type="image/png" href="icon.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="~/css/QuizManagement.css" rel="stylesheet" />
+</head>
+<body>
+    @await Html.PartialAsync("navbar")
+    <div class="container mt-5">
+        <div class="card big-card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+                    <h1 style="font-weight:400">Quizzes</h1>
+                    <a class="btn btn-add-quiz" asp-controller="Quiz" asp-action="AddQuiz" role="button"><i class="fas fa-plus"></i> Add Quiz</a>
+                </div>
+
+                <div class="stats-group mb-4">
+                    <div>
+                        <h3 id="quizzesAvailable" style="color: #FF5662;">0</h3>
+                        <p>Quizzes Available</p>
+                        <i class="fas fa-edit fa-2x" style="color: #FF5662;"></i>
+                    </div>
+                    <div>
+                        <h3 id="quizzesCompleted" style="color: #00D207;">0</h3>
+                        <p>Quiz Attempts</p>
+                        <i class="fas fa-check-circle fa-2x" style="color: #00D207;"></i>
+                    </div>
+                    <div>
+                        <h3 id="passPercentage" class="text-primary">0%</h3>
+                        <p>Passing Rate</p>
+                        <i class="fas fa-book fa-2x text-primary"></i>
+                    </div>
+                </div>
+
+                <div class="manage-section">
+                    <h1 style ="font-weight:400">Manage Quizzes</h1>
+                    <select class="form-select w-auto" id="idQuizCategoryChooser">
+                        <option value="">Select Quiz Category</option>
+                        <option value="1">Lung</option>
+                        <option value="2">Kidney</option>
+                    </select>
+                </div>
+
+                <div id="quizRow" class="mt-5">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
