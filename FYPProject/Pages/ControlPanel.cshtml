@@ -5,7 +5,7 @@
 }
 
 <h1>@ViewData["Title"]</h1>
-
+@await Html.PartialAsync("navbar")
 <div>
     <h2>Welcome, @Model.UserName</h2>
     <ul>
