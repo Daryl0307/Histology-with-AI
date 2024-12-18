@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace FYPProject.Pages
+namespace FYPProject.Views.Account
 {
     public class AccessDeniedModel : PageModel
     {

@@ -1,16 +1,13 @@
 ﻿@page
-@model FYPProject.Pages.LoginModel
-@{
-    ViewData["Title"] = "Login";
-}
+@model FYPProject.Views.Account.SignupModel
+
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Sign Up</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <style>
         body {
@@ -26,6 +23,7 @@
             align-items: center;
             height: 100vh;
         }
+
 
         .login-card {
             background: #ffffff;
@@ -98,15 +96,15 @@
 <body>
     <div class="login-card" style="margin:50px auto;">
         <img src="images/logo.png" alt="Logo">
-        <h1>@ViewData["Title"]</h1>
-        <p>Sign in to start your session</p>
+
+        <p>Create a new account</p>
         <form method="post">
             @Html.AntiForgeryToken()
-            <input name="Username" type="text" id="Username" class="form-control" style="box-sizing: border-box;" placeholder="Enter User ID" required />
-            <input name="Password" type="password" id="Password" class="form-control" style="box-sizing: border-box;" placeholder="Enter Password" required />
-            <button type="submit" class="btn-primary">Sign In</button>
+            <input type="text" id="Username" name="Username" class="form-control" style="box-sizing: border-box;" placeholder="Enter Username" required />
+            <input type="password" id="Password" name="Password" class="form-control" style="box-sizing: border-box;" placeholder="Enter Password" required />
+            <button type="submit" class="btn-primary">Sign Up</button>
         </form>
-        <p>Don't have an account? <a href="/Signup">Sign up here</a></p>
+        <p>Already have an account? <a href="/Account/Login">Login here</a></p>
     </div>
 </body>
 </html>

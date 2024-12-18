@@ -1,6 +1,4 @@
-﻿@page
-
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -10,10 +8,11 @@
     <title>Create Quiz</title>
 </head>
 <body>
+    x
     @await Html.PartialAsync("navbar")
-        <form id="quiz-form" asp-action="AddQuiz" asp-controller="Quiz" method="post">
-    
-       
+    <form id="quiz-form" asp-action="AddQuiz" asp-controller="Quiz" method="post">
+
+
         <label for="QuizCategory">Category:</label>
         <select id="Category" name="Category" required>
             <option value="">Select a category</option>
@@ -21,17 +20,17 @@
             <option value="Kidney">Kidney</option>
         </select>
 
-        
+
         <label for="QuestionText">Question:</label>
         <input type="text" id="Question" name="Question" required>
 
-        <label for ="QuestionType">QuestionType:</label>
+        <label for="QuestionType">QuestionType:</label>
         <select id="QuestionType" name="QuestionType" required>
             <option value="">Select a question type</option>
             <option value="Multiple Choice">Multiple Choice Question</option>
             <option value="Multiple Choice for Text">Multiple Choice Question for Text</option>
         </select>
-        
+
         <label for="Answers">Number of Answers:</label>
         <select id="Answers" name="Answers" onchange="updateAnswers()">
             <option value="2">2</option>
@@ -39,20 +38,19 @@
             <option value="4">4</option>
         </select>
 
-      
+
         <div id="answers-container">
-          
         </div>
 
         <label for="QuestionImage">Upload Image (Optional):</label>
         <input type="file" id="QuestionImage" name="QuestionImage" accept="image/*">
 
-     
+
         <div id="total-marks-container">
             <strong>Total Marks: </strong><span id="question-marks">0</span>
         </div>
 
-     
+
         <button type="submit">Submit</button>
     </form>
 
@@ -63,7 +61,7 @@
             const totalMarksDisplay = document.getElementById('question-marks');
 
             function getMaxCorrectAnswers(count) {
-                return count - 1; 
+                return count - 1;
             }
 
             function validateCorrectAnswers(maxCorrect) {
@@ -74,8 +72,8 @@
                     checkbox.addEventListener('change', function () {
                         selectedCorrect = Array.from(correctCheckboxes).filter(cb => cb.checked).length;
                         if (selectedCorrect > maxCorrect) {
-                            alert(`You can only select up to ${maxCorrect} correct answer(s).`);
-                            this.checked = false; 
+                            alert(You can only select up to ${maxCorrect} correct answer(s).);
+                            this.checked = false;
                             hideMarksInput(this);
                         } else {
                             updateMarksVisibility(this);
@@ -108,7 +106,7 @@
 
             function generateAnswerFields(count) {
                 answersContainer.innerHTML = '';
-                let totalMarks = 0; 
+                let totalMarks = 0;
 
                 const maxCorrect = getMaxCorrectAnswers(count);
 
@@ -127,22 +125,22 @@
                     `;
                     answersContainer.appendChild(answerDiv);
 
-                    const checkbox = answerDiv.querySelector(`#correct${i + 1}`);
+                    const checkbox = answerDiv.querySelector(#correct${i + 1});
                     const marksLabel = answerDiv.querySelector('.marks-label');
                     const marksInput = answerDiv.querySelector('.marks-input');
 
-                    
+
                     updateMarksVisibility(checkbox);
 
-                   
+
                     marksInput.addEventListener('input', function () {
                         const marksValue = parseFloat(marksInput.value) || 0;
-                 
+
                         totalMarks = Array.from(answersContainer.querySelectorAll('.marks-input'))
                             .map(input => parseFloat(input.value) || 0)
                             .reduce((sum, value) => sum + value, 0);
 
-                     
+
                         totalMarksDisplay.textContent = totalMarks.toFixed(1);
                     });
                 }
