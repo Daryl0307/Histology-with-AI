@@ -436,6 +436,100 @@ public class QuizController : Controller
     }
 
     [HttpGet]
+    public IActionResult UpdateQuiz(int id)
+    {
+        // Get the record from the database using the id
+        string quizSql = @"SELECT Q.Question_ID, Quiz.Quiz_Category, Q.QuestionText, Q.QuestionType, Q.QuestionMarks, P.Photo_URL FROM Question Q INNER JOIN Quiz ON Q.Quiz_ID = Quiz.Quiz_ID INNER JOIN Photos P ON P.Quiz_ID = Quiz.Quiz_ID WHERE Q.Quiz_ID ={0}";
+        List<QuizViewModelForManagement> lstQuiz = DBUtl.GetList<QuizViewModelForManagement>(quizSql, id);
+        ViewData["Tissue_Info"] = GetListTissue();
+        if (lstQuiz.Count == 1)
+        {
+
+            QuizViewModelForManagement quiz = lstQuiz[0];
+
+            return View(quiz);
+        }
+        else
+        {
+            TempData["Message"] = "Quiz record does not exist";
+            TempData["MsgType"] = "danger";
+            return RedirectToAction("Management");
+        }
+    }
+    [HttpPost]
+    public IActionResult UpdateQuiz(QuizViewModelForManagement model)
+    {
+
+
+        if (!ModelState.IsValid)
+        {
+            foreach (var state in ModelState)
+            {
+                Console.WriteLine($"{state.Key} :: {string.Join(", ", state.Value.Errors.Select(e => e.ErrorMessage))}");
+            }
+
+            TempData["Message"] = "Please correct the errors.";
+            TempData["MsgType"] = "danger";
+            return View("UpdateQuiz", model);
+        }
+
+        string updateQuiz = @"UPDATE Quiz SET Quiz_Category = '{1}' WHERE Quiz_ID = {0}";
+        int quizResult = DBUtl.ExecSQL(updateQuiz, model.Question_ID, model.Quiz_Category);
+        if (quizResult == 1)
+        {
+            string queryPhotoUrl = @"SELECT Photo_URL FROM Question WHERE Question_ID = {0}";
+            if (model.Photo_URL == "No Picture Inserted")
+            {
+                string updatePhoto = @"UPDATE Photos SET Photo_URL = '{1}'  WHERE Quiz_ID = {0}";
+                int photoResult = DBUtl.ExecSQL(updatePhoto, model.Question_ID, model.Photo_URL);
+
+            }
+            else
+            {
+                string photoUrlSql = @"SELECT Photo_URL FROM Photos WHERE Quiz_ID = {0}";
+                string photoUrl = Convert.ToString(DBUtl.GetValue(photoUrlSql, model.Question_ID));
+
+                if (model.Photo_URL == null)
+                {
+
+                    TempData["Message"] = "Please delete the ones with the null url";
+                    TempData["MsgType"] = "danger";
+                }
+                else
+                {
+                    string fullpath = Path.Combine(_env.WebRootPath, "images", model.Quiz_Category, model.Photo_URL).Replace("\\", "/");
+                    System.IO.File.Delete(fullpath);
+                    string picfilename = DoPhotoUpload(model.Photo, model.Quiz_Category);
+                    string updatePhoto = @"UPDATE Photos SET Photo_URL = '{1}'  WHERE Quiz_ID = {0}";
+                    int photoResult = DBUtl.ExecSQL(updatePhoto, model.Question_ID, picfilename);
+                }
+
+            }
+            string updateQuestion = @"UPDATE Question SET QuestionText = '{1}', QuestionType = '{2}' WHERE Question_ID = {0}";
+            int questionResult = DBUtl.ExecSQL(updateQuestion, model.Question_ID, model.QuestionText, model.QuestionType);
+            if (questionResult == 1)
+            {
+                TempData["Message"] = "Question Updated";
+                TempData["MsgType"] = "success";
+            }
+            else
+            {
+                TempData["Message"] = DBUtl.DB_Message;
+                TempData["MsgType"] = "danger";
+            }
+
+        }
+        else
+        {
+            TempData["Message"] = DBUtl.DB_Message;
+            TempData["MsgType"] = "danger";
+        }
+
+
+        return RedirectToAction("Management");
+    }
+
+    [HttpGet]
     public IActionResult TakeQuiz(string quizCategory)
     {
         int userId = 1; // Replace with the logged-in user's ID
