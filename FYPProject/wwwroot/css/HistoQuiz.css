@@ -1,0 +1,92 @@
+﻿body {
+    font-family: 'Raleway', sans-serif;
+    background-image: url('/images/f5-testes-thumbnail.png');
+    margin-top: 70px;
+}
+
+.big-card {
+    margin: 20px auto;
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 10px;
+}
+
+.card {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+    cursor: pointer;
+    border-radius: 10px;
+}
+
+    .card:hover {
+        transform: scale(1.05);
+    }
+
+.card-title {
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.card-text {
+    color: #555;
+    font-size: 14px;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+    transition: background-color 0.3s;
+}
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+
+
+.card img {
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    height: 200px;
+    object-fit: cover;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.card-title {
+    color: #1ABC9C;
+    font-weight: 700;
+}
+
+.card-text {
+    color: #2C3E50;
+}
+
+.stats-card {
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+    .stats-card h3 {
+        font-size: 2rem;
+        margin-bottom: 10px;
+    }
+
+.stats-icon {
+    font-size: 2rem;
+}
+
+.table-header {
+    background-color: #1ABC9C;
+    color: #ffffff;
+    text-align: center;
+}
+
+#errorMsg {
+    color: #E74C3C;
+    font-weight: bold;
+}
