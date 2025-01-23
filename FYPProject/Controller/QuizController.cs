@@ -529,6 +529,49 @@ public class QuizController : Controller
         return RedirectToAction("Management");
     }
 
+    public IActionResult DeleteAnswer(int id)
+    {
+        string sql = @"SELECT * FROM Answer WHERE Answer_ID = {0}";
+        DataTable ds = DBUtl.GetTable(sql, id);
+        if (ds.Rows.Count != 1)
+        {
+            TempData["Message"] = "Answer Record does not exist";
+            TempData["MsgType"] = "warning";
+        }
+        else
+        {
+
+            string questionidsql = @"SELECT Question_ID FROM Answer WHERE Answer_ID = {0}";
+            int questionid = Convert.ToInt32(DBUtl.GetValue(questionidsql, id));
+            string getQuestionMarksSql = @"SELECT QuestionMarks FROM Question WHERE Question_ID = {0}";
+            double questionMarks = Convert.ToDouble(DBUtl.GetValue(getQuestionMarksSql, questionid));
+            string answermarkssql = @"SELECT AnswerMarks FROM Answer WHERE Answer_ID = {0}";
+            double answermarks = Convert.ToDouble(DBUtl.GetValue(answermarkssql, id));
+            questionMarks = questionMarks - answermarks;
+            string updateQuestionMarksSql = @"UPDATE Question SET QuestionMarks = {1} WHERE Question_ID = {0}";
+            int result = DBUtl.ExecSQL(updateQuestionMarksSql, questionid, questionMarks);
+
+
+            if (result == 1)
+            {
+                sql = @"DELETE FROM Answer WHERE Answer_ID = {0}";
+                result = DBUtl.ExecSQL(sql, id);
+                if (result == 1)
+                {
+                    TempData["Message"] = "Answer Deleted Successfully";
+                    TempData["MsgType"] = "success";
+                }
+                else
+                {
+                    TempData["Message"] = DBUtl.DB_Message;
+                    TempData["ExecSQL"] = DBUtl.DB_SQL;
+                    TempData["MsgType"] = "danger";
+                }
+            }
+        }
+        return RedirectToAction("Management");
+    }
+
     [HttpGet]
     public IActionResult TakeQuiz(string quizCategory)
     {
