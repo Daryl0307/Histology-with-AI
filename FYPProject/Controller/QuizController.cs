@@ -126,6 +126,107 @@ public class QuizController : Controller
         return View(groupedQuizzes);
 
     }
+
+    public IActionResult AddQuiz()
+    {
+        var model = new QuizViewModel
+        {
+            Quiz = new Quiz(),
+            Question = new Question(),
+            Answer = new List<Answer> { new Answer(), new Answer() }
+        };
+        ViewData["Tissue_Info"] = GetListTissue();
+        return View(model);
+    }
+
+    [HttpPost]
+    public IActionResult AddQuiz(QuizViewModel model)
+    {
+        ModelState.Remove("Photo");
+        if (!ModelState.IsValid)
+        {
+            foreach (var state in ModelState)
+            {
+                Console.WriteLine($"{state.Key} :: {string.Join(", ", state.Value.Errors.Select(e => e.ErrorMessage))}");
+            }
+
+            TempData["Message"] = "Please correct the errors.";
+            TempData["MsgType"] = "danger";
+            return View("AddQuiz", model);
+        }
+        else
+        {
+
+            string insertQuiz = @"INSERT INTO Quiz(Quiz_Category) OUTPUT INSERTED.Quiz_ID VALUES('{0}')";
+            int newQuizId = DBUtl.ExecSQLReturnId(insertQuiz, model.Quiz.QuizCategory);
+
+
+            if (newQuizId >= 1)
+            {
+                if (model.Photo != null && model.Photo.PhotoFile != null)
+                {
+                    string picfilename = DoPhotoUpload(model.Photo.PhotoFile, model.Quiz.QuizCategory);
+                    string insertPhoto = @"INSERT INTO Photos (Photo_URL, Quiz_ID) VALUES ('{0}', {1})";
+                    int result = DBUtl.ExecSQL(insertPhoto, picfilename, newQuizId);
+                }
+                else
+                {
+                    string picfilename = "No Picture Inserted";
+                    string insertPhoto = @"INSERT INTO Photos (Photo_URL, Quiz_ID) VALUES ('{0}', {1})";
+                    int result = DBUtl.ExecSQL(insertPhoto, picfilename, newQuizId);
+                }
+
+
+
+
+                model.Question.QuizId = newQuizId;
+                string insertQuestion = @"INSERT INTO Question(Quiz_ID, QuestionText, QuestionMarks, QuestionType) OUTPUT INSERTED.Question_ID VALUES('{0}', '{1}', '{2}', '{3}')";
+                int newQuestionId = DBUtl.ExecSQLReturnId(insertQuestion, model.Question.QuizId, model.Question.QuestionText, model.Question.QuestionMark, model.Question.QuestionType);
+
+                if (newQuestionId >= 1)
+                {
+
+                    foreach (var answer in model.Answer)
+                    {
+                        answer.QuestionId = newQuestionId;
+                        string insertAnswer = @"INSERT INTO Answer(Question_ID, AnswerText, Is_Correct, AnswerMarks) VALUES({0}, '{1}', {2}, {3})";
+                        int resultAnswer = DBUtl.ExecSQL(insertAnswer, answer.QuestionId, answer.AnswerText, answer.Is_Correct ? 1 : 0, answer.Marks);
+
+                        if (resultAnswer <= 1)
+                        {
+                            TempData["Message"] = DBUtl.DB_Message;
+                            TempData["MsgType"] = "danger";
+
+                        }
+                        else
+                        {
+                            TempData["Message"] = "Quiz created successfully!";
+                            TempData["MsgType"] = "success";
+                        }
+                    }
+
+
+                }
+                else
+                {
+                    TempData["Message"] = DBUtl.DB_Message;
+                    TempData["MsgType"] = "danger";
+                }
+
+
+            }
+            else
+            {
+                TempData["Message"] = DBUtl.DB_Message;
+                TempData["MsgType"] = "danger";
+            }
+
+            return RedirectToAction("Management");
+        }
+
+
+    }
+
     [HttpGet]
     public IActionResult TakeQuiz(string quizCategory)
     {
@@ -442,6 +543,7 @@ public class QuizController : Controller
 
         return RedirectToAction("HistoQuiz");
     }
+
     private static SelectList GetListTissue()
     {
         //string tissueSql = @"SELECT LTRIM(CONVERT(Tissue_ID, CHAR)) as Value, Tissue_Name as Text FROM Tissue_Info;";
