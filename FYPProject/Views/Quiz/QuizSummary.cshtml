@@ -1,0 +1,41 @@
+﻿@using FYPProject.Model;
+@model IEnumerable<QuizSummaryResponse>
+<link href="~/css/HistoQuiz.css" rel="stylesheet" />
+
+@if (TempData["Message"] != null)
+{
+    <div class="tempdata-popup @TempData["MsgType"]">
+        <div class="alert alert-@TempData["MsgType"]">
+            @TempData["Message"]
+            <button type="button" class="btn-close" onclick="closePopup();">&times;</button>
+        </div>
+    </div>
+}
+@await Html.PartialAsync("navbar")
+
+<div class="big-card">
+    <table class="table">
+        <thead class="table-header">
+            <tr>
+                <th>Question</th>
+                <th>Answer</th>
+                <th>Correct</th>
+                <th>Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var response in Model)
+            {
+                <tr>
+                    <td>@response.QuestionText</td>
+                    <td>@response.AnswerText</td>
+                    <td>@response.IsCorrect</td>
+                    <td>@response.Score</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<p class="card-text">Total Score: <span class="stats-card">@ViewBag.TotalScore</span></p>
+<a class="btn btn-primary" asp-controller="Quiz" asp-action="Quit">Back to quiz</a>
