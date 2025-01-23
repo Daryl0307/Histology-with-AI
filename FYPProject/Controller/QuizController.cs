@@ -215,6 +215,108 @@ public class QuizController : Controller
 
         return RedirectToAction("NextQuestion", new { quizCategory = model.QuizCategory, questionId = model.QuestionId });
     }
+
+    public IActionResult NextQuestion(string quizCategory)
+    {
+        int userId = 1; // Replace with the logged-in user's ID
+
+        string questionWithAnswersSql = @"
+            SELECT 
+                q.Question_ID AS 'QuestionId', q.QuestionText, q.QuestionType, q.QuestionMarks AS 'QuestionMark', 
+                q.Quiz_ID AS 'QuizId', Quiz.Quiz_Category AS 'QuizCategory', 
+                a.Answer_ID AS 'AnswerId', a.AnswerText, a.Is_Correct, a.AnswerMarks AS 'Marks', P.Photo_URL AS 'Photo_Url'
+            FROM 
+                Question q
+            INNER JOIN 
+                Quiz ON q.Quiz_ID = Quiz.Quiz_ID
+            INNER JOIN
+                Photos P ON P.Quiz_ID = q.Quiz_ID
+            LEFT JOIN 
+                Answer a ON q.Question_ID = a.Question_ID
+            WHERE 
+                Quiz.Quiz_Category = '{0}' AND 
+                q.Question_ID NOT IN (SELECT Question_Id FROM UserAnsweredQuestions WHERE User_Id = {1})
+            ORDER BY 
+                NEWID();"; // Randomize the next question
+
+        var rawResults = DBUtl.GetTable(questionWithAnswersSql, quizCategory, userId);
+
+        if (rawResults.Rows.Count > 0)
+        {
+            var currentQuestionId = rawResults.Rows[0].Field<int>("QuestionId");
+            string insertAnsweredQuestionSql = @"
+        INSERT INTO UserAnsweredQuestions (User_Id, Question_Id, QuizCategory) 
+        VALUES ({0}, {1}, '{2}')";
+
+            int rowsAffected = DBUtl.ExecSQL(insertAnsweredQuestionSql, userId, currentQuestionId, quizCategory);
+
+            if (rowsAffected == 1)
+            {
+                var groupedData = rawResults.AsEnumerable()
+                    .GroupBy(row => new
+                    {
+                        QuestionId = row.Field<int>("QuestionId"),
+                        QuestionText = row.Field<string>("QuestionText"),
+                        QuestionType = row.Field<string>("QuestionType"),
+                        QuestionMark = row.Field<double>("QuestionMark"),
+                        QuizId = row.Field<int>("QuizId"),
+                        QuizCategory = row.Field<string>("QuizCategory"),
+                        Photo_Url = row.Field<string>("Photo_Url")
+                    });
+
+                var nextQuestionGroup = groupedData.FirstOrDefault();
+                if (nextQuestionGroup != null)
+                {
+                    var questionKey = nextQuestionGroup.Key;
+
+                    var quizViewModel = new QuizViewModel
+                    {
+                        Quiz = new Quiz
+                        {
+                            QuizCategory = questionKey.QuizCategory
+                        },
+                        Question = new Question
+                        {
+                            QuestionId = questionKey.QuestionId,
+                            QuestionText = questionKey.QuestionText,
+                            QuestionType = questionKey.QuestionType,
+                            QuestionMark = questionKey.QuestionMark,
+                            QuizId = questionKey.QuizId
+                        },
+                        Photo = new Photo
+                        {
+                            PhotoUrl = questionKey.Photo_Url
+                        },
+                        Answer = nextQuestionGroup.Select(row => new Answer
+                        {
+                            AnswerId = row.Field<int?>("AnswerId") ?? 0,
+                            QuestionId = questionKey.QuestionId,
+                            AnswerText = row.Field<string>("AnswerText"),
+                            Is_Correct = row.Field<bool?>("Is_Correct") ?? false,
+                            Marks = row.Field<double?>("Marks") ?? 0
+                        }).ToList()
+                    };
+
+                    return View("TakeQuiz", quizViewModel);
+                }
+            }
+            else
+            {
+                TempData["Message"] = $"Error saving answered question (ID: {currentQuestionId}). Please try again.";
+                TempData["MsgType"] = "danger";
+                return RedirectToAction("HistoQuiz");
+            }
+        }
+        else
+        {
+            TempData["Message"] = "You have completed this quiz or no more questions are available.";
+            TempData["MsgType"] = "info";
+            return RedirectToAction("QuizSummary", new { quizCategory });
+        }
+
+        return View(); // Default view if no data
+    }
+
     private static SelectList GetListTissue()
     {
         //string tissueSql = @"SELECT LTRIM(CONVERT(Tissue_ID, CHAR)) as Value, Tissue_Name as Text FROM Tissue_Info;";
