@@ -46,6 +46,22 @@ public class QuizController : Controller
         ViewData["Tissue_Info"] = GetListTissue();
         return View(viewModel);
     }
+
+    public IActionResult AnswerList(int id)
+    {
+
+        List<Answer> answerList = DBUtl.GetList<Answer>("SELECT Answer_ID AS 'AnswerId', Question_ID AS 'QuestionId' , AnswerText, CAST(Is_Correct AS BIT) AS 'Is_Correct', AnswerMarks AS 'Marks' FROM Answer WHERE Question_ID =  {0}", id);
+        if (answerList == null || answerList.Count == 0)
+        {
+            TempData["Message"] = "No data found. Please check your query.";
+            TempData["MsgType"] = "danger";
+            return View();
+        }
+        ViewBag.QuestionId = answerList[0].QuestionId;
+
+        return View(answerList);
+    }
+
     [HttpGet]
     public IActionResult TakeQuiz(string quizCategory)
     {
