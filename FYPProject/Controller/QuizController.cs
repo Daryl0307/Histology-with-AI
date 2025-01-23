@@ -9,15 +9,7 @@ namespace FYPProject.Controllers;
 
 public class QuizController : Controller
 {
-    public IActionResult Main()
-    {
-
-        return View();
-    }
-    public IActionResult Management()
-    {
-        return View();
-    }
+    
     private readonly IWebHostEnvironment _env;
 
 
@@ -61,7 +53,79 @@ public class QuizController : Controller
 
         return View(answerList);
     }
+    public IActionResult Management()
+    {
+        string query = @"
+        SELECT 
+            Q.Question_ID, 
+            Quiz.Quiz_Category, 
+            Q.QuestionText, 
+            Q.QuestionType, 
+            Q.QuestionMarks, 
+            P.Photo_URL,
+            A.AnswerText,
+            A.Is_Correct,
+            A.AnswerMarks
+        FROM 
+            Question Q
+        INNER JOIN 
+            Quiz ON Q.Quiz_ID = Quiz.Quiz_ID
+        INNER JOIN 
+            Photos P ON P.Quiz_ID = Quiz.Quiz_ID
+        LEFT JOIN 
+            Answer A ON A.Question_ID = Q.Question_ID
+        ORDER BY 
+            Q.Question_ID, A.AnswerText";
 
+        var data = DBUtl.GetTable(query);
+
+        if (data.Rows.Count == 0)
+        {
+            TempData["Message"] = "No data found. Please check your query.";
+            TempData["MsgType"] = "danger";
+            return View();
+        }
+
+        // Group answers by Question_ID
+        var groupedQuizzes = data.AsEnumerable()
+            .GroupBy(row => Convert.ToInt32(row["Question_ID"])) // Explicitly convert group.Key
+            .Select(group =>
+            {
+                var quiz = new QuizViewModel
+                {
+                    Question = new Question
+                    {
+                        QuestionId = group.Key, // Explicitly converted group.Key
+                        QuestionText = group.First()["QuestionText"].ToString(),
+                        QuestionType = group.First()["QuestionType"].ToString(),
+                        QuestionMark = Convert.ToDouble(group.First()["QuestionMarks"])
+                    },
+                    Quiz = new Quiz
+                    {
+                        QuizCategory = group.First()["Quiz_Category"].ToString(),
+                    },
+
+                    Photo = new Photo
+                    {
+                        PhotoUrl = group.First()["Photo_URL"].ToString()
+                    },
+                    Answer = group.Select(row => new Answer
+                    {
+                        AnswerText = row["AnswerText"].ToString(),
+                        Is_Correct = row["Is_Correct"] != DBNull.Value && Convert.ToBoolean(row["Is_Correct"]),
+                        Marks = row["AnswerMarks"] == DBNull.Value ? 0 : Convert.ToDouble(row["AnswerMarks"])
+                    }).ToList()
+                };
+                return quiz;
+            })
+            .ToList();
+        ViewData["tissue_info"] = GetListTissue();
+        string totalAttemptssql = @"SELECT COUNT(*) FROM Quiz_Statistics";
+        int totalAttempts = Convert.ToInt32(DBUtl.GetValue(totalAttemptssql));
+        ViewBag.TotalAttempts = totalAttempts;
+        return View(groupedQuizzes);
+
+    }
     [HttpGet]
     public IActionResult TakeQuiz(string quizCategory)
     {
