@@ -1,251 +1,189 @@
-﻿@model FYPProject.Model.QuizViewModel
+﻿@model List<QuizViewModel>
+
+@section MoreScripts {
+    <link href="~/lib/datatables/css/jquery.dataTables.min.css" rel="stylesheet" />
+    <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#jsTable').DataTable({
+                paging: true,
+                ordering: true,
+                info: true,
+                lengthChange: true,
+                pageLength: 5,
+                stateSave: true,
+                lengthMenu: [[5, 7, -1], [5, 7, "All"]]
+            });
+        });
+    </script>
+}
+@if (TempData["Message"] != null)
+{
+    <div class="tempdata-popup @TempData["MsgType"]">
+        <div class="alert alert-@TempData["MsgType"]">
+            @TempData["Message"]
+            <button type="button" class="btn-close" onclick="closePopup();">&times;</button>
+        </div>
+    </div>
+
+    <script>
+        function closePopup() {
+            $('.tempdata-popup').removeClass('active');
+        }
+
+        $(document).ready(function () {
+            $('.tempdata-popup').addClass('active');
+            // Auto-close popup after 3 setTimeout(function () {closePopup();}, 3000);
+        });
+    </script>
+}
+
 
 
 <head>
     <meta charset="UTF-8">
-    <link href="~/css/AddQuiz.css" rel="stylesheet" />
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Quiz</title>
+    <title>Quizzes Management</title>
+    <link rel="icon" type="image/png" href="icon.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="~/css/QuizManagement.css" rel="stylesheet" />
 </head>
 <body>
     @await Html.PartialAsync("navbar")
-    <form id="quiz-form" asp-controller="Quiz" asp-action="AddQuiz" method="post" enctype="multipart/form-data">
-        <input type="hidden" asp-for="Quiz.QuizId" />
-        <input type="hidden" asp-for="Question.QuestionId" />
-        <label asp-for="Quiz.QuizCategory">Category:</label>
-        <select asp-for="Quiz.QuizCategory" id="QuizCategory" name="Quiz.QuizCategory" required>
-            @foreach (var item in (SelectList)ViewData["Tissue_Info"]!)
-            {
-                <option value="@item.Text">@item.Text</option>
-            }
-        </select>
-        <span asp-validation-for="Quiz.QuizCategory" class="text-danger"></span>
+    <div class="container mt-5">
+        <div class="card big-card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+                    <h1 style="font-weight:400">Quizzes</h1>
+                    <a class="btn btn-add-quiz" asp-controller="Quiz" asp-action="AddQuiz" role="button"><i class="fas fa-plus"></i> Add Quiz</a>
+                </div>
 
-        <label asp-for="Question.QuestionText">Question:</label>
-        <input asp-for="Question.QuestionText" type="text" id="QuestionText" name="Question.QuestionText" required>
+                <div class="stats-group mb-4">
+                    <div>
+                        <h3 id="quizzesAvailable" style="color: #FF5662;"> @(Model != null ? Model.GroupBy(m => m.Quiz.QuizCategory!).Count() : 0)</h3>
+                        <p>Quizzes Available</p>
+                        <i class="fas fa-edit fa-2x" style="color: #FF5662;"></i>
+                    </div>
+                    <div>
+                        <h3 id="quizzesCompleted" style="color: #00D207;">@ViewBag.TotalAttempts</h3>
+                        <p>Quiz Attempts</p>
+                        <i class="fas fa-check-circle fa-2x" style="color: #00D207;"></i>
+                    </div>
+                    <div>
+                        <h3 id="passPercentage" class="text-primary">0%</h3>
+                        <p>Passing Rate</p>
+                        <i class="fas fa-book fa-2x text-primary"></i>
+                    </div>
+                </div>
 
-        <label asp-for="Question.QuestionType">QuestionType:</label>
-        <select asp-for="Question.QuestionType" id="QuestionType" name="Question.QuestionType" required>
-            <option value="">Select a question type</option>
-            <option value="Multiple Choice (Radio)">Multiple Choice (Radio)</option>
-            <option value="Multiple Choice (Checkbox)">Multiple Choice (Checkbox)</option>
-            <option value="Multiple Choice (Dropdown)">Multiple Choice (Dropdown)</option>
-        </select>
-        <label for="Answers">Number of Answers:</label>
-        <select id="Answers" name="Answers" onchange="updateAnswers()">
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-        </select>
-
-
-        <div id="answers-container">
-        </div>
-
-        <label asp-for="Photo.PhotoFile">Picture:</label>
-        <img id="image-preview" alt="Image Preview" style="display:none; max-width:200px; max-height:200px;">
-        <input asp-for="Photo.PhotoFile" type="file" id="PhotoFile" name="Photo.PhotoFile">
-        <button type="button" id="remove-photo" style="display:none;">Remove</button>
-        <span asp-validation-for="Photo.PhotoFile" class="text-danger"></span>
-
-        <div id="total-marks-container">
-            <strong>Total Marks: </strong><span id="question-marks">0</span>
-            <input type="hidden" asp-for="Question.QuestionMark" id="QuestionMark" name="Question.QuestionMark" value="0" />
-        </div>
-
-        <button type="submit">Submit</button>
-    </form>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const form = document.getElementById('quiz-form');
-            const numAnswersSelect = document.getElementById('Answers');
-            const answersContainer = document.getElementById('answers-container');
-            const questionTypeSelect = document.getElementById('QuestionType');
-            const totalMarksDisplay = document.getElementById('question-marks');
-            const questionMarkInput = document.getElementById('QuestionMark');
-            const photoInput = document.getElementById('PhotoFile');
-            const imagePreview = document.getElementById('image-preview');
-            const removePhotoButton = document.getElementById('remove-photo');
-
-            // Show the preview of the uploaded image
-            photoInput.addEventListener('change', function () {
-                const file = this.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        imagePreview.src = e.target.result;
-                        imagePreview.style.display = 'block';
-                        removePhotoButton.style.display = 'inline';
-                    };
-                    reader.readAsDataURL(file);
-                } else {
-                    resetImagePreview();
-                }
-            });
-
-            // Remove the uploaded image
-            removePhotoButton.addEventListener('click', function () {
-                resetImagePreview();
-            });
-
-            function resetImagePreview() {
-                photoInput.value = ''; // Clear the file input
-                imagePreview.src = '';
-                imagePreview.style.display = 'none';
-                removePhotoButton.style.display = 'none';
-            }
-            // Function to reset fields
-            function resetFields() {
-                // Clear answer fields but retain the selected number of answers
-                const currentAnswerCount = parseInt(numAnswersSelect.value);
-                answersContainer.innerHTML = '';
-
-                // Reset total marks display and hidden input
-                totalMarksDisplay.textContent = '0';
-                questionMarkInput.value = '0';
-
-                // Regenerate the answer fields with the same count
-                generateAnswerFields(currentAnswerCount);
-            }
-
-            // Function to validate the selection of correct answers
-            function validateCorrectAnswers() {
-                const correctCheckboxes = answersContainer.querySelectorAll('input[type="checkbox"]');
-                let maxCorrect = getMaxCorrectAnswers();
-
-                correctCheckboxes.forEach(checkbox => {
-                    checkbox.addEventListener('change', function () {
-                        const selectedCorrect = Array.from(correctCheckboxes).filter(cb => cb.checked).length;
-
-                        if (selectedCorrect > maxCorrect) {
-                            alert(`You can only select up to ${maxCorrect} correct answer(s).`);
-                            this.checked = false;
-                            hideMarksInput(this);
-                        } else {
-                            updateMarksVisibility(this);
+                <div class="manage-section">
+                    <h1 style="font-weight:400">Manage Quizzes</h1>
+                    <select class="form-select w-auto" id="idQuizCategoryChooser">
+                        <option value="">Select Quiz Category</option>
+                        @if ((SelectList)ViewData["Tissue_Info"] == null)
+                        {
+                            <option value=""></option>
+                        }
+                        else
+                        {
+                            @foreach (var item in (SelectList)ViewData["Tissue_Info"]!)
+                            {
+                                <option value="@item.Text">@item.Text</option>
+                            }
                         }
 
-                        if (maxCorrect === 1 && this.checked) {
-                            correctCheckboxes.forEach(cb => {
-                                if (cb !== this) {
-                                    cb.checked = false; // Deselect others
-                                    hideMarksInput(cb);
+                    </select>
+
+
+                </div>
+
+                <div class="table-responsive">
+                    <table id="jsTable" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">Category</th>
+                                <th scope="col">Question</th>
+                                <th scope="col">Type</th>
+                                <th scope="col">Marks</th>
+                                <th scope="col">Answers</th>
+                                <th scope="col">Picture</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Any())
+                            {
+                                foreach (var quizViewModel in Model)
+                                {
+                                    <tr data-category="@quizViewModel.Quiz.QuizCategory">
+                                        <td>@quizViewModel.Quiz.QuizCategory</td>
+                                        <td>@quizViewModel.Question.QuestionText</td>
+                                        <td>@quizViewModel.Question.QuestionType</td>
+                                        <td>@quizViewModel.Question.QuestionMark</td>
+                                        <td>
+                                            <a asp-controller="Quiz" asp-action="AnswerList" asp-route-id="@quizViewModel.Question.QuestionId">Answers</a>
+                                        </td>
+                                        <td>
+                                            <a>
+                                                @if (quizViewModel.Photo.PhotoUrl == "No Picture Inserted")
+                                                {
+                                                    <p>@quizViewModel.Photo.PhotoUrl</p>
+                                                }
+                                                else
+                                                {
+                                                    <img src="@Url.Content("~/images/" + quizViewModel.Quiz.QuizCategory + "/" + quizViewModel.Photo.PhotoUrl)"
+                                                         width="150" height="90"
+                                                         class="pull-left" style="padding-right: 5px;" />
+                                                }
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a asp-controller="Quiz" asp-action="UpdateQuiz" asp-route-id="@quizViewModel.Question.QuestionId" title="Edit">
+                                                <i class="fas fa-pencil-alt"></i>
+                                            </a>
+                                            <span>|</span>
+                                            <a asp-controller="Quiz" asp-action="DeleteQuiz" asp-route-id="@quizViewModel.Question.QuestionId"
+                                               title="Delete" onclick="return confirm('Are you sure you want to delete this quiz?');">
+                                                <i class="fas fa-trash text-danger"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
                                 }
-                            });
-                        }
-                    });
-                });
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="7" class="text-center">No quizzes available.</td>
+                                </tr>
+                            }
 
-                form.addEventListener('submit', function (e) {
-                    const correctAnswers = answersContainer.querySelectorAll('input[type="checkbox"]:checked');
-                    let hasError = false;
+                        </tbody>
+                    </table>
+                </div>
 
-                    correctAnswers.forEach(checkbox => {
-                        const marksInput = checkbox.closest('div').querySelector('.marks-input');
-                        if (marksInput && marksInput.value <= 0) {
-                            alert('You must provide marks greater than 0 for each correct answer.');
-                            hasError = true;
-                            e.preventDefault();
-                            return;
-                        }
-                    });
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            $('#idQuizCategoryChooser').on('change', function () {
+                var selectedCategory = $(this).val().toLowerCase(); // Normalize case for comparison
 
-                    if (!hasError && correctAnswers.length === 0) {
-                        alert('You must select at least one correct answer.');
-                        e.preventDefault();
+                $('#jsTable tbody tr').each(function () {
+                    var rowCategory = $(this).data('category') ? $(this).data('category').toLowerCase() : ''; // Normalize row category
+
+                    if (!selectedCategory || rowCategory === selectedCategory) {
+                        $(this).show(); // Show matching rows
+                    } else {
+                        $(this).hide(); // Hide non-matching rows
                     }
                 });
-            }
-
-            function getMaxCorrectAnswers() {
-                const questionType = questionTypeSelect.value;
-                if (questionType === "Multiple Choice (Radio)" || questionType === "Multiple Choice (Dropdown)") {
-                    return 1; // Only one correct answer allowed
-                }
-                return parseInt(numAnswersSelect.value) - 1; // Default for checkboxes
-            }
-
-            function hideMarksInput(checkbox) {
-                const marksLabel = checkbox.closest('div').querySelector('.marks-label');
-                const marksInput = checkbox.closest('div').querySelector('.marks-input');
-
-                if (marksLabel && marksInput) {
-                    marksLabel.style.display = 'none';
-                    marksInput.style.display = 'none';
-                }
-            }
-
-            function updateMarksVisibility(checkbox) {
-                const marksLabel = checkbox.closest('div').querySelector('.marks-label');
-                const marksInput = checkbox.closest('div').querySelector('.marks-input');
-
-                if (checkbox.checked) {
-                    marksLabel.style.display = 'inline';
-                    marksInput.style.display = 'inline';
-                } else {
-                    hideMarksInput(checkbox);
-                }
-            }
-
-            function generateAnswerFields(count) {
-                answersContainer.innerHTML = '';
-                let totalMarks = 0;
-
-                for (let i = 0; i < count; i++) {
-                    const answerDiv = document.createElement('div');
-                    answerDiv.classList.add('Answer');
-                    answerDiv.innerHTML = `
-                                    <label asp-for="Answer_${i}_AnswerText">Answer:</label>
-                                    <input type="text" id="Answer_${i}_AnswerText" asp-for="Answer${i}.AnswerText" name="Answer[${i}].AnswerText" required>
-                                    <span asp-validation-for="Answer_${i}_AnswerText" class="text-danger"></span>
-
-                                    <label asp-for="Answer_${i}_IsCorrect">
-                                        <input type="checkbox" id="Answer_${i}_Is_Correct" asp-for="Answer${i}.Is_Correct" name="Answer[${i}].Is_Correct" value="true">
-                                        Correct Answer
-                                    </label>
-                                    <span asp-validation-for="Answer_${i}_IsCorrect" class="text-danger"></span>
-
-                                    <label asp-for="Answer_${i}_Marks" class="marks-label">Marks:</label>
-                                    <input type="number" id="Answer_${i}_Marks" asp-for="Answer${i}.Marks" name="Answer[${i}].Marks" min="0" step="0.5" value="0" class="marks-input">
-                                    <span asp-validation-for="Answer_${i}_Marks" class="text-danger"></span>
-                                `;
-                    answersContainer.appendChild(answerDiv);
-
-                    const checkbox = answerDiv.querySelector(`#Answer_${i}_Is_Correct`);
-                    const marksInput = answerDiv.querySelector('.marks-input');
-
-                    updateMarksVisibility(checkbox);
-
-                    marksInput.addEventListener('input', function () {
-                        this.value = this.value || 0; // Default to 0 if empty
-                        totalMarks = Array.from(answersContainer.querySelectorAll('.marks-input'))
-                            .map(input => parseFloat(input.value) || 0)
-                            .reduce((sum, value) => sum + value, 0);
-
-                        totalMarksDisplay.textContent = totalMarks.toFixed(1);
-                        questionMarkInput.value = totalMarks.toFixed(1); // Update hidden input
-                    });
-                }
-
-                validateCorrectAnswers();
-            }
-
-            // Event handlers
-            const initialNumAnswers = parseInt(numAnswersSelect.value);
-            generateAnswerFields(initialNumAnswers);
-
-            numAnswersSelect.addEventListener('change', function () {
-                generateAnswerFields(parseInt(this.value));
-            });
-
-            questionTypeSelect.addEventListener('change', function () {
-                resetFields();
             });
         });
+
     </script>
 
-
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
