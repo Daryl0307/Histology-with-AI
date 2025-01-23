@@ -316,7 +316,52 @@ public class QuizController : Controller
 
         return View(); // Default view if no data
     }
+    public IActionResult QuizSummary(string quizCategory)
+    {
+        // Fetch responses for the quiz
+        string summarySql = @"
+    SELECT q.QuestionText, a.AnswerText, CAST(r.Is_Correct AS BIT) AS'IsCorrect', Score
+    FROM Quiz_Responses r
+    INNER JOIN Question q ON r.Question_ID = q.Question_ID
+    INNER JOIN Answer a ON r.Answer_ID = a.Answer_ID
+    WHERE r.Quiz_Category = '{0}'";
 
+        var responses = DBUtl.GetList<QuizSummaryResponse>(summarySql, quizCategory);
+
+        if (responses.Count == 0)
+        {
+            TempData["Message"] = "No responses found for this quiz.";
+            TempData["MsgType"] = "danger";
+            return RedirectToAction("HistoQuiz");
+        }
+
+        double totalScore = responses.Sum(r => r.Score);
+        ViewBag.TotalScore = totalScore;
+
+        int userid = 1;
+
+        string checkAttemptsSql = @"SELECT COUNT(*) FROM Quiz_Statistics WHERE User_Id = {0} and Quiz_Category = '{1}'";
+        int checkAttempts = Convert.ToInt32(DBUtl.GetValue(checkAttemptsSql, userid, quizCategory));
+
+        checkAttempts = checkAttempts + 1;
+        string insertSql = @"
+        INSERT INTO Quiz_Statistics (User_ID, Quiz_Category, Date_Attempted, Score)
+        VALUES ({0}, '{1}', GETDATE(), {2})";
+        int result = DBUtl.ExecSQL(insertSql, userid, quizCategory, totalScore);
+
+
+
+        return View(responses);
+    }
+    public IActionResult Quit()
+    {
+        string deleteResponsesql = @"DELETE FROM Quiz_Responses";
+        int resultResponse = DBUtl.ExecSQL(deleteResponsesql);
+        string deleteSavedQuestionId = @"DELETE FROM UserAnsweredQuestions";
+        int resultDeleteSaved = DBUtl.ExecSQL(deleteSavedQuestionId);
+
+        return RedirectToAction("HistoQuiz");
+    }
     private static SelectList GetListTissue()
     {
         //string tissueSql = @"SELECT LTRIM(CONVERT(Tissue_ID, CHAR)) as Value, Tissue_Name as Text FROM Tissue_Info;";
