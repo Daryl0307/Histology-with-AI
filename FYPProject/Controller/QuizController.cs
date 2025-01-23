@@ -227,6 +227,84 @@ public class QuizController : Controller
 
     }
 
+    public IActionResult AddAnswer(int id)
+    {
+        string questionsql = @"SELECT * FROM Question WHERE Question_ID = {0}";
+        int result = DBUtl.ExecSQL(questionsql, id);
+        ViewBag.QuestionId = id;
+        if (result == 0)
+        {
+            TempData["Message"] = "Answer record does not exist";
+            TempData["MsgType"] = "danger";
+            return RedirectToAction("Management");
+        }
+        return View("AddAnswer");
+
+    }
+
+    [HttpPost]
+    public IActionResult AddAnswer(Answer model)
+    {
+
+        ModelState.Remove("AnswerId");
+        if (!ModelState.IsValid)
+        {
+            foreach (var state in ModelState)
+            {
+                Console.WriteLine($"{state.Key} :: {string.Join(", ", state.Value.Errors.Select(e => e.ErrorMessage))}");
+            }
+
+            TempData["Message"] = "Please correct the errors.";
+            TempData["MsgType"] = "danger";
+            return View("AddAnswer", model);
+        }
+        else
+        {
+            string answertablesql = @"SELECT * FROM Answer WHERE Question_ID = {0}";
+            var data = DBUtl.GetTable(answertablesql, model.QuestionId);
+            if (data.Rows.Count == 4)
+            {
+                TempData["Message"] = "Only 4 answers or less";
+                TempData["MsgType"] = "danger";
+            }
+            else
+            {
+                string insertAnswer = @"INSERT INTO Answer(Question_ID, AnswerText, Is_Correct, AnswerMarks) VALUES({0}, '{1}', {2}, {3})";
+                int resultAnswer = DBUtl.ExecSQL(insertAnswer, model.QuestionId, model.AnswerText, model.Is_Correct ? 1 : 0, model.Marks);
+
+                if (resultAnswer < 1)
+                {
+
+
+                    TempData["Message"] = DBUtl.DB_Message;
+                    TempData["MsgType"] = "danger";
+
+                }
+                else
+                {
+                    string questionmarksSql = @"SELECT QuestionMarks FROM Question WHERE Question_ID = {0}";
+                    double questionMarks = Convert.ToDouble(DBUtl.GetValue(questionmarksSql, model.QuestionId));
+                    questionMarks = questionMarks + model.Marks;
+                    string updateQuestionMarksSql = @"UPDATE Question SET QuestionMarks = {1} WHERE Question_ID = {0}";
+                    int result = DBUtl.ExecSQL(updateQuestionMarksSql, model.QuestionId, questionMarks);
+
+                    if (result == 1)
+                    {
+                        TempData["Message"] = "Answer created successfully!";
+                        TempData["MsgType"] = "success";
+                    }
+                    else
+                    {
+                        TempData["Message"] = DBUtl.DB_Message;
+                        TempData["MsgType"] = "danger";
+                    }
+
+                }
+            }
+        }
+        return RedirectToAction("Management");
+    }
+
     [HttpGet]
     public IActionResult TakeQuiz(string quizCategory)
     {
