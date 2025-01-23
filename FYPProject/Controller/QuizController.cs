@@ -947,6 +947,50 @@ public class QuizController : Controller
         return RedirectToAction("HistoQuiz");
     }
 
+    private string DoPhotoUpload(IFormFile photo, string category)
+    {
+        try
+        {
+            if (photo == null)
+            {
+                return null; // Return null or a default value if no photo is provided
+            }
+            else
+            {
+
+
+                // Construct the subdirectory path based on the highest prediction result
+                string subdirectory = Path.Combine(_env.WebRootPath, "images", category);
+                subdirectory = subdirectory.Replace("\\", "/"); // Normalize path
+
+                if (!Directory.Exists(subdirectory))
+                {
+                    Directory.CreateDirectory(subdirectory);
+                }
+
+                Console.WriteLine("Subdirectory: " + subdirectory);
+
+                // Construct the final path for the uploaded image
+                string fext = Path.GetExtension(photo.FileName);
+                string uname = Guid.NewGuid().ToString();
+                string fname = uname + fext;
+                string fullpath = Path.Combine(subdirectory, fname).Replace("\\", "/"); // Normalize path
+
+                // Save the image
+                using (FileStream fs = new FileStream(fullpath, FileMode.Create))
+                {
+                    photo.CopyTo(fs);
+                }
+
+                return fname;
+            }
+        }
+        catch (Exception ex)
+        {
+            return $"Error: {ex.Message}";
+        }
+    }
+
     private static SelectList GetListTissue()
     {
         //string tissueSql = @"SELECT LTRIM(CONVERT(Tissue_ID, CHAR)) as Value, Tissue_Name as Text FROM Tissue_Info;";
