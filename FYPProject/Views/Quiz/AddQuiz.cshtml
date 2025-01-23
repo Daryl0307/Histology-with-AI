@@ -1,5 +1,6 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+﻿@model FYPProject.Model.QuizViewModel
+
+
 <head>
     <meta charset="UTF-8">
     <link href="~/css/AddQuiz.css" rel="stylesheet" />
@@ -8,29 +9,29 @@
     <title>Create Quiz</title>
 </head>
 <body>
-    x
     @await Html.PartialAsync("navbar")
-    <form id="quiz-form" asp-action="AddQuiz" asp-controller="Quiz" method="post">
-
-
-        <label for="QuizCategory">Category:</label>
-        <select id="Category" name="Category" required>
-            <option value="">Select a category</option>
-            <option value="Lung">Lung</option>
-            <option value="Kidney">Kidney</option>
+    <form id="quiz-form" asp-controller="Quiz" asp-action="AddQuiz" method="post" enctype="multipart/form-data">
+        <input type="hidden" asp-for="Quiz.QuizId" />
+        <input type="hidden" asp-for="Question.QuestionId" />
+        <label asp-for="Quiz.QuizCategory">Category:</label>
+        <select asp-for="Quiz.QuizCategory" id="QuizCategory" name="Quiz.QuizCategory" required>
+            @foreach (var item in (SelectList)ViewData["Tissue_Info"]!)
+            {
+                <option value="@item.Text">@item.Text</option>
+            }
         </select>
+        <span asp-validation-for="Quiz.QuizCategory" class="text-danger"></span>
 
+        <label asp-for="Question.QuestionText">Question:</label>
+        <input asp-for="Question.QuestionText" type="text" id="QuestionText" name="Question.QuestionText" required>
 
-        <label for="QuestionText">Question:</label>
-        <input type="text" id="Question" name="Question" required>
-
-        <label for="QuestionType">QuestionType:</label>
-        <select id="QuestionType" name="QuestionType" required>
+        <label asp-for="Question.QuestionType">QuestionType:</label>
+        <select asp-for="Question.QuestionType" id="QuestionType" name="Question.QuestionType" required>
             <option value="">Select a question type</option>
-            <option value="Multiple Choice">Multiple Choice Question</option>
-            <option value="Multiple Choice for Text">Multiple Choice Question for Text</option>
+            <option value="Multiple Choice (Radio)">Multiple Choice (Radio)</option>
+            <option value="Multiple Choice (Checkbox)">Multiple Choice (Checkbox)</option>
+            <option value="Multiple Choice (Dropdown)">Multiple Choice (Dropdown)</option>
         </select>
-
         <label for="Answers">Number of Answers:</label>
         <select id="Answers" name="Answers" onchange="updateAnswers()">
             <option value="2">2</option>
@@ -42,44 +43,128 @@
         <div id="answers-container">
         </div>
 
-        <label for="QuestionImage">Upload Image (Optional):</label>
-        <input type="file" id="QuestionImage" name="QuestionImage" accept="image/*">
-
+        <label asp-for="Photo.PhotoFile">Picture:</label>
+        <img id="image-preview" alt="Image Preview" style="display:none; max-width:200px; max-height:200px;">
+        <input asp-for="Photo.PhotoFile" type="file" id="PhotoFile" name="Photo.PhotoFile">
+        <button type="button" id="remove-photo" style="display:none;">Remove</button>
+        <span asp-validation-for="Photo.PhotoFile" class="text-danger"></span>
 
         <div id="total-marks-container">
             <strong>Total Marks: </strong><span id="question-marks">0</span>
+            <input type="hidden" asp-for="Question.QuestionMark" id="QuestionMark" name="Question.QuestionMark" value="0" />
         </div>
-
 
         <button type="submit">Submit</button>
     </form>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('quiz-form');
             const numAnswersSelect = document.getElementById('Answers');
             const answersContainer = document.getElementById('answers-container');
+            const questionTypeSelect = document.getElementById('QuestionType');
             const totalMarksDisplay = document.getElementById('question-marks');
+            const questionMarkInput = document.getElementById('QuestionMark');
+            const photoInput = document.getElementById('PhotoFile');
+            const imagePreview = document.getElementById('image-preview');
+            const removePhotoButton = document.getElementById('remove-photo');
 
-            function getMaxCorrectAnswers(count) {
-                return count - 1;
+            // Show the preview of the uploaded image
+            photoInput.addEventListener('change', function () {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        imagePreview.src = e.target.result;
+                        imagePreview.style.display = 'block';
+                        removePhotoButton.style.display = 'inline';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    resetImagePreview();
+                }
+            });
+
+            // Remove the uploaded image
+            removePhotoButton.addEventListener('click', function () {
+                resetImagePreview();
+            });
+
+            function resetImagePreview() {
+                photoInput.value = ''; // Clear the file input
+                imagePreview.src = '';
+                imagePreview.style.display = 'none';
+                removePhotoButton.style.display = 'none';
+            }
+            // Function to reset fields
+            function resetFields() {
+                // Clear answer fields but retain the selected number of answers
+                const currentAnswerCount = parseInt(numAnswersSelect.value);
+                answersContainer.innerHTML = '';
+
+                // Reset total marks display and hidden input
+                totalMarksDisplay.textContent = '0';
+                questionMarkInput.value = '0';
+
+                // Regenerate the answer fields with the same count
+                generateAnswerFields(currentAnswerCount);
             }
 
-            function validateCorrectAnswers(maxCorrect) {
+            // Function to validate the selection of correct answers
+            function validateCorrectAnswers() {
                 const correctCheckboxes = answersContainer.querySelectorAll('input[type="checkbox"]');
-                let selectedCorrect = 0;
+                let maxCorrect = getMaxCorrectAnswers();
 
                 correctCheckboxes.forEach(checkbox => {
                     checkbox.addEventListener('change', function () {
-                        selectedCorrect = Array.from(correctCheckboxes).filter(cb => cb.checked).length;
+                        const selectedCorrect = Array.from(correctCheckboxes).filter(cb => cb.checked).length;
+
                         if (selectedCorrect > maxCorrect) {
-                            alert(You can only select up to ${maxCorrect} correct answer(s).);
+                            alert(`You can only select up to ${maxCorrect} correct answer(s).`);
                             this.checked = false;
                             hideMarksInput(this);
                         } else {
                             updateMarksVisibility(this);
                         }
+
+                        if (maxCorrect === 1 && this.checked) {
+                            correctCheckboxes.forEach(cb => {
+                                if (cb !== this) {
+                                    cb.checked = false; // Deselect others
+                                    hideMarksInput(cb);
+                                }
+                            });
+                        }
                     });
                 });
+
+                form.addEventListener('submit', function (e) {
+                    const correctAnswers = answersContainer.querySelectorAll('input[type="checkbox"]:checked');
+                    let hasError = false;
+
+                    correctAnswers.forEach(checkbox => {
+                        const marksInput = checkbox.closest('div').querySelector('.marks-input');
+                        if (marksInput && marksInput.value <= 0) {
+                            alert('You must provide marks greater than 0 for each correct answer.');
+                            hasError = true;
+                            e.preventDefault();
+                            return;
+                        }
+                    });
+
+                    if (!hasError && correctAnswers.length === 0) {
+                        alert('You must select at least one correct answer.');
+                        e.preventDefault();
+                    }
+                });
+            }
+
+            function getMaxCorrectAnswers() {
+                const questionType = questionTypeSelect.value;
+                if (questionType === "Multiple Choice (Radio)" || questionType === "Multiple Choice (Dropdown)") {
+                    return 1; // Only one correct answer allowed
+                }
+                return parseInt(numAnswersSelect.value) - 1; // Default for checkboxes
             }
 
             function hideMarksInput(checkbox) {
@@ -108,56 +193,59 @@
                 answersContainer.innerHTML = '';
                 let totalMarks = 0;
 
-                const maxCorrect = getMaxCorrectAnswers(count);
-
                 for (let i = 0; i < count; i++) {
                     const answerDiv = document.createElement('div');
-                    answerDiv.classList.add('answer');
+                    answerDiv.classList.add('Answer');
                     answerDiv.innerHTML = `
-                        <label for="answer${i + 1}">Answer ${i + 1}:</label>
-                        <input type="text" id="answer${i + 1}" name="Answers[${i}].AnswerText" required>
-                        <label>
-                            <input type="checkbox" id="correct${i + 1}" name="Answers[${i}].IsCorrect" value="true">
-                            Correct Answer
-                        </label>
-                        <label for="marks${i + 1}" class="marks-label">Marks:</label>
-                        <input type="number" id="marks${i + 1}" name="Answers[${i}].Marks" min="0" step="0.5" class="marks-input">
-                    `;
+                                    <label asp-for="Answer_${i}_AnswerText">Answer:</label>
+                                    <input type="text" id="Answer_${i}_AnswerText" asp-for="Answer${i}.AnswerText" name="Answer[${i}].AnswerText" required>
+                                    <span asp-validation-for="Answer_${i}_AnswerText" class="text-danger"></span>
+
+                                    <label asp-for="Answer_${i}_IsCorrect">
+                                        <input type="checkbox" id="Answer_${i}_Is_Correct" asp-for="Answer${i}.Is_Correct" name="Answer[${i}].Is_Correct" value="true">
+                                        Correct Answer
+                                    </label>
+                                    <span asp-validation-for="Answer_${i}_IsCorrect" class="text-danger"></span>
+
+                                    <label asp-for="Answer_${i}_Marks" class="marks-label">Marks:</label>
+                                    <input type="number" id="Answer_${i}_Marks" asp-for="Answer${i}.Marks" name="Answer[${i}].Marks" min="0" step="0.5" value="0" class="marks-input">
+                                    <span asp-validation-for="Answer_${i}_Marks" class="text-danger"></span>
+                                `;
                     answersContainer.appendChild(answerDiv);
 
-                    const checkbox = answerDiv.querySelector(#correct${i + 1});
-                    const marksLabel = answerDiv.querySelector('.marks-label');
+                    const checkbox = answerDiv.querySelector(`#Answer_${i}_Is_Correct`);
                     const marksInput = answerDiv.querySelector('.marks-input');
-
 
                     updateMarksVisibility(checkbox);
 
-
                     marksInput.addEventListener('input', function () {
-                        const marksValue = parseFloat(marksInput.value) || 0;
-
+                        this.value = this.value || 0; // Default to 0 if empty
                         totalMarks = Array.from(answersContainer.querySelectorAll('.marks-input'))
                             .map(input => parseFloat(input.value) || 0)
                             .reduce((sum, value) => sum + value, 0);
 
-
                         totalMarksDisplay.textContent = totalMarks.toFixed(1);
+                        questionMarkInput.value = totalMarks.toFixed(1); // Update hidden input
                     });
                 }
 
-                validateCorrectAnswers(maxCorrect);
+                validateCorrectAnswers();
             }
 
+            // Event handlers
             const initialNumAnswers = parseInt(numAnswersSelect.value);
             generateAnswerFields(initialNumAnswers);
 
             numAnswersSelect.addEventListener('change', function () {
                 generateAnswerFields(parseInt(this.value));
             });
+
+            questionTypeSelect.addEventListener('change', function () {
+                resetFields();
+            });
         });
-
-
     </script>
 
+
+
 </body>
-</html>
