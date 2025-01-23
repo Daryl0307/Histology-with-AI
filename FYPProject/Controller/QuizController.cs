@@ -572,6 +572,64 @@ public class QuizController : Controller
         return RedirectToAction("Management");
     }
 
+    public IActionResult DeleteQuiz(int id)
+    {
+        string sql = @"SELECT * FROM Quiz WHERE Quiz_ID = {0}";
+        DataTable ds = DBUtl.GetTable(sql, id);
+        if (ds.Rows.Count != 1)
+        {
+            TempData["Message"] = "Quiz Record does not exist";
+            TempData["MsgType"] = "warning";
+        }
+        else
+        {
+            sql = @"SELECT * FROM Photos WHERE Quiz_ID = {0}";
+            DataTable table = DBUtl.GetTable(sql, id);
+            if (table.Rows[0]["Photo_URL"].ToString()! != "No Picture Inserted")
+            {
+                string category = ds.Rows[0]["Quiz_Category"].ToString()!;
+                string photoFile = table.Rows[0]["Photo_URL"].ToString()!;
+                string fullpath = Path.Combine(_env.WebRootPath, "images", category, photoFile).Replace("\\", "/");
+                System.IO.File.Delete(fullpath);
+
+                sql = @"DELETE FROM Quiz WHERE Quiz_ID = {0}";
+                int result = DBUtl.ExecSQL(sql, id);
+                if (result == 1)
+                {
+                    TempData["Message"] = "Quiz Record Deleted Successfully";
+                    TempData["MsgType"] = "success";
+                }
+                else
+                {
+                    TempData["Message"] = DBUtl.DB_Message;
+                    TempData["ExecSQL"] = DBUtl.DB_SQL;
+                    TempData["MsgType"] = "danger";
+                }
+            }
+            else
+            {
+                sql = @"DELETE FROM Quiz WHERE Quiz_ID = {0}";
+                int result = DBUtl.ExecSQL(sql, id);
+                if (result == 1)
+                {
+                    TempData["Message"] = "Quiz Record Deleted Successfully";
+                    TempData["MsgType"] = "success";
+                }
+                else
+                {
+                    TempData["Message"] = DBUtl.DB_Message;
+                    TempData["ExecSQL"] = DBUtl.DB_SQL;
+                    TempData["MsgType"] = "danger";
+                }
+
+            }
+
+
+
+        }
+        return RedirectToAction("Management");
+    }
+
     [HttpGet]
     public IActionResult TakeQuiz(string quizCategory)
     {
