@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace project.Model
+namespace FYPProject.Model
 {
     public class Question
     {
