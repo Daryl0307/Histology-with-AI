@@ -1,0 +1,101 @@
+﻿@model project.Model.QuizViewModelForManagement
+
+<head>
+    <meta charset="UTF-8">
+    <link href="~/css/AddQuiz.css" rel="stylesheet" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Quiz</title>
+</head>
+<body>
+    @await Html.PartialAsync("navbar")
+    <form id="quiz-form" asp-controller="Quiz" asp-action="UpdateQuiz" method="post" enctype="multipart/form-data">
+        <input type="hidden" asp-for="Question_ID" />
+        <label asp-for="Quiz_Category">Category:</label>
+        <select asp-for="Quiz_Category" id="Quiz_Category" name="Quiz_Category" required>
+            @if ((SelectList)ViewData["Tissue_Info"] == null)
+            {
+                <option value="" disabled>No categories available</option>
+            }
+            else
+            {
+                @foreach (var item in (SelectList)ViewData["Tissue_Info"]!)
+                {
+                    <option value="@item.Text">@item.Text</option>
+                }
+
+            }
+
+        </select>
+
+        <label asp-for="QuestionText">Question:</label>
+        <input asp-for="QuestionText" type="text" id="QuestionText" name="QuestionText" required value="@Model.QuestionText">
+
+
+        <label asp-for="QuestionType">QuestionType:</label>
+        <select asp-for="QuestionType" id="QuestionType" name="QuestionType" required>
+            <option value="">Select a question type</option>
+            <option value="Multiple Choice (Radio)">Multiple Choice (Radio)</option>
+            <option value="Multiple Choice (Checkbox)">Multiple Choice (Checkbox)</option>
+            <option value="Multiple Choice (Dropdown)">Multiple Choice (Dropdown)</option>
+        </select>
+
+        <label asp-for="Photo_URL">Picture:</label>
+        <input asp-for="Photo_URL" type="text" value="@Model.Photo_URL" hidden />
+
+        <img id="image-preview"
+             src="@((Model.Photo_URL == "No Picture Inserted") ? "" : Url.Content("~/images/" + Model.Quiz_Category + "/" + Model.Photo_URL))"
+             alt="Image Preview"
+             style="display:@((Model.Photo_URL == "No Picture Inserted") ? "none" : "block"); height:350px; max-width:100%;">
+        <p id="no-picture-message" style="display:@((Model.Photo_URL == "No Picture Inserted") ? "block" : "none");">No Picture Inserted</p>
+
+
+        <input asp-for="Photo" type="file" id="Photo" name="Photo">
+
+
+
+        <div id="total-marks-container">
+            <strong>Total Marks: </strong><span id="question-marks">@Model.QuestionMarks</span>
+            <input type="hidden" asp-for="QuestionMarks" id="QuestionMark" name="Question.QuestionMark" value="@Model.QuestionMarks" />
+        </div>
+
+        <button type="submit">Update</button>
+        @* @if (!ViewData.ModelState.IsValid)
+        {
+        <div class="validation-summary-errors">
+        @foreach (var state in ViewData.ModelState)
+        {
+        foreach (var error in state.Value.Errors)
+        {
+        <p>@state.Key :: @error.ErrorMessage</p>
+        }
+        }
+        </div>
+        } *@
+    </form>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const fileInput = document.getElementById('Photo');
+            const preview = document.getElementById('image-preview');
+            const noPictureMessage = document.getElementById('no-picture-message');
+
+            fileInput.addEventListener('change', function () {
+                const file = this.files[0];
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block'; // Show the image
+                    noPictureMessage.style.display = 'none'; // Hide the message
+                };
+
+                if (file) {
+                    reader.readAsDataURL(file); // Read the file to update the preview
+                }
+            });
+        });
+    </script>
+
+</body>
