@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FYPProject.Model;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using RP.SOI.DotNet.Utils;
 using System.Data;
 
 
@@ -15,79 +18,39 @@ public class QuizController : Controller
     {
         return View();
     }
-    /*
-    public IActionResult ListQuiz()
+    private readonly IWebHostEnvironment _env;
+
+
+    public QuizController(IWebHostEnvironment environment)
     {
-        List<project.Model.Quiz> quizzes = DBUtl.GetList<project.Model.Quiz>("SELECT * FROM Quiz");
-        return View(quizzes);
+
+        _env = environment;
     }
 
-    public IActionResult AddQuiz()
-    {
-        var model = new QuizViewModel();
-        return View("AddQuiz", model);
-    }
-
-
-    [HttpPost]
-    public IActionResult AddQuiz(QuizViewModel model)
+    public IActionResult HistoQuiz()
     {
 
-        string errors = "";
+        List<HistoQuiz> quizlist = DBUtl.GetList<HistoQuiz>("SELECT Quiz.Quiz_Category AS 'QuizCategory',  SUM(Q.QuestionMarks) AS 'TotalQuestionMarks' FROM Quiz INNER JOIN Question Q ON Quiz.Quiz_ID = Q.Quiz_ID  GROUP BY Quiz.Quiz_Category");
 
-        if (!ModelState.IsValid)
+        List<QuizStatistics> statisticslist = DBUtl.GetList<QuizStatistics>("SELECT User_Id AS 'UserId', Quiz_Category AS 'QuizCategory', Date_Attempted AS 'DateAttempted', Score FROM Quiz_Statistics WHERE User_Id = {0}", 1);
+
+        string getPhotoUrl = @"SELECT Photo_URL FROM Photos WHERE Quiz_Id = {0}";
+
+
+
+        var viewModel = new HistoQuizViewModel
         {
-            foreach (var state in ModelState.Values)
-            {
-                foreach (var error in state.Errors)
-                {
-                    errors += error;
-                }
-            }
-        }
-        else
-        {
-            string insertQuiz = @"INSERT INTO Quiz(QuizCategory, Quiz_Total_Mark) OUTPUT INSERTED.QuizId VALUES('{0}', '{1}')";
-            DataTable dt = DBUtl.GetTable(insertQuiz, model.Quiz.QuizCategory, model.Quiz.QuizTotalMarks);
-
-            if (dt.Rows.Count == 1)
-            {
-                int quizId = Convert.ToInt32(dt.Rows[0]["QuizId"]);
-                string insertQuestion = @"INSERT INTO Question(Quiz_Id, QuestionText, QuestionMarks, QuestionType) OUTPUT INSERTED.QuestionId VALUES('{0}', '{1}', '{2}', '{3}')";
-                DataTable dtQuestion = DBUtl.GetTable(insertQuestion, quizId, model.Question.QuestionText, model.Question.QuestionMark, model.Question.QuestionType);
-
-                if (dtQuestion.Rows.Count == 1)
-                {
-                    int questionId = Convert.ToInt32(dtQuestion.Rows[0]["QuestionId"]);
-                    for (int i = 0; i < model.Answer.Count; i++)
-                    {
-                        string insertAnswer = @"INSERT INTO Answer(QuestionId, AnswerText, IsCorrect, AnswerMarks) VALUES({0}, '{1}', {2}, {3})";
-                        int resultanswer = DBUtl.ExecSQL(insertAnswer, questionId, model.Answer[i].AnswerText, model.Answer[i].IsCorrect ? 1 : 0, model.Answer[i].Marks);
-
-                        if (resultanswer != 1)
-                        {
-                            // Handle failure for individual answer insertion if needed
-                            TempData["Message"] = "Failed to insert one or more answers.";
-                            TempData["MsgType"] = "danger";
-                            return RedirectToAction("AddQuiz");
-                        }
-                    }
-                    TempData["Message"] = "Quiz created successfully!";
-                    TempData["MsgType"] = "success";
-                }
-            }
-
-        }
-
-        return RedirectToAction("ListQuiz");
+            HistoQuiz = quizlist,
+            QuizStatistics = statisticslist
+        };
+        ViewData["Tissue_Info"] = GetListTissue();
+        return View(viewModel);
     }
-
-
-    public IActionResult ManageQuestions(int quizId)
+    private static SelectList GetListTissue()
     {
-        List<Question> questions = DBUtl.GetList<Question>("SELECT * FROM Question WHERE QuizId = {0}", quizId);
-        ViewData["QuizId"] = quizId;
-        return View(questions);
+        //string tissueSql = @"SELECT LTRIM(CONVERT(Tissue_ID, CHAR)) as Value, Tissue_Name as Text FROM Tissue_Info;";
+        string tissueSql = @"SELECT LTRIM(Tissue_ID) as 'Value', Tissue_Name as 'Text' FROM Tissue_Info";
+        List<SelectListItem> lstTissue = DBUtl.GetList<SelectListItem>(tissueSql);
+        return new SelectList(lstTissue, "Value", "Text");
     }
-    */
 }
