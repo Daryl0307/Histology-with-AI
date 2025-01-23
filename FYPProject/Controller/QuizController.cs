@@ -306,6 +306,136 @@ public class QuizController : Controller
     }
 
     [HttpGet]
+    public IActionResult UpdateAnswer(int id)
+    {
+        string questionsql = @"SELECT Question_ID AS 'QuestionId', Answer_ID AS 'AnswerId', AnswerText,
+            Is_Correct,
+            AnswerMarks AS 'Marks' FROM Answer WHERE Answer_ID = {0}";
+        List<Answer> lstAnswer = DBUtl.GetList<Answer>(questionsql, id);
+        if (lstAnswer.Count == 1)
+        {
+
+            Answer quiz = lstAnswer[0];
+
+            return View(quiz);
+        }
+        else
+        {
+            TempData["Message"] = "Answer record does not exist";
+            TempData["MsgType"] = "danger";
+            return RedirectToAction("UpdateAnswer");
+        }
+
+    }
+
+    [HttpPost]
+    public IActionResult UpdateAnswer(Answer model)
+    {
+        if (!ModelState.IsValid)
+        {
+            foreach (var state in ModelState)
+            {
+                Console.WriteLine($"{state.Key} :: {string.Join(", ", state.Value.Errors.Select(e => e.ErrorMessage))}");
+            }
+
+            TempData["Message"] = "Please correct the errors.";
+            TempData["MsgType"] = "danger";
+            return View("UpdateAnswer", model); // Return the view with the model
+        }
+
+
+        string questionidsql = @"SELECT Question_ID FROM Answer WHERE Answer_ID = {0}";
+        int questionid = Convert.ToInt32(DBUtl.GetValue(questionidsql, model.AnswerId));
+        string getQuestionMarksSql = @"SELECT QuestionMarks FROM Question WHERE Question_ID = {0}";
+        double questionMarks = Convert.ToDouble(DBUtl.GetValue(getQuestionMarksSql, questionid));
+        string answerMarksSql = @"SELECT AnswerMarks FROM Answer WHERE Answer_ID = {0}";
+        string existingAnswersSql = @"SELECT COUNT(*) FROM Answer WHERE Question_ID = {0} AND Is_Correct = 0";
+        int incorrectAnswersCount = Convert.ToInt32(DBUtl.GetValue(existingAnswersSql, questionid));
+        string noofanswersql = @"SELECT COUNT(*) FROM Answer WHERE Question_ID = {0}";
+        int noofanswer = Convert.ToInt32(DBUtl.GetValue(noofanswersql, questionid));
+        // Check if at least one correct answer exists for the question
+        string correctAnswersSql = @"SELECT COUNT(*) FROM Answer WHERE Question_ID = {0} AND Is_Correct = 1";
+        int correctAnswersCount = Convert.ToInt32(DBUtl.GetValue(correctAnswersSql, questionid));
+
+        // If there are no correct answers and the current answer is not being marked as correct, show an error
+        // Check if marking this answer as incorrect will result in all answers being incorrect
+        bool allIncorrect = correctAnswersCount == 1 && !model.Is_Correct;
+
+        if (allIncorrect)
+        {
+            TempData["Message"] = "At least one answer must be marked as correct.";
+            TempData["MsgType"] = "danger";
+            return RedirectToAction("Management");
+        }
+
+
+        // Doesn't allow 0 for marks input
+        if (model.Is_Correct && model.Marks == 0)
+        {
+            TempData["Message"] = "Please input more than 0 marks.";
+            TempData["MsgType"] = "danger";
+            return RedirectToAction("Management");
+        }
+
+        bool hasOnlyOneIncorrect = incorrectAnswersCount == 1;
+
+        if (hasOnlyOneIncorrect && model.Is_Correct == true)
+        {
+            TempData["Message"] = "Too much correct answers";
+            TempData["MsgType"] = "danger";
+            return RedirectToAction("Management");
+        }
+
+        double answerMarks = Convert.ToDouble(DBUtl.GetValue(answerMarksSql, model.AnswerId));
+        if (answerMarks == null)
+        {
+            throw new Exception($"No AnswerMarks found for Answer_ID = {model.AnswerId}");
+        }
+        double minusMarks = answerMarks - model.Marks;
+
+        if (minusMarks > 0)
+        {
+            questionMarks = questionMarks - answerMarks;
+            string updateQuestionMarksSql = @"UPDATE Question SET QuestionMarks = {1} WHERE Question_ID = {0} ";
+            int resultQuestion = DBUtl.ExecSQL(updateQuestionMarksSql, questionid, questionMarks);
+
+        }
+        else if (minusMarks == 0)
+        {
+            string updateQuestionMarksSql = @"UPDATE Question SET QuestionMarks = {1} WHERE Question_ID = {0} ";
+            int resultQuestion = DBUtl.ExecSQL(updateQuestionMarksSql, questionid, questionMarks);
+        }
+        else
+        {
+            questionMarks = questionMarks + model.Marks;
+            string updateQuestionMarksSql = @"UPDATE Question SET QuestionMarks = {1} WHERE Question_ID = {0} ";
+            int resultQuestion = DBUtl.ExecSQL(updateQuestionMarksSql, questionid, questionMarks);
+
+
+        }
+        string updateAnswersql = @"UPDATE Answer SET AnswerText = '{1}', Is_Correct = {2}, AnswerMarks = {3} WHERE Answer_ID = {0}";
+        int result = DBUtl.ExecSQL(updateAnswersql, model.AnswerId, model.AnswerText, model.Is_Correct ? 1 : 0, model.Marks);
+
+
+        if (result == 1)
+        {
+            TempData["Message"] = "Answer updated successfully";
+            TempData["MsgType"] = "success";
+        }
+        else
+        {
+            TempData["Message"] = DBUtl.DB_Message;
+            TempData["MsgType"] = "danger";
+        }
+
+
+
+
+        // Explicitly return RedirectToAction
+        return RedirectToAction("Management");
+    }
+
+    [HttpGet]
     public IActionResult TakeQuiz(string quizCategory)
     {
         int userId = 1; // Replace with the logged-in user's ID
