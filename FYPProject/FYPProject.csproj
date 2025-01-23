@@ -7,8 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="Views\Quiz\AddAnswer.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="Views\Error.cshtml" />
     <None Include="Views\Privacy.cshtml" />
+    <None Include="Views\Quiz\AddAnswer.cshtml" />
     <None Include="Views\Shared\_Layout.cshtml" />
     <None Include="Views\Shared\_ValidationScriptsPartial.cshtml" />
     <None Include="Views\_ViewImports.cshtml" />
@@ -57,6 +62,14 @@
 
   <ItemGroup>
     <PackageReference Include="System.Data.SqlClient" Version="4.9.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\Quiz\AddAnswer.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Views\Quiz\AddAnswer.cshtml" />
   </ItemGroup>
 
 </Project>

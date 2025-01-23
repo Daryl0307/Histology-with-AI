@@ -1,0 +1,197 @@
+﻿@using FYPProject.Model;
+@model HistoQuizViewModel
+<script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('#jsTable').DataTable({
+            paging: true,
+            ordering: true,
+
+            info: true,
+            lengthChange: true,
+            pageLength: 5,
+            stateSave: true,
+            lengthMenu: [[5, 7, -1], [5, 7, "All"]]
+        });
+    });
+</script>
+}
+@if (TempData["Message"] != null)
+{
+    <div class="tempdata-popup @TempData["MsgType"]">
+        <div class="alert alert-@TempData["MsgType"]">
+            @TempData["Message"]
+            <button type="button" class="btn-close" onclick="closePopup();">&times;</button>
+        </div>
+    </div>
+
+    <script>
+        function closePopup() {
+            $('.tempdata-popup').removeClass('active');
+        }
+
+        $(document).ready(function () {
+            $('.tempdata-popup').addClass('active');
+            // Auto-close popup after 3 setTimeout(function () {closePopup();}, 3000);
+        });
+    </script>
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Interactive Quizzes</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="icon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href='https://fonts.googleapis.com/css2?family=Raleway:wght@400;600&display=swap' rel='stylesheet'>
+    <link href="~/css/HistoQuiz.css" rel="stylesheet" />
+</head>
+<body>
+    @await Html.PartialAsync("navbar")
+
+    <div class="container mt-5">
+        <div class="big-card">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h1 class="text-dark">Interactive Quizzes</h1>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end align-items-center">
+                    <select class="form-select w-auto" id="idQuizCategoryChooser">
+                        <option value="">Select Quiz Category</option>
+                        @if ((SelectList)ViewData["Tissue_Info"] == null)
+                        {
+                            <option value=""></option>
+                        }
+                        else
+                        {
+                            @foreach (var item in (SelectList)ViewData["Tissue_Info"]!)
+                            {
+                                <option value="@item.Text">@item.Text</option>
+                            }
+                        }
+
+                    </select>
+                </div>
+            </div>
+
+            <div class="row">
+                @if (Model.HistoQuiz != null && Model.HistoQuiz.Any())
+                {
+                    @foreach (var HistoQuiz in Model.HistoQuiz)
+                    {
+                        <div class="col-md-4 mb-4">
+                            <div class="card" data-category="@HistoQuiz.QuizCategory">
+                                <div class="card-body">
+                                    <h5 class="card-title">@HistoQuiz.QuizCategory</h5>
+                                    <p class="card-text">Marks: @HistoQuiz.TotalQuestionMarks</p>
+
+                                    <a asp-controller="Quiz" asp-action="TakeQuiz" asp-route-quizCategory="@HistoQuiz.QuizCategory" class="btn btn-primary">Take Quiz</a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="7" class="text-center">No quizzes available.</td></tr>
+
+                }
+            </div>
+
+            <h1 class="mt-5">Quiz Performance</h1>
+            <div class="row mb-4">
+                <div class="col-xl-4 col-lg-6 mb-3">
+                    <div class="card stats-card bg-success text-white">
+                        <div class="card-body d-flex align-items-center">
+                            <i class="fas fa-trophy stats-icon me-3"></i>
+                            <div class="text-left">
+                                <h3 id="quizAttempts">@(Model.QuizStatistics.Count)</h3>
+                                <p>Quiz Attempts</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-4 col-lg-6 mb-3">
+                    <div class="card stats-card bg-primary text-white">
+                        <div class="card-body d-flex align-items-center">
+                            <i class="fas fa-chart-line stats-icon me-3"></i>
+                            <div class="text-left">
+                                <h3 id="passRate">0%</h3>
+                                <p>Passing Rate</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-4 col-lg-6 mb-3">
+                    <div class="card stats-card bg-info text-white">
+                        <div class="card-body d-flex align-items-center">
+                            <i class="fas fa-pen stats-icon me-3"></i>
+                            <div class="text-left">
+                                <h3 id="avgScore">0%</h3>
+                                <p>Average Score</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="table-responsive">
+                    <table id="quizHistory" class="table table-bordered table-striped">
+                        <thead class="table-header">
+                            <tr>
+                                <th scope="col">Date</th>
+                                <th scope="col">Quiz Category</th>
+                                <th scope="col">Score</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.QuizStatistics != null && Model.QuizStatistics.Any())
+                            {
+                                foreach (var quizStatistics in Model.QuizStatistics)
+                                {
+                                    <tr data-category="@quizStatistics.QuizCategory">
+                                        <td>@quizStatistics.DateAttempted.ToString("yyyy-MM-dd")</td>
+                                        <td>@quizStatistics.QuizCategory</td>
+                                        <td>@quizStatistics.Score</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="7" class="text-center">No Attempts.</td></tr>
+
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#idQuizCategoryChooser').on('change', function () {
+                var selectedCategory = $(this).val().toLowerCase(); // Normalize case for comparison
+
+                $('.row .col-md-4').each(function () {
+                    var quizCategory = $(this).find('.card-title').text().toLowerCase(); // Get the category text
+
+                    if (!selectedCategory || quizCategory === selectedCategory) {
+                        $(this).show(); // Show matching quizzes
+                    } else {
+                        $(this).hide(); // Hide non-matching quizzes
+                    }
+                });
+            });
+        });
+
+
+    </script>
+</body>
+</html>
