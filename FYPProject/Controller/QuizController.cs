@@ -28,7 +28,10 @@ public class QuizController : Controller
 
         string getPhotoUrl = @"SELECT Photo_URL FROM Photos WHERE Quiz_Id = {0}";
 
-
+        string deleteResponsesql = @"DELETE FROM Quiz_Responses";
+        int resultResponse = DBUtl.ExecSQL(deleteResponsesql);
+        string deleteSavedQuestionId = @"DELETE FROM UserAnsweredQuestions";
+        int resultDeleteSaved = DBUtl.ExecSQL(deleteSavedQuestionId);
 
         var viewModel = new HistoQuizViewModel
         {

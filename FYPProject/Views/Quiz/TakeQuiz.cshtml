@@ -5,7 +5,7 @@
     ViewData["Title"] = "Take Quiz";
 }
 <link rel="stylesheet" href="~/css/TakeQuiz.css" />
-@await Html.PartialAsync("navbar")
+
 
 <h2>Quiz: @Model.Quiz.QuizCategory</h2>
 
@@ -96,18 +96,57 @@
 
     <!-- Client-side validation for the form -->
     <script>
-        document.getElementById('quizForm').addEventListener('submit', function (e) {
-            const selectedAnswers = document.querySelectorAll('input[name="selectedAnswerIds"]:checked, select[name="selectedAnswerIds"]');
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById('quizForm');
 
-            // Ensure at least one answer is selected
-            if (selectedAnswers.length === 0) {
-                e.preventDefault();
-                alert('Please select at least one answer before submitting.');
-                return;
-            }
+            form.addEventListener('submit', function (e) {
+                const questionType = '@Model.Question.QuestionType';
+
+                // Validation for Checkbox (Multiple Choice)
+                if (questionType === "Multiple Choice (Checkbox)") {
+                    // Get all selected checkboxes
+                    const selectedCheckboxes = document.querySelectorAll('input[name="selectedAnswerIds"]:checked');
+
+                    // Check if none are selected
+                    if (selectedCheckboxes.length === 0) {
+                        e.preventDefault();
+                        alert('Please select at least one answer before submitting.');
+                        return;
+                    }
+                }
+
+                // Validation for Radio Button (Multiple Choice)
+                if (questionType === "Multiple Choice (Radio)") {
+                    const selectedRadio = document.querySelector('input[name="selectedAnswerIds"]:checked');
+                    if (!selectedRadio) {
+                        e.preventDefault();
+                        alert('Please select an answer before submitting.');
+                        return;
+                    }
+                }
+
+                // Validation for Dropdown (Multiple Choice)
+                if (questionType === "Multiple Choice (Dropdown)") {
+                    const selectedDropdown = document.getElementById('answerSelect');
+                    if (selectedDropdown.value === "") {
+                        e.preventDefault();
+                        alert('Please select an answer from the dropdown.');
+                        return;
+                    }
+                }
+            });
+
+            // Prevent back navigation
+            history.pushState(null, null, location.href);
+            window.onpopstate = function () {
+                history.pushState(null, null, location.href);
+                alert("Back navigation is disabled on this page.");
+            };
         });
-
     </script>
+
+
+
 }
 else
 {
