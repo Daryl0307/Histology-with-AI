@@ -1,5 +1,4 @@
-﻿@using FYPProject.Model;
-@model List<QuizViewModel>
+﻿@model List<QuizViewModel>
 
 @section MoreScripts {
     <link href="~/lib/datatables/css/jquery.dataTables.min.css" rel="stylesheet" />
@@ -14,7 +13,8 @@
                 lengthChange: true,
                 pageLength: 5,
                 stateSave: true,
-                lengthMenu: [[5, 7, -1], [5, 7, "All"]]
+                lengthMenu: [[5, 7, -1], [5, 7, "All"]],
+                searching: false
             });
         });
     </script>
