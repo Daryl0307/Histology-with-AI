@@ -155,6 +155,36 @@ public class QuizController : Controller
         string totalAttemptssql = @"SELECT COUNT(*) FROM Quiz_Statistics";
         int totalAttempts = Convert.ToInt32(DBUtl.GetValue(totalAttemptssql));
         ViewBag.TotalAttempts = totalAttempts;
+
+        List<HistoQuiz> quizlist = DBUtl.GetList<HistoQuiz>("SELECT Quiz.Quiz_Category AS 'QuizCategory',  SUM(Q.QuestionMarks) AS 'TotalQuestionMarks' FROM Quiz INNER JOIN Question Q ON Quiz.Quiz_ID = Q.Quiz_ID  GROUP BY Quiz.Quiz_Category");
+        List<QuizStatistics> statisticslist = DBUtl.GetList<QuizStatistics>("SELECT User_Id AS 'UserId', Quiz_Category AS 'QuizCategory', Date_Attempted AS 'DateAttempted', Score FROM Quiz_Statistics ");
+
+        double totalMarks = 0;
+        double totalScore = 0;
+        double noofpass = 0;
+        double passingScore = 0;
+        for (int i = 0; i < quizlist.Count; i++)
+        {
+
+            passingScore = quizlist[i].TotalQuestionMarks / 2;
+            for (int j = 0; j < statisticslist.Count; j++)
+            {
+                totalMarks += quizlist[i].TotalQuestionMarks;
+                totalScore += statisticslist[j].Score;
+                if (statisticslist[j].Score >= passingScore)
+                {
+                    noofpass++;
+                }
+            }
+
+        }
+
+
+        double passpercent = ((noofpass / statisticslist.Count) * 100);
+
+        ViewBag.passpercent = Math.Round(passpercent, 2);
+
+
         return View(groupedQuizzes);
 
     }
