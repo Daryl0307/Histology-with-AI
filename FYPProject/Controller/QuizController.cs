@@ -925,6 +925,8 @@ public class QuizController : Controller
     }
     public IActionResult QuizSummary(string quizCategory)
     {
+        int userid = 1;
+
         // Fetch responses for the quiz
         string summarySql = @"
     SELECT q.Question_ID,q.QuestionText, a.AnswerText, CAST(r.Is_Correct AS BIT) AS'IsCorrect', Score
@@ -945,7 +947,19 @@ public class QuizController : Controller
         double totalScore = responses.Sum(r => r.Score);
         ViewBag.TotalScore = totalScore;
 
-        int userid = 1;
+        List<HistoQuiz> quizlist = DBUtl.GetList<HistoQuiz>("SELECT Quiz.Quiz_Category AS 'QuizCategory',  SUM(Q.QuestionMarks) AS 'TotalQuestionMarks' FROM Quiz INNER JOIN Question Q ON Quiz.Quiz_ID = Q.Quiz_ID  GROUP BY Quiz.Quiz_Category");
+
+        double totalQuestionMarks = 0;
+
+        for (int i = 0; i < quizlist.Count; i++)
+        {
+            if (quizlist[i].QuizCategory == quizCategory)
+            {
+                totalQuestionMarks = quizlist[i].TotalQuestionMarks;
+                break;
+            }
+        }
+        ViewBag.TotalQuestionMarks = totalQuestionMarks;
 
         string checkAttemptsSql = @"SELECT COUNT(*) FROM Quiz_Statistics WHERE User_Id = {0} and Quiz_Category = '{1}'";
         int checkAttempts = Convert.ToInt32(DBUtl.GetValue(checkAttemptsSql, userid, quizCategory));

@@ -33,6 +33,16 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link href='https://fonts.googleapis.com/css2?family=Raleway:wght@400;600&display=swap' rel='stylesheet'>
     <link href="~/css/HistoQuiz.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 200px; /* Adjust height as needed */
+        }
+    </style>
 </head>
 <body>
     @await Html.PartialAsync("navbar")
@@ -43,68 +53,114 @@
                     <h1 class="text-dark">Quiz Summary</h1>
                 </div>
                 <div class="col-md-6 d-flex justify-content-end align-items-center">
-                    <div class="d-flex justify-content-between w-100">
-                        <!-- Total Score -->
-                        <p class="card-text">Total Score: <span class="stats-card">@ViewBag.TotalScore</span></p>
+                    <div class="d-flex justify-content-between w-100 position-relative">
                         <!-- Back to quiz button -->
-                        <a class="btn btn-primary" asp-controller="Quiz" asp-action="Quit">Back to HistoQuiz</a>
+                        <a class="btn btn-primary position-absolute top-0 end-0"  asp-controller="Quiz" asp-action="Quit">Back to HistoQuiz</a>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="scoreChart" width="200" height="200"></canvas>
+                <p class="card-text">Total Score: <span class="stats-card">@ViewBag.TotalScore</span></p>
+            </div>
+
+
+                    <div class="card mt-4">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped">
+                                <thead class="table-header">
+                                    <tr>
+                                        <th scope ="col">Question</th>
+                                        <th scope="col">Answer</th>
+                                        <th scope="col">Correct</th>
+                                        <th scope="col">Score</th>
+                                        <th scope="col">Correct Answers</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var response in Model.QuizSummaryResponse)
+                                    {
+                                        <tr>
+                                            <td>@response.QuestionText</td>
+                                            <td>@response.AnswerText</td>
+                                            <td>
+                                                @if (response.IsCorrect)
+                                                {
+                                                    <span class="text-success">Yes</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-danger">No</span>
+                                                }
+                                            </td>
+                                            <td>@response.Score</td>
+                                            @foreach (var correctAnswer in Model.CorrectAnswewrs)
+                                            {
+                                                if (response.Question_ID == correctAnswer.QuestionId)
+                                                { 
+                                                    <td>@correctAnswer.GroupedAnswerText</td>
+                                                }
+                                            }
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="card mt-4">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-striped">
-                        <thead class="table-header">
-                            <tr>
-                                <th scope="col">Question</th>
-                                <th scope="col">Answer</th>
-                                <th scope="col">Correct</th>
-                                <th scope="col">Score</th>
-                                <th scope="col">Correct Answers</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var response in Model.QuizSummaryResponse)
-                            {
-                                <tr>
-                                    <td>@response.QuestionText</td>
-                                    <td>@response.AnswerText</td>
-                                    <td>
-                                        @if (response.IsCorrect)
-                                        {
-                                            <span class="text-success">Yes</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="text-danger">No</span>
-                                        }
-                                    </td>
-                                    <td>@response.Score</td>
-                                    @foreach (var correctAnswer in Model.CorrectAnswewrs)
-                                    {
-                                        if (response.Question_ID == correctAnswer.QuestionId)
-                                        {
-                                            <td>@correctAnswer.GroupedAnswerText</td>
-                                        }
-                                    }
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            
         </div>
     </div>
 
+<script>
+    // Close popup when user clicks the close button
+    function closePopup() {
+        document.querySelector('.tempdata-popup').style.display = 'none';
+    }
 
-    </div>
-    </div>
+        document.addEventListener("DOMContentLoaded", function () {
+            var totalScore = @ViewBag.TotalScore;
+            var maxScore = @ViewBag.TotalQuestionMarks;
 
-    <script>
-        // Close popup when user clicks the close button
-        function closePopup() {
-            document.querySelector('.tempdata-popup').style.display = 'none';
-        }
-    </script>
+            if (maxScore === 0) {
+                maxScore = 1;
+            }
+
+            var scorePercentage = (totalScore / maxScore) * 100;
+
+            var ctx = document.getElementById('scoreChart').getContext('2d');
+            var scoreChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Score', 'Remaining'],
+                    datasets: [{
+                        data: [scorePercentage, 100 - scorePercentage],
+                        backgroundColor: ['#28a745', '#dc3545'],
+                        hoverBackgroundColor: ['#218838', '#c82333']
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    maintainAspectRatio: false,
+                    width: 500,
+                    height: 500,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (tooltipItem) {
+                                    return tooltipItem.raw.toFixed(2) + "%";
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
+</script>
 </body>
