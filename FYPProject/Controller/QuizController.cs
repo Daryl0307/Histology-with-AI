@@ -907,7 +907,7 @@ public class QuizController : Controller
     {
         // Fetch responses for the quiz
         string summarySql = @"
-    SELECT q.QuestionText, a.AnswerText, CAST(r.Is_Correct AS BIT) AS'IsCorrect', Score
+    SELECT q.Question_ID,q.QuestionText, a.AnswerText, CAST(r.Is_Correct AS BIT) AS'IsCorrect', Score
     FROM Quiz_Responses r
     INNER JOIN Question q ON r.Question_ID = q.Question_ID
     INNER JOIN Answer a ON r.Answer_ID = a.Answer_ID
@@ -936,9 +936,32 @@ public class QuizController : Controller
         VALUES ({0}, '{1}', GETDATE(), {2})";
         int result = DBUtl.ExecSQL(insertSql, userid, quizCategory, totalScore);
 
+        string correctAnswerSql = @"SELECT 
+                                        Quiz.Quiz_Category AS 'QuizCategory', 
+                                        Q.Question_Id AS 'QuestionId',
+                                        STRING_AGG(A.AnswerText, ',') AS 'GroupedAnswerText', 
+                                        MAX(CAST(A.Is_Correct AS INT)) AS 'IsCorrect'
+                                    FROM 
+                                        Question Q 
+                                    INNER JOIN 
+                                        Quiz Quiz ON Quiz.Quiz_ID = Q.Quiz_ID 
+                                    INNER JOIN 
+                                        Answer A ON A.Question_ID = Q.Question_ID 
+                                    WHERE 
+                                        A.Is_Correct = 1 
+                                        AND Quiz.Quiz_Category = '{0}'
+                                    GROUP BY 
+                                        Quiz.Quiz_Category, 
+                                        Q.Question_Id";
+        var correctAnswer = DBUtl.GetList<CorrectAnswers>(correctAnswerSql, quizCategory);
+        var model = new QuizSummaryViewModel
+        {
+            QuizSummaryResponse = responses,
+            CorrectAnswewrs = correctAnswer
+        };
 
 
-        return View(responses);
+        return View(model);
     }
     public IActionResult Quit()
     {

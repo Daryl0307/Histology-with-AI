@@ -1,5 +1,5 @@
 ﻿@using FYPProject.Model;
-@model IEnumerable<QuizSummaryResponse>
+@model QuizSummaryViewModel
 
 
 
@@ -11,6 +11,17 @@
             <button type="button" class="btn-close" onclick="closePopup();">&times;</button>
         </div>
     </div>
+
+    <script>
+        function closePopup() {
+            $('.tempdata-popup').removeClass('active');
+        }
+
+        $(document).ready(function () {
+            $('.tempdata-popup').addClass('active');
+            // Auto-close popup after 3 setTimeout(function () {closePopup();}, 3000);
+        });
+    </script>
 }
 
 
@@ -50,10 +61,11 @@
                                 <th scope="col">Answer</th>
                                 <th scope="col">Correct</th>
                                 <th scope="col">Score</th>
+                                <th scope="col">Correct Answers</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var response in Model)
+                            @foreach (var response in Model.QuizSummaryResponse)
                             {
                                 <tr>
                                     <td>@response.QuestionText</td>
@@ -69,6 +81,13 @@
                                         }
                                     </td>
                                     <td>@response.Score</td>
+                                    @foreach (var correctAnswer in Model.CorrectAnswewrs)
+                                    {
+                                        if (response.Question_ID == correctAnswer.QuestionId)
+                                        {
+                                            <td>@correctAnswer.GroupedAnswerText</td>
+                                        }
+                                    }
                                 </tr>
                             }
                         </tbody>
