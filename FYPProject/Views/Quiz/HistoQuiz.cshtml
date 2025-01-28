@@ -160,7 +160,15 @@
                                     <tr data-category="@quizStatistics.QuizCategory">
                                         <td>@quizStatistics.DateAttempted.ToString("yyyy-MM-dd")</td>
                                         <td>@quizStatistics.QuizCategory</td>
-                                        <td>@quizStatistics.Score</td>
+                                        @foreach (var histoQuiz in Model.HistoQuiz)
+                                        {
+                                            if (quizStatistics.QuizCategory == histoQuiz.QuizCategory)
+                                            {
+                                                <td>@quizStatistics.Score/@histoQuiz.TotalQuestionMarks</td>
+                                            }
+
+                                        }
+
                                     </tr>
                                 }
                             }
