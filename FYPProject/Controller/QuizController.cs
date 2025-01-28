@@ -523,17 +523,25 @@ public class QuizController : Controller
 
                 if (model.Photo_URL == null)
                 {
-
                     TempData["Message"] = "Please delete the ones with the null url";
                     TempData["MsgType"] = "danger";
                 }
                 else
                 {
-                    string fullpath = Path.Combine(_env.WebRootPath, "images", model.Quiz_Category, model.Photo_URL).Replace("\\", "/");
-                    System.IO.File.Delete(fullpath);
-                    string picfilename = DoPhotoUpload(model.Photo, model.Quiz_Category);
-                    string updatePhoto = @"UPDATE Photos SET Photo_URL = '{1}'  WHERE Quiz_ID = {0}";
-                    int photoResult = DBUtl.ExecSQL(updatePhoto, model.Question_ID, picfilename);
+
+                    if (model.Photo != null)
+                    {
+                        string fullpath = Path.Combine(_env.WebRootPath, "images", model.Quiz_Category, model.Photo_URL).Replace("\\", "/");
+                        if (!System.IO.File.Exists(fullpath))
+                        {
+                            System.IO.File.Delete(fullpath);
+                        }
+                        string picfilename = DoPhotoUpload(model.Photo, model.Quiz_Category);
+                        string updatePhoto = @"UPDATE Photos SET Photo_URL = '{1}'  WHERE Quiz_ID = {0}";
+                        int photoResult = DBUtl.ExecSQL(updatePhoto, model.Question_ID, picfilename);
+                    }
+
+
                 }
 
             }
