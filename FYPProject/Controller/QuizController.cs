@@ -33,14 +33,18 @@ public class QuizController : Controller
         string deleteSavedQuestionId = @"DELETE FROM UserAnsweredQuestions";
         int resultDeleteSaved = DBUtl.ExecSQL(deleteSavedQuestionId);
 
-
+        double totalMarks = 0;
+        double totalScore = 0;
         double noofpass = 0;
         double passingScore = 0;
         for (int i = 0; i < quizlist.Count; i++)
         {
+
             passingScore = quizlist[i].TotalQuestionMarks / 2;
             for (int j = 0; j < statisticslist.Count; j++)
             {
+                totalMarks += quizlist[i].TotalQuestionMarks;
+                totalScore += statisticslist[j].Score;
                 if (statisticslist[j].Score >= passingScore)
                 {
                     noofpass++;
@@ -49,15 +53,20 @@ public class QuizController : Controller
 
         }
 
+        double avgScore = (totalScore / totalMarks) * 100;
+
         double passpercent = ((noofpass / statisticslist.Count) * 100);
 
         ViewBag.passpercent = Math.Round(passpercent, 2);
+        ViewBag.avgScore = Math.Round(avgScore, 2);
 
         var viewModel = new HistoQuizViewModel
         {
             HistoQuiz = quizlist,
             QuizStatistics = statisticslist
         };
+
+
         ViewData["Tissue_Info"] = GetListTissue();
         return View(viewModel);
     }
