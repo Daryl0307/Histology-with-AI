@@ -39,75 +39,85 @@
         });
     </script>
 }
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-<link href="~/css/QuizManagement.css" rel="stylesheet" />
+<head>
+    <title>Interactive Quizzes</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="icon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href='https://fonts.googleapis.com/css2?family=Raleway:wght@400;600&display=swap' rel='stylesheet'>
+    <link href="~/css/HistoQuiz.css" rel="stylesheet" />
+</head>
 <body>
     @await Html.PartialAsync("navbar")
     <div class="container mt-5">
         <div class="card big-card">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
-                    <h1 style="font-weight:400">Answers</h1>
-                    <a class="btn btn-add-quiz" asp-controller="Quiz" asp-action="AddAnswer" asp-route-id="@ViewBag.QuestionId" role="button"><i class="fas fa-plus"></i> Add Answer</a>
-                </div>
 
-                <table id="jsTable" class="table">
-                    <thead>
-                        <tr>
-                            <th scope="col">Question ID</th>
-                            <th scope="col">Answer ID</th>
-                            <th scope="col">Answer Text</th>
-                            <th scope="col">Correct Answer</th>
-                            <th scope="col">Marks</th>
-                            <th scope="col">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (Model != null && Model.Any())
-                        {
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+                <h1 style="font-weight:400">Answers</h1>
+                <a class="btn btn-primary" asp-controller="Quiz" asp-action="AddAnswer" asp-route-id="@ViewBag.QuestionId" role="button"><i class="fas fa-plus"></i> Add Answer</a>
+            </div>
+            <div class="card mt-4">
+                <div class="table-responsive">
+                    <table id="jsTable" class="table table-bordered table-striped">
+                        <thead class="table-header">
+                            <tr>
+                                <th scope="col">Question ID</th>
+                                <th scope="col">Answer ID</th>
+                                <th scope="col">Answer Text</th>
+                                <th scope="col">Correct Answer</th>
+                                <th scope="col">Marks</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.Any())
+                            {
 
 
-                            foreach (var answer in Model)
+                                foreach (var answer in Model)
+                                {
+                                    <tr>
+                                        <td>@answer.QuestionId</td>
+                                        <td>@answer.AnswerId</td>
+                                        <td>@answer.AnswerText</td>
+                                        <td>
+                                            @if (answer.Is_Correct)
+                                            {
+                                                <span class="text-success">Yes</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-danger">No</span>
+                                            }
+                                        </td>
+                                        <td>@answer.Marks</td>
+                                        <td>
+                                            <a asp-controller="Quiz" asp-action="UpdateAnswer" asp-route-id="@answer.AnswerId" title="Edit">
+                                                <i class="fas fa-pencil-alt text-primary"></i>
+                                            </a>
+                                            <span>|</span>
+                                            <a asp-controller="Quiz" asp-action="DeleteAnswer" asp-route-id="@answer.AnswerId"
+                                               onclick="return confirm('Are you sure you want to delete this answer?');" title="Delete">
+                                                <i class="fas fa-trash text-danger"></i>
+                                            </a>
+                                        </td>
+
+                                    </tr>
+                                }
+
+                            }
+                            else
                             {
                                 <tr>
-                                    <td>@answer.QuestionId</td>
-                                    <td>@answer.AnswerId</td>
-                                    <td>@answer.AnswerText</td>
-                                    <td>
-                                        @if (answer.Is_Correct)
-                                        {
-                                            <span class="text-success">Yes</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="text-danger">No</span>
-                                        }
-                                    </td>
-                                    <td>@answer.Marks</td>
-                                    <td>
-                                        <a asp-controller="Quiz" asp-action="UpdateAnswer" asp-route-id="@answer.AnswerId" title="Edit">
-                                            <i class="fas fa-pencil-alt text-primary"></i>
-                                        </a>
-                                        <span>|</span>
-                                        <a asp-controller="Quiz" asp-action="DeleteAnswer" asp-route-id="@answer.AnswerId"
-                                           onclick="return confirm('Are you sure you want to delete this answer?');" title="Delete">
-                                            <i class="fas fa-trash text-danger"></i>
-                                        </a>
-                                    </td>
-
+                                    <td colspan="6" class="text-center">No answers available.</td>
                                 </tr>
                             }
+                        </tbody>
+                    </table>
+                </div>
 
-                        }
-                        else
-                        {
-                            <tr>
-                                <td colspan="6" class="text-center">No answers available.</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
             </div>
         </div>
     </div>
