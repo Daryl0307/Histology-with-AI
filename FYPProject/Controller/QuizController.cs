@@ -418,6 +418,41 @@ public class QuizController : Controller
             return View("UpdateAnswer", model); // Return the view with the model
         }
 
+        string questionTypeSql = @"SELECT Q.QuestionType FROM Answer INNER JOIN Question Q ON Q.Question_ID = Answer.Question_ID WHERE Answer.Question_ID = {0} AND Answer_ID = {1}";
+        string questionType = Convert.ToString(DBUtl.GetValue(questionTypeSql, model.QuestionId, model.AnswerId));
+
+        string noofCorrectAnswerSql = @"SELECT COUNT(*) FROM Answer WHERE Is_Correct = 1 AND Question_ID = {0}";
+        int noofCorrectAnswer = Convert.ToInt32(DBUtl.GetValue(noofCorrectAnswerSql, model.QuestionId));
+
+        string AnswerTextsql = @"SELECT AnswerText FROM Answer WHERE Answer_ID = {0}";
+        string answerText = Convert.ToString(DBUtl.GetValue(AnswerTextsql, model.AnswerId));
+
+        if (questionType == "Multiple Choice (Radio)" && noofCorrectAnswer == 1 && model.Is_Correct)
+        {
+            TempData["Message"] = "You're not allowed to have more than 1 correct answer in this question type.";
+            TempData["MsgType"] = "danger";
+            return RedirectToAction("AnswerList", new { id = model.QuestionId });
+        }
+        else if (questionType == "Multiple Choice (Dropdown)" && noofCorrectAnswer == 1 && model.Is_Correct)
+        {
+            TempData["Message"] = "You're not allowed to have more than 1 correct answer in this question type.";
+            TempData["MsgType"] = "danger";
+            return RedirectToAction("AnswerList", new { id = model.QuestionId });
+
+        }
+        else if (questionType == "Multiple Choice (Radio)" && noofCorrectAnswer == 1 && !model.Is_Correct && answerText == model.AnswerText)
+        {
+            TempData["Message"] = "You're not allowed to have no correct answer.";
+            TempData["MsgType"] = "danger";
+            return RedirectToAction("AnswerList", new { id = model.QuestionId });
+        }
+        else if (questionType == "Multiple Choice (Dropdown)" && noofCorrectAnswer == 1 && !model.Is_Correct && answerText == model.AnswerText)
+        {
+            TempData["Message"] = "You're not allowed to have no correct answer.";
+            TempData["MsgType"] = "danger";
+            return RedirectToAction("AnswerList", new { id = model.QuestionId });
+        }
+
 
         string questionidsql = @"SELECT Question_ID FROM Answer WHERE Answer_ID = {0}";
         int questionid = Convert.ToInt32(DBUtl.GetValue(questionidsql, model.AnswerId));
@@ -432,16 +467,7 @@ public class QuizController : Controller
         string correctAnswersSql = @"SELECT COUNT(*) FROM Answer WHERE Question_ID = {0} AND Is_Correct = 1";
         int correctAnswersCount = Convert.ToInt32(DBUtl.GetValue(correctAnswersSql, questionid));
 
-        // If there are no correct answers and the current answer is not being marked as correct, show an error
-        // Check if marking this answer as incorrect will result in all answers being incorrect
-        bool allIncorrect = correctAnswersCount == 1 && !model.Is_Correct;
 
-        if (allIncorrect)
-        {
-            TempData["Message"] = "At least one answer must be marked as correct.";
-            TempData["MsgType"] = "danger";
-            return RedirectToAction("Management", new { quizCategory = category });
-        }
 
 
         // Doesn't allow 0 for marks input
@@ -449,7 +475,7 @@ public class QuizController : Controller
         {
             TempData["Message"] = "Please input more than 0 marks.";
             TempData["MsgType"] = "danger";
-            return RedirectToAction("Management", new { quizCategory = category });
+            return RedirectToAction("NewManagement", new { quizCategory = category });
         }
 
         bool hasOnlyOneIncorrect = incorrectAnswersCount == 1;
@@ -458,7 +484,7 @@ public class QuizController : Controller
         {
             TempData["Message"] = "Too much correct answers";
             TempData["MsgType"] = "danger";
-            return RedirectToAction("Management", new { quizCategory = category });
+            return RedirectToAction("NewManagement", new { quizCategory = category });
         }
 
         double answerMarks = Convert.ToDouble(DBUtl.GetValue(answerMarksSql, model.AnswerId));
@@ -507,8 +533,9 @@ public class QuizController : Controller
 
 
         // Explicitly return RedirectToAction
-        return RedirectToAction("Management", new { quizCategory = category });
+        return RedirectToAction("NewManagement", new { quizCategory = category });
     }
+
 
     [HttpGet]
     public IActionResult UpdateQuiz(int id)
