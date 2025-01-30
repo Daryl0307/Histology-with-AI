@@ -292,7 +292,7 @@ public class QuizController : Controller
                 TempData["MsgType"] = "danger";
             }
 
-            return RedirectToAction("Management");
+            return RedirectToAction("QuizView");
         }
 
 
@@ -316,6 +316,8 @@ public class QuizController : Controller
     [HttpPost]
     public IActionResult AddAnswer(Answer model)
     {
+        string categorySql = @"SELECT Quiz_Category AS 'Quiz Category' FROM Quiz WHERE Quiz_ID = {0}";
+        string category = Convert.ToString(DBUtl.GetValue(categorySql, model.QuestionId));
 
         ModelState.Remove("AnswerId");
         if (!ModelState.IsValid)
@@ -373,7 +375,7 @@ public class QuizController : Controller
                 }
             }
         }
-        return RedirectToAction("Management");
+        return RedirectToAction("Management", new { quizCategory = category });
     }
 
     [HttpGet]
@@ -402,6 +404,8 @@ public class QuizController : Controller
     [HttpPost]
     public IActionResult UpdateAnswer(Answer model)
     {
+        string categorySql = @"SELECT Quiz_Category AS 'Quiz Category' FROM Quiz WHERE Quiz_ID = {0}";
+        string category = Convert.ToString(DBUtl.GetValue(categorySql, model.QuestionId));
         if (!ModelState.IsValid)
         {
             foreach (var state in ModelState)
@@ -436,7 +440,7 @@ public class QuizController : Controller
         {
             TempData["Message"] = "At least one answer must be marked as correct.";
             TempData["MsgType"] = "danger";
-            return RedirectToAction("Management");
+            return RedirectToAction("Management", new { quizCategory = category });
         }
 
 
@@ -445,7 +449,7 @@ public class QuizController : Controller
         {
             TempData["Message"] = "Please input more than 0 marks.";
             TempData["MsgType"] = "danger";
-            return RedirectToAction("Management");
+            return RedirectToAction("Management", new { quizCategory = category });
         }
 
         bool hasOnlyOneIncorrect = incorrectAnswersCount == 1;
@@ -454,7 +458,7 @@ public class QuizController : Controller
         {
             TempData["Message"] = "Too much correct answers";
             TempData["MsgType"] = "danger";
-            return RedirectToAction("Management");
+            return RedirectToAction("Management", new { quizCategory = category });
         }
 
         double answerMarks = Convert.ToDouble(DBUtl.GetValue(answerMarksSql, model.AnswerId));
@@ -503,7 +507,7 @@ public class QuizController : Controller
 
 
         // Explicitly return RedirectToAction
-        return RedirectToAction("Management");
+        return RedirectToAction("Management", new { quizCategory = category });
     }
 
     [HttpGet]
@@ -531,7 +535,8 @@ public class QuizController : Controller
     public IActionResult UpdateQuiz(QuizViewModelForManagement model)
     {
 
-
+        string categorySql = @"SELECT Quiz_Category AS 'Quiz Category' FROM Quiz WHERE Quiz_ID = {0}";
+        string category = Convert.ToString(DBUtl.GetValue(categorySql, model.Question_ID));
         if (!ModelState.IsValid)
         {
             foreach (var state in ModelState)
@@ -605,11 +610,13 @@ public class QuizController : Controller
         }
 
 
-        return RedirectToAction("Management");
+        return RedirectToAction("Management", new { quizCategory = category });
     }
 
     public IActionResult DeleteAnswer(int id)
     {
+        string categorySql = @"SELECT Quiz_Category AS 'Quiz Category' FROM Quiz WHERE Quiz_ID = {0}";
+        string category = Convert.ToString(DBUtl.GetValue(categorySql, id));
         string sql = @"SELECT * FROM Answer WHERE Answer_ID = {0}";
         DataTable ds = DBUtl.GetTable(sql, id);
         if (ds.Rows.Count != 1)
@@ -648,11 +655,13 @@ public class QuizController : Controller
                 }
             }
         }
-        return RedirectToAction("Management");
+        return RedirectToAction("Management", new { quizCategory = category });
     }
 
     public IActionResult DeleteQuiz(int id)
     {
+        string categorySql = @"SELECT Quiz_Category AS 'Quiz Category' FROM Quiz WHERE Quiz_ID = {0}";
+        string quizcategory = Convert.ToString(DBUtl.GetValue(categorySql, id));
         string sql = @"SELECT * FROM Quiz WHERE Quiz_ID = {0}";
         DataTable ds = DBUtl.GetTable(sql, id);
         if (ds.Rows.Count != 1)
@@ -706,7 +715,7 @@ public class QuizController : Controller
 
 
         }
-        return RedirectToAction("Management");
+        return RedirectToAction("Management", new { quizCategory = quizcategory });
     }
 
     [HttpGet]
