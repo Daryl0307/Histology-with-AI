@@ -39,16 +39,9 @@
         });
     </script>
 }
-<head>
-    <title>Interactive Quizzes</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" type="image/png" href="icon.png">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link href='https://fonts.googleapis.com/css2?family=Raleway:wght@400;600&display=swap' rel='stylesheet'>
-    <link href="~/css/HistoQuiz.css" rel="stylesheet" />
-</head>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<link href="~/css/HistoQuiz.css" rel="stylesheet" />
 <body>
     @await Html.PartialAsync("navbar")
     <div class="container mt-5">
@@ -56,7 +49,11 @@
 
             <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
                 <h1 style="font-weight:400">Answers</h1>
-                <a class="btn btn-primary" asp-controller="Quiz" asp-action="AddAnswer" asp-route-id="@ViewBag.QuestionId" role="button"><i class="fas fa-plus"></i> Add Answer</a>
+
+                @if (Model != null && Model.Count() < 4)
+                {
+                    <a class="btn btn-primary" asp-controller="Quiz" asp-action="AddAnswer" asp-route-id="@ViewBag.QuestionId" role="button"><i class="fas fa-plus"></i> Add Answer</a>
+                }
             </div>
             <div class="card mt-4">
                 <div class="table-responsive">
