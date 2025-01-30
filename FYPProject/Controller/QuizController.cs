@@ -85,7 +85,45 @@ public class QuizController : Controller
 
         return View(answerList);
     }
-    public IActionResult Management()
+
+    public IActionResult QuizView()
+    {
+        List<HistoQuiz> quizlist = DBUtl.GetList<HistoQuiz>("SELECT Quiz.Quiz_Category AS 'QuizCategory',  SUM(Q.QuestionMarks) AS 'TotalQuestionMarks' FROM Quiz INNER JOIN Question Q ON Quiz.Quiz_ID = Q.Quiz_ID  GROUP BY Quiz.Quiz_Category");
+        List<QuizStatistics> statisticslist = DBUtl.GetList<QuizStatistics>("SELECT User_Id AS 'UserId', Quiz_Category AS 'QuizCategory', Date_Attempted AS 'DateAttempted', Score FROM Quiz_Statistics ");
+
+        double totalMarks = 0;
+        double totalScore = 0;
+        double noofpass = 0;
+        double passingScore = 0;
+        for (int i = 0; i < quizlist.Count; i++)
+        {
+
+            passingScore = quizlist[i].TotalQuestionMarks / 2;
+            for (int j = 0; j < statisticslist.Count; j++)
+            {
+                totalMarks += quizlist[i].TotalQuestionMarks;
+                totalScore += statisticslist[j].Score;
+                if (statisticslist[j].Score >= passingScore)
+                {
+                    noofpass++;
+                }
+            }
+            ViewData["tissue_info"] = GetListTissue();
+            string totalAttemptssql = @"SELECT COUNT(*) FROM Quiz_Statistics";
+            int totalAttempts = Convert.ToInt32(DBUtl.GetValue(totalAttemptssql));
+            ViewBag.TotalAttempts = totalAttempts;
+
+        }
+
+
+        double passpercent = ((noofpass / statisticslist.Count) * 100);
+
+        ViewBag.passpercent = Math.Round(passpercent, 2);
+
+        return View(quizlist);
+    }
+
+    public IActionResult Management(string quizCategory)
     {
         string query = @"
         SELECT 
@@ -106,10 +144,14 @@ public class QuizController : Controller
             Photos P ON P.Quiz_ID = Quiz.Quiz_ID
         LEFT JOIN 
             Answer A ON A.Question_ID = Q.Question_ID
+        WHERE 
+            Quiz.Quiz_Category = '{0}'
         ORDER BY 
-            Q.Question_ID, A.AnswerText";
+            Q.Question_ID, A.AnswerText
+       
+        ";
 
-        var data = DBUtl.GetTable(query);
+        var data = DBUtl.GetTable(query, quizCategory);
 
         if (data.Rows.Count == 0)
         {
@@ -151,39 +193,6 @@ public class QuizController : Controller
                 return quiz;
             })
             .ToList();
-        ViewData["tissue_info"] = GetListTissue();
-        string totalAttemptssql = @"SELECT COUNT(*) FROM Quiz_Statistics";
-        int totalAttempts = Convert.ToInt32(DBUtl.GetValue(totalAttemptssql));
-        ViewBag.TotalAttempts = totalAttempts;
-
-        List<HistoQuiz> quizlist = DBUtl.GetList<HistoQuiz>("SELECT Quiz.Quiz_Category AS 'QuizCategory',  SUM(Q.QuestionMarks) AS 'TotalQuestionMarks' FROM Quiz INNER JOIN Question Q ON Quiz.Quiz_ID = Q.Quiz_ID  GROUP BY Quiz.Quiz_Category");
-        List<QuizStatistics> statisticslist = DBUtl.GetList<QuizStatistics>("SELECT User_Id AS 'UserId', Quiz_Category AS 'QuizCategory', Date_Attempted AS 'DateAttempted', Score FROM Quiz_Statistics ");
-
-        double totalMarks = 0;
-        double totalScore = 0;
-        double noofpass = 0;
-        double passingScore = 0;
-        for (int i = 0; i < quizlist.Count; i++)
-        {
-
-            passingScore = quizlist[i].TotalQuestionMarks / 2;
-            for (int j = 0; j < statisticslist.Count; j++)
-            {
-                totalMarks += quizlist[i].TotalQuestionMarks;
-                totalScore += statisticslist[j].Score;
-                if (statisticslist[j].Score >= passingScore)
-                {
-                    noofpass++;
-                }
-            }
-
-        }
-
-
-        double passpercent = ((noofpass / statisticslist.Count) * 100);
-
-        ViewBag.passpercent = Math.Round(passpercent, 2);
-
 
         return View(groupedQuizzes);
 
