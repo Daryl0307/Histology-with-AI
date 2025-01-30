@@ -13,6 +13,8 @@
                 lengthChange: true,
                 pageLength: 5,
                 stateSave: true,
+                searching: false
+
             });
         });
     </script>
@@ -50,9 +52,19 @@
             <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
                 <h1 style="font-weight:400">Answers</h1>
 
+
+
                 @if (Model != null && Model.Count() < 4)
                 {
-                    <a class="btn btn-primary" asp-controller="Quiz" asp-action="AddAnswer" asp-route-id="@ViewBag.QuestionId" role="button"><i class="fas fa-plus"></i> Add Answer</a>
+                    if (ViewBag.QuestionType == "Multiple Choice (Radio)" && ViewBag.AnswerCount == 2)
+                    {
+
+                    }
+                    else
+                    {
+                        <a class="btn btn-primary" asp-controller="Quiz" asp-action="AddAnswer" asp-route-id="@ViewBag.QuestionId" role="button"><i class="fas fa-plus"></i> Add Answer</a>
+
+                    }
                 }
             </div>
             <div class="card mt-4">

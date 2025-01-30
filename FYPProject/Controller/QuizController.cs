@@ -82,6 +82,10 @@ public class QuizController : Controller
             return View();
         }
         ViewBag.QuestionId = answerList[0].QuestionId;
+        string questionTypeSql = @"SELECT QuestionType FROM Question WHERE Question_Id = {0}";
+        string questionType = Convert.ToString(DBUtl.GetValue(questionTypeSql, id));
+        ViewBag.QuestionType = questionType;
+        ViewBag.AnswerCount = answerList.Count; // Passing the count of answers
 
         return View(answerList);
     }
