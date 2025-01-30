@@ -1160,8 +1160,8 @@ public class QuizController : Controller
 
     private static SelectList GetListTissue()
     {
-        //string tissueSql = @"SELECT LTRIM(CONVERT(Tissue_ID, CHAR)) as Value, Tissue_Name as Text FROM Tissue_Info;";
-        string tissueSql = @"SELECT LTRIM(Tissue_ID) as 'Value', Tissue_Name as 'Text' FROM Tissue_Info";
+        //string tissueSql = @"SELECT LTRIM(CONVERT(Tissue_ID, CHAR)) as `Value`, Tissue_Name as `Text` FROM Tissue_Info;";
+        string tissueSql = @"SELECT DISTINCT Quiz_Category as 'Value', Quiz_Category as 'Text' FROM Quiz";
         List<SelectListItem> lstTissue = DBUtl.GetList<SelectListItem>(tissueSql);
         return new SelectList(lstTissue, "Value", "Text");
     }
