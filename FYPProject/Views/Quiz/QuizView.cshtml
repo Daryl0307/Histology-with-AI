@@ -25,7 +25,9 @@
 
                 </div>
                 <div class="col-md-6 d-flex justify-content-end align-items-center">
-                    <a class="btn btn-primary" asp-controller="Quiz" asp-action="AddQuiz" role="button"><i class="fas fa-plus"></i> Add Quiz</a>
+                    <a class="btn btn-primary" asp-controller="Quiz" asp-action="AddQuizCategory" role="button"><i class="fas fa-plus"></i> Add Quiz Category</a>
+
+                    <a class="btn btn-primary ms-2" asp-controller="Quiz" asp-action="AddQuiz" role="button"><i class="fas fa-plus"></i> Add Quiz</a>
                 </div>
             </div>
 
@@ -98,7 +100,7 @@
                                     <h5 class="card-title">@HistoQuiz.QuizCategory</h5>
                                     <p class="card-text">Marks: @HistoQuiz.TotalQuestionMarks</p>
 
-                                    <a asp-controller="Quiz" asp-action="Management" asp-route-quizCategory="@HistoQuiz.QuizCategory" class="btn btn-primary">Manage Quiz</a>
+                                    <a asp-controller="Quiz" asp-action="NewManagement" asp-route-quizCategory="@HistoQuiz.QuizCategory" class="btn btn-primary">Manage Quiz</a>
                                 </div>
                             </div>
                         </div>

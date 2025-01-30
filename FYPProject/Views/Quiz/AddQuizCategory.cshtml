@@ -1,0 +1,33 @@
+﻿@model FYPProject.Model.Quiz
+
+<head>
+    <meta charset="UTF-8">
+    <link href="~/css/AddQuiz.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Quiz</title>
+</head>
+<body>
+    @await Html.PartialAsync("navbar")
+    <form id="quiz-form" asp-controller="Quiz" asp-action="AddQuizCategory" method="post" enctype="multipart/form-data">
+        <input type="hidden" asp-for="QuizId" />
+        <label asp-for="QuizCategory">Category:</label>
+        <input asp-for="QuizCategory" type="text" id="QuestionText" name="QuizCategory" required>
+        <button type="submit">Submit</button>
+    </form>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="validation-summary-errors">
+            @foreach (var state in ViewData.ModelState)
+            {
+                foreach (var error in state.Value.Errors)
+                {
+                    <p>@state.Key :: @error.ErrorMessage</p>
+                }
+            }
+        </div>
+    }
+
+</body>

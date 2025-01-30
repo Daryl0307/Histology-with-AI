@@ -19,6 +19,69 @@ public class QuizController : Controller
         _env = environment;
     }
 
+    [HttpGet]
+    public IActionResult AddQuizCategory()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    public IActionResult AddQuizCategory(Quiz model)
+    {
+        ModelState.Remove("QuizId");
+        if (!ModelState.IsValid)
+        {
+            foreach (var state in ModelState)
+            {
+                Console.WriteLine($"{state.Key} :: {string.Join(", ", state.Value.Errors.Select(e => e.ErrorMessage))}");
+            }
+
+            TempData["Message"] = "Please correct the errors.";
+            TempData["MsgType"] = "danger";
+            return View("AddQuizCategory", model);
+        }
+        else
+        {
+            string quizCategorysql = @"SELECT DISTINCT Quiz_Category 'QuizCategory' FROM Quiz";
+            var quizCategoryList = DBUtl.GetList<Quiz>(quizCategorysql);
+
+            bool categoryExists = false;
+
+            foreach (var quizCategory in quizCategoryList)
+            {
+                if (string.Equals(quizCategory.QuizCategory?.Trim(), model.QuizCategory, StringComparison.OrdinalIgnoreCase))
+                {
+                    categoryExists = true;
+                    break;
+                }
+            }
+            if (categoryExists)
+            {
+                TempData["Message"] = "Quiz Category Already Exists";
+                TempData["MsgType"] = "danger";
+            }
+            else
+            {
+
+                string addQuizCategorySql = @"INSERT INTO Quiz(Quiz_Category) VALUES ('{0}')";
+                int result = DBUtl.ExecSQL(addQuizCategorySql, model.QuizCategory);
+                if (result == 1)
+                {
+                    TempData["Message"] = "Quiz Category created successfully!";
+                    TempData["MsgType"] = "success";
+                }
+                else
+                {
+                    TempData["Message"] = DBUtl.DB_Message;
+                    TempData["MsgType"] = "danger";
+                }
+            }
+
+        }
+
+        return RedirectToAction("QuizView");
+    }
+
     public IActionResult HistoQuiz()
     {
 
