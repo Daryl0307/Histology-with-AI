@@ -303,12 +303,23 @@ public class QuizController : Controller
         string questionsql = @"SELECT * FROM Question WHERE Question_ID = {0}";
         int result = DBUtl.ExecSQL(questionsql, id);
         ViewBag.QuestionId = id;
+
+        // Get the question type and the number of correct answers
+        string questionTypeSql = @"SELECT Q.QuestionType FROM Question Q WHERE Q.Question_ID = {0}";
+        string questionType = Convert.ToString(DBUtl.GetValue(questionTypeSql, id));
+
+        string noofCorrectAnswerSql = @"SELECT COUNT(*) FROM Answer WHERE Is_Correct = 1 AND Question_ID = {0}";
+        int noofCorrectAnswer = Convert.ToInt32(DBUtl.GetValue(noofCorrectAnswerSql, id));
+
+        ViewBag.QuestionType = questionType;
+        ViewBag.NoOfCorrectAnswer = noofCorrectAnswer;
         if (result == 0)
         {
             TempData["Message"] = "Answer record does not exist";
             TempData["MsgType"] = "danger";
-            return RedirectToAction("Management");
+            return RedirectToAction("QuizView");
         }
+
         return View("AddAnswer");
 
     }

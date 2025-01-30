@@ -6,9 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Content Remove="Views\Quiz\AddAnswer.cshtml" />
-  </ItemGroup>
+
 
   <ItemGroup>
     <None Include="Views\Error.cshtml" />
