@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <link href="~/css/AddQuiz.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Quiz</title>
@@ -45,8 +46,13 @@
 
         <label asp-for="Photo.PhotoFile">Picture:</label>
         <img id="image-preview" alt="Image Preview" style="display:none; max-width:200px; max-height:200px;">
-        <input asp-for="Photo.PhotoFile" type="file" id="PhotoFile" name="Photo.PhotoFile">
-        <button type="button" id="remove-photo" style="display:none;">Remove</button>
+        <div class="file-input-container">
+            <input asp-for="Photo.PhotoFile" type="file" id="PhotoFile" name="Photo.PhotoFile">
+            <button type="button" id="remove-photo" style="display:none;">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+
         <span asp-validation-for="Photo.PhotoFile" class="text-danger"></span>
 
         <div id="total-marks-container">
