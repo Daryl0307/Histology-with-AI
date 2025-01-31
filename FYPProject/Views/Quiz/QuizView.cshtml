@@ -100,7 +100,9 @@
                                     <h5 class="card-title">@HistoQuiz.QuizCategory</h5>
                                     <p class="card-text">Marks: @HistoQuiz.TotalQuestionMarks</p>
 
-                                    <a asp-controller="Quiz" asp-action="NewManagement" asp-route-quizCategory="@HistoQuiz.QuizCategory" class="btn btn-primary">Manage Quiz</a>
+                                    <a asp-controller="Quiz" asp-action="Management" asp-route-quizCategory="@HistoQuiz.QuizCategory" class="btn btn-primary">Manage Quiz</a>
+                                    <a asp-controller="Quiz" asp-action="QuizStatistics" asp-route-quizCategory="@HistoQuiz.QuizCategory" class="btn btn-primary">Quiz Statistics</a>
+
                                 </div>
                             </div>
                         </div>

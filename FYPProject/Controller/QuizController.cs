@@ -19,6 +19,74 @@ public class QuizController : Controller
         _env = environment;
     }
 
+    public IActionResult QuizStatistics(string quizCategory)
+    {
+        List<HistoQuiz> quizlist = DBUtl.GetList<HistoQuiz>("SELECT Quiz.Quiz_Category AS 'QuizCategory',  SUM(Q.QuestionMarks) AS 'TotalQuestionMarks' FROM Quiz INNER JOIN Question Q ON Quiz.Quiz_ID = Q.Quiz_ID  GROUP BY Quiz.Quiz_Category");
+        int noofusers = Convert.ToInt32(DBUtl.GetValue("SELECT COUNT(*) FROM User_Info"));
+        int usersAttempted = Convert.ToInt32(DBUtl.GetValue("SELECT COUNT(DISTINCT(User_ID)) FROM Quiz_Statistics WHERE Quiz_Category = '{0}'", quizCategory));
+        List<QuizStatistics> statisticslist = DBUtl.GetList<QuizStatistics>("SELECT User_Id AS 'UserId', Quiz_Category AS 'QuizCategory', Date_Attempted AS 'DateAttempted', Score FROM Quiz_Statistics WHERE Quiz_Category = '{0}'", quizCategory);
+        List<QuizStatistics> HighestsScorePerUserlist = DBUtl.GetList<QuizStatistics>(
+                                    "WITH RankedAttempts AS ( " +
+                                    "SELECT S.User_Id AS UserId, Quiz_Category AS QuizCategory, ui.Username, " +
+                                    "Date_Attempted AS DateAttempted, Score, " +
+                                    "ROW_NUMBER() OVER ( " +
+                                    "PARTITION BY S.User_Id " +  // <-- Added space
+                                    "ORDER BY Score DESC,  Date_Attempted DESC) AS RowNum " +  // <-- Added space
+                                    "FROM Quiz_Statistics S " +  // <-- Added alias S
+                                    "INNER JOIN User_Info ui ON ui.User_ID = S.User_ID " +
+                                    "WHERE Quiz_Category = '{0}' ) " +  // <-- Added space
+                                    "SELECT UserId, Username, QuizCategory, DateAttempted, Score " +
+                                    "FROM RankedAttempts " +
+                                    "WHERE RowNum = 1" +
+                                    "ORDER BY Score DESC; ", quizCategory);  // <-- Passing quizCategory properly
+
+        string getHighestScoreUser = @"SELECT TOP 1 ui.Username
+FROM Quiz_Statistics S
+INNER JOIN User_Info ui ON ui.User_ID = S.User_ID
+WHERE S.Quiz_Category = '{0}'
+ORDER BY S.Score DESC;
+
+";
+        string getHighestScore = @"SELECT TOP 1 S.Score
+FROM Quiz_Statistics S
+INNER JOIN User_Info ui ON ui.User_ID = S.User_ID
+WHERE S.Quiz_Category = '{0}'
+ORDER BY S.Score DESC;
+
+";
+        int HighScore = Convert.ToInt32(DBUtl.GetValue(getHighestScore, quizCategory));
+        string HighScoreUser = Convert.ToString(DBUtl.GetValue(getHighestScoreUser, quizCategory));
+
+        double totalMarks = 0;
+        double totalScore = 0;
+        double noofpass = 0;
+        double passingScore = 0;
+        for (int i = 0; i < quizlist.Count; i++)
+        {
+
+            passingScore = quizlist[i].TotalQuestionMarks / 2;
+            for (int j = 0; j < statisticslist.Count; j++)
+            {
+                totalMarks += quizlist[i].TotalQuestionMarks;
+                totalScore += statisticslist[j].Score;
+                if (statisticslist[j].Score >= passingScore)
+                {
+                    noofpass++;
+                }
+            }
+
+        }
+        double userAttemptPercent = (usersAttempted / noofusers) * 100;
+        double avgScore = (totalScore / totalMarks) * 100;
+        double highScore = (HighScore / totalMarks) * 100;
+        ViewBag.QuizCategory = quizCategory;
+        ViewBag.HighScore = highScore;
+        ViewBag.HighScoreUser = HighScoreUser;
+        ViewBag.userAttemptPercent = userAttemptPercent;
+        ViewBag.avgScore = Math.Round(avgScore, 2);
+        return View(HighestsScorePerUserlist);
+    }
+
     [HttpGet]
     public IActionResult AddQuizCategory()
     {
