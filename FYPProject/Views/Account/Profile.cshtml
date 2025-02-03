@@ -49,8 +49,8 @@
 
             <div class="profile-item">
                 <div class="item-label">Account Role</div>
-                <div class="item-value role-tag">
-                    @(Model.Role_Status == 0 ? "Student" : Model.Role_Status == 1 ? "Admin" : "Unknown")
+                <div class="item-value role-tag @(Model.Role_Status == 1 ? "administrator" : "standard-user")">
+                    @(Model.Role_Status == 1 ? "Administrator" : "Standard User")
                 </div>
             </div>
         </div>
@@ -195,6 +195,19 @@
         padding: 18px 0;
         border-bottom: 1px solid #eaecef;
     }
+
+    .role-tag.administrator {
+        background: #ffebee;
+        color: #c62828;
+        font-weight: 600;
+    }
+
+    .role-tag.standard-user {
+        background: #e3f2fd;
+        color: #1565c0;
+        font-weight: 600;
+    }
+
 
     .item-label {
         width: 160px;
