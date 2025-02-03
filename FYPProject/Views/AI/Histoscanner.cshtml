@@ -86,6 +86,7 @@
             max-width: 800px;
             margin-top: 25px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: none;
         }
 
         .success-message {
@@ -95,21 +96,34 @@
         }
 
         .insights-link {
-            color: #00796b;
+            display: inline-block;
+            padding: 12px 25px;
+            background-color: #00796b;
+            color: white;
             font-weight: bold;
             text-decoration: none;
-            display: block;
-            margin: 15px 0;
+            border-radius: 8px;
+            margin: 20px 0;
+            transition: background-color 0.3s ease;
         }
 
+            .insights-link:hover {
+                background-color: #005792;
+            }
+
+            .insights-link:active {
+                transform: scale(0.98);
+            }
+
+        /* Lightbox Styles */
         .lightbox {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            display: none;
+            background: rgba(0, 0, 0, 0.9);
             justify-content: center;
             align-items: center;
             z-index: 1000;
@@ -123,6 +137,7 @@
                 max-width: 90%;
                 max-height: 90%;
                 border-radius: 10px;
+                animation: zoomIn 0.3s ease;
             }
 
         .close-btn {
@@ -130,10 +145,112 @@
             top: 25px;
             right: 25px;
             color: white;
-            font-size: 28px;
+            font-size: 30px;
             cursor: pointer;
             background: none;
             border: none;
+            padding: 10px;
+        }
+
+        @@keyframes zoomIn {
+            from
+
+        {
+            transform: scale(0.8);
+            opacity: 0;
+        }
+
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        }
+
+        /* Mobile Optimization */
+        @@media (max-width: 768px) {
+            .content
+
+        {
+            padding: 15px;
+        }
+
+        .description {
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .upload-container {
+            padding: 20px;
+            margin: 15px 0;
+            max-width: 100%;
+        }
+
+        .upload-btn {
+            padding: 10px 20px;
+            font-size: 0.9em;
+        }
+
+        #imagePreview {
+            max-width: 100%;
+            margin: 15px 0;
+        }
+
+        #label-container {
+            padding: 20px;
+            margin-top: 15px;
+            border-radius: 12px;
+        }
+
+        .success-message {
+            font-size: 1.1em;
+        }
+
+        .insights-link {
+            padding: 10px 20px;
+            font-size: 0.9em;
+            margin: 15px 0;
+        }
+
+        .close-btn {
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+        }
+
+        .lightbox img {
+            max-width: 95%;
+        }
+
+        }
+
+        @@media (max-width: 480px) {
+            .description h2
+
+        {
+            font-size: 1.5em;
+        }
+
+        .description p {
+            font-size: 0.9em;
+        }
+
+        .upload-container h3 {
+            font-size: 1.2em;
+        }
+
+        .upload-container p {
+            font-size: 0.9em;
+        }
+
+        #label-container {
+            padding: 15px;
+        }
+
+        .success-message {
+            font-size: 1em;
+        }
+
         }
     </style>
 </head>
@@ -156,9 +273,10 @@
         <div id="label-container"></div>
     </div>
 
+    <!-- Lightbox -->
     <div id="lightbox" class="lightbox">
         <button class="close-btn" onclick="closeLightbox()">✕</button>
-        <img id="lightbox-img" src="" alt="Enlarged Tissue Image">
+        <img id="lightbox-img" src="" alt="Enlarged view">
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@@tensorflow/tfjs@latest/dist/tf.min.js"></script>
@@ -220,18 +338,19 @@
         async function predict() {
             if (!model) return console.error("Model not loaded.");
             labelContainer.innerHTML = "";
-            labelContainer.style.display = "block";
+            let hasResults = false;
 
             const predictions = await model.predict(document.getElementById("imagePreview"));
             predictions.forEach(async (p) => {
                 if (p.probability > 0.9) {
+                    hasResults = true;
                     const tissueName = p.className.toLowerCase();
                     labelContainer.innerHTML += `
                         <div class="success-message">
                             ${tissueName}: ${(p.probability * 100).toFixed(2)}% accuracy
                         </div>
                         <a href="/Histology/${tissueName}" class="insights-link">
-                            Learn more about ${tissueName} tissue →
+                            View Detailed Insights for ${tissueName} Tissue
                         </a>
                     `;
 
@@ -251,6 +370,10 @@
                     `;
                 }
             });
+
+            if (hasResults) {
+                labelContainer.style.display = "block";
+            }
         }
 
         function openLightbox(url) {
