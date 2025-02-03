@@ -1166,8 +1166,36 @@ ORDER BY S.Score DESC;
             string queryPhotoUrl = @"SELECT Photo_URL FROM Question WHERE Question_ID = {0}";
             if (model.Photo_URL == "No Picture Inserted")
             {
-                string updatePhoto = @"UPDATE Photos SET Photo_URL = '{1}'  WHERE Question_ID = {0}";
-                int photoResult = DBUtl.ExecSQL(updatePhoto, model.Question_ID, model.Photo_URL);
+                string photoUrlSql = @"SELECT Photo_URL FROM Photos WHERE Question_ID = {0}";
+                string photoUrl = Convert.ToString(DBUtl.GetValue(photoUrlSql, model.Question_ID));
+
+                if (model.Photo_URL == null)
+                {
+                    TempData["Message"] = "Please delete the ones with the null url";
+                    TempData["MsgType"] = "danger";
+                }
+                else
+                {
+
+                    if (model.Photo != null)
+                    {
+                        string fullpath = Path.Combine(_env.WebRootPath, "images", model.Quiz_Category, photoUrl.Replace("\\", "/"));
+                        if (System.IO.File.Exists(fullpath))
+                        {
+                            System.IO.File.Delete(fullpath);
+                        }
+                        string picfilename = DoPhotoUpload(model.Photo, model.Quiz_Category);
+                        string updatePhoto = @"UPDATE Photos SET Photo_URL = '{1}'  WHERE Question_ID = {0}";
+                        int photoResult = DBUtl.ExecSQL(updatePhoto, model.Question_ID, picfilename);
+                    }
+                    else
+                    {
+                        string updatePhoto = @"UPDATE Photos SET Photo_URL = '{1}'  WHERE Question_ID = {0}";
+                        int photoResult = DBUtl.ExecSQL(updatePhoto, model.Question_ID, model.Photo_URL);
+                    }
+
+
+                }
 
             }
             else
@@ -1193,6 +1221,10 @@ ORDER BY S.Score DESC;
                         string picfilename = DoPhotoUpload(model.Photo, model.Quiz_Category);
                         string updatePhoto = @"UPDATE Photos SET Photo_URL = '{1}'  WHERE Question_ID = {0}";
                         int photoResult = DBUtl.ExecSQL(updatePhoto, model.Question_ID, picfilename);
+                    } else
+                    {
+                        string updatePhoto = @"UPDATE Photos SET Photo_URL = '{1}'  WHERE Question_ID = {0}";
+                        int photoResult = DBUtl.ExecSQL(updatePhoto, model.Question_ID, model.Photo_URL);
                     }
 
 
