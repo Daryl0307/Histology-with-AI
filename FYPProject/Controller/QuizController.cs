@@ -1,4 +1,5 @@
-﻿using FYPProject.Models;
+﻿using FYPProject.Attributes;
+using FYPProject.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using RP.SOI.DotNet.Utils;
@@ -6,7 +7,7 @@ using System.Data;
 
 
 namespace FYPProject.Controllers;
-
+[AuthRequired]
 public class QuizController : Controller
 {
     

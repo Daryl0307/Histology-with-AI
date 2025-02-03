@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 using FYPProject.Models;
 using FYPProject.Controllers;
 using System.Text.Json;
+using FYPProject.Attributes;
 
 namespace FYPProject.Controllers
 {
+    [AuthRequired]
     public class AIController : Controller
     {
 

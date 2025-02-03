@@ -1,0 +1,93 @@
+﻿@{
+    ViewData["Title"] = "Access Denied";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Access Denied</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f8f8f8;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 50px;
+            font-weight: bold;
+            color: black;
+            margin-bottom: 10px;
+        }
+
+        .subtext {
+            font-size: 20px;
+            color: #555;
+            margin-bottom: 20px;
+            max-width: 600px;
+        }
+
+        .emoji-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .emoji {
+            font-size: 60px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            font-size: 18px;
+            font-weight: bold;
+            text-decoration: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 8px;
+            border: none;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            cursor: pointer;
+        }
+
+            .btn:hover {
+                background-color: #0056b3;
+                transform: scale(1.05);
+            }
+    </style>
+
+    <script>
+        function goBack() {
+            if (document.referrer) {
+                window.history.back(); // Go back to the previous page
+            } else {
+                window.location.href = "@Url.Action("Home", "Histology")"; // Fallback: Redirect to home
+            }
+        }
+    </script>
+</head>
+<body>
+
+    <h1>Access Denied</h1>
+    <p class="subtext">You do not have the necessary permissions to access this page.</p>
+
+    <div class="emoji-container">
+        <span class="emoji">😵</span>
+        <span class="emoji">😢</span>
+        <span class="emoji">😵</span>
+    </div>
+
+    <button class="btn" onclick="goBack()">Return</button>
+
+</body>
+</html>

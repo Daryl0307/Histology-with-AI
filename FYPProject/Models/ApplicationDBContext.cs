@@ -8,6 +8,7 @@ namespace FYPProject.Models
         public ApplicationDBContext(DbContextOptions<ApplicationDBContext> options) : base(options) { }
 
         // DbSet for all tables
+        public DbSet<Account> Accounts { get; set; }
         public DbSet<TissueInfo> TissueInfo { get; set; }
         public DbSet<Photos> Photos { get; set; }
         public DbSet<Question> Question { get; set; }

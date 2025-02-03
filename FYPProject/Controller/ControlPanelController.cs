@@ -1,9 +1,11 @@
-﻿using FYPProject.Models;
+﻿using FYPProject.Attributes;
+using FYPProject.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 
 namespace FYPProject.Controllers
 {
+    [AdminOnly]
     public class ControlPanelController : Controller
     {
         private readonly string _connectionString;
