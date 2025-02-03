@@ -69,6 +69,7 @@ public class TissueController : Controller
     public IActionResult Histopedia()
     {
         ViewBag.HideNavbar = false;
+        ViewBag.ActivePage = "Histopedia";
 
         List<TissueViewModel> list = DBUtl.GetList<TissueViewModel>(
             "WITH RankedPhotos AS (SELECT TI.Tissue_ID, TI.Tissue_Name, TI.Tissue_Description,  P.Photo_URL,  ROW_NUMBER() OVER (PARTITION BY TI.Tissue_Name ORDER BY P.Photo_URL) AS RowNum    FROM Tissue_Info TI  INNER JOIN Photos P ON P.Tissue_ID = TI.Tissue_ID)SELECT Tissue_ID AS 'TissueId', Tissue_Name AS 'TissueName', Tissue_Description AS 'TissueDescription', Photo_URL AS 'PhotoURL' FROM RankedPhotos WHERE RowNum = 1;"
@@ -89,6 +90,7 @@ public class TissueController : Controller
     public IActionResult ManageLesson()
     {
         ViewBag.HideNavbar = false;
+        ViewBag.ActivePage = "ManageLesson";
 
         List<TissueInfo> tissueList = DBUtl.GetList<TissueInfo>("SELECT DISTINCT TI.Tissue_ID AS 'TissueId', Tissue_Name AS 'TissueName', Tissue_Description AS 'TissueDescription'FROM Tissue_Info TI INNER JOIN Photos P ON P.Tissue_ID = TI.Tissue_ID");
         int noofLesson = tissueList.Count;
@@ -118,7 +120,7 @@ public class TissueController : Controller
         List<TissueUpdateModel> tissueList = DBUtl.GetList<TissueUpdateModel>(getTissue, id);
         ViewData["Tissue_Info"] = GetListTissue();
 
-        if (tissueList.Count > 1)
+        if (tissueList.Count >= 1)
         {
             TissueUpdateModel tissue = tissueList[0];
 
@@ -180,7 +182,7 @@ public class TissueController : Controller
         return View(model);
     }
 
-
+    [HttpGet]
     public IActionResult AddTissue()
     {
         ViewBag.HideNavbar = false;
@@ -193,7 +195,9 @@ public class TissueController : Controller
     [HttpPost]
     public IActionResult AddTissue(TissueInfo model)
     {
-        ModelState.Remove("Photo");
+        ViewBag.HideNavbar = false;
+
+        ModelState.Remove("Photos");
         ModelState.Remove("PhotoFiles");
         if (!ModelState.IsValid)
         {

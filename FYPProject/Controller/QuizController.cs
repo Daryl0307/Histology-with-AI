@@ -174,6 +174,7 @@ ORDER BY S.Score DESC;
     public IActionResult QuizView()
     {
         ViewBag.HideNavbar = false;
+        ViewBag.ActivePage = "QuizView";
 
         List<HistoQuiz> quizlist = DBUtl.GetList<HistoQuiz>("SELECT Quiz.Quiz_Category AS 'QuizCategory',  SUM(Q.QuestionMarks) AS 'TotalQuestionMarks' FROM Quiz INNER JOIN Question Q ON Quiz.Quiz_ID = Q.Quiz_ID  GROUP BY Quiz.Quiz_Category");
         List<QuizStatistics> statisticslist = DBUtl.GetList<QuizStatistics>("SELECT User_Id AS 'UserId', Quiz_Category AS 'QuizCategory', Date_Attempted AS 'DateAttempted', Score FROM Quiz_Statistics ");
@@ -213,6 +214,7 @@ ORDER BY S.Score DESC;
     public IActionResult HistoQuiz()
     {
         ViewBag.HideNavbar = false;
+        ViewBag.ActivePage = "HistoQuiz";
 
         List<HistoQuiz> quizlist = DBUtl.GetList<HistoQuiz>("SELECT Quiz.Quiz_Category AS 'QuizCategory',  SUM(Q.QuestionMarks) AS 'TotalQuestionMarks' FROM Quiz INNER JOIN Question Q ON Quiz.Quiz_ID = Q.Quiz_ID  GROUP BY Quiz.Quiz_Category");
 
@@ -761,7 +763,7 @@ ORDER BY S.Score DESC;
     [HttpPost]
     public IActionResult AddQuiz(QuizViewModel model)
     {
-        ModelState.Remove("Photo");
+        ModelState.Remove("Photos");
         if (!ModelState.IsValid)
         {
             foreach (var state in ModelState)
