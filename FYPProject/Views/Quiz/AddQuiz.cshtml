@@ -174,16 +174,16 @@
 
         <div id="answers-container"></div>
 
-        <label asp-for="Photos.PhotoFile">Picture:</label>
+        <label asp-for="PhotoFiles">Picture:</label>
         <img id="image-preview" alt="Image Preview" style="display:none; max-width:200px; max-height:200px;">
         <div class="file-input-container">
-            <input asp-for="Photos.PhotoFile" type="file" id="PhotoFile" name="Photo.PhotoFile">
+            <input asp-for="PhotoFiles" type="file" id="PhotoFiles" name="PhotoFiles">
             <button type="button" id="remove-photo" style="display:none;">
                 <i class="fas fa-trash"></i>
             </button>
         </div>
 
-        <span asp-validation-for="Photos.PhotoFile" class="text-danger"></span>
+        <span asp-validation-for="PhotoFiles" class="text-danger"></span>
 
         <div id="total-marks-container">
             <strong>Total Marks: </strong><span id="question-marks">0</span>
@@ -192,7 +192,18 @@
 
         <button type="submit">Submit</button>
     </form>
-
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="validation-summary-errors">
+            @foreach (var state in ViewData.ModelState)
+            {
+                foreach (var error in state.Value.Errors)
+                {
+                    <p>@state.Key :: @error.ErrorMessage</p>
+                }
+            }
+        </div>
+    }
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const form = document.getElementById('quiz-form');
@@ -201,7 +212,7 @@
             const questionTypeSelect = document.getElementById('QuestionType');
             const totalMarksDisplay = document.getElementById('question-marks');
             const questionMarkInput = document.getElementById('QuestionMark');
-            const photoInput = document.getElementById('PhotoFile');
+            const photoInput = document.getElementById('PhotoFiles');
             const imagePreview = document.getElementById('image-preview');
             const removePhotoButton = document.getElementById('remove-photo');
             const existingCategoryRadio = document.getElementById('existing-category');

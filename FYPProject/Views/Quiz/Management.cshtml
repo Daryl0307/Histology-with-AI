@@ -124,13 +124,13 @@
                                             <a asp-controller="Quiz" asp-action="AnswerList" asp-route-id="@quizViewModel.Question.QuestionId">Answers</a>
                                         </td>
                                         <td>
-                                            @if (quizViewModel.Photos.Photo_URL == "No Picture Inserted")
+                                            @if (quizViewModel.Photo_URL == "No Picture Inserted")
                                             {
-                                                <p>@quizViewModel.Photos.Photo_URL</p>
+                                                <p>@quizViewModel.Photo_URL</p>
                                             }
                                             else
                                             {
-                                                <img src="@Url.Content("~/images/" + quizViewModel.Quiz.QuizCategory + "/" + quizViewModel.Photos.Photo_URL)"
+                                                <img src="@Url.Content("~/images/" + quizViewModel.Quiz.QuizCategory + "/" + quizViewModel.Photo_URL)"
                                                      width="150" height="90" class="rounded" />
                                             }
                                         </td>

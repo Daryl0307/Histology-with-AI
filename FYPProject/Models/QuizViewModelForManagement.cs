@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FYPProject.Models
 {
@@ -10,6 +11,8 @@ namespace FYPProject.Models
         public string QuestionType { get; set; }
         public double QuestionMarks { get; set; }
         public string? Photo_URL { get; set; }
-        public IFormFile? Photos { get; set; }
+        [NotMapped]
+
+        public IFormFile? Photo { get; set; }
     }
 }

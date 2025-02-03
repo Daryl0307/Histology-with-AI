@@ -1,20 +1,21 @@
-﻿@model FYPProject.Models.QuizViewModelForManagement
+﻿@using FYPProject.Models;
+@model QuizViewModelForManagement
 
 <head>
     <meta charset="UTF-8">
     <link href="~/css/AddQuiz.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update Quiz</title>
-    <script>
-                /* Applying the requested CSS styles */
-                body {
+    <title>Update Tissue</title>
+    <style>
+        body {
             margin: 0;
             font - family: Arial, sans - serif;
             background - color: #80cbc4;
             color: #333;
         }
 
-                form {
+        form {
             max - width: 900px;
             margin: 0 auto;
             background - color: #ffffff;
@@ -23,7 +24,7 @@
             box - shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
-                label {
+        label {
             display: inline - block;
             margin - bottom: 10px;
             font - weight: bold;
@@ -41,28 +42,28 @@
             margin - right: 5px;
         }
 
-                .file - input - container {
+        .file - input - container {
             display: flex;
             align - items: center;
         }
 
-                    .file - input - container input[type = "file"] {
-            width: auto;
-            margin - right: 10px;
-        }
+            .file - input - container input[type = "file"] {
+                width: auto;
+                margin - right: 10px;
+            }
 
-                    .file - input - container button {
-            background - color: #e74c3c;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            cursor: pointer;
-            border - radius: 5px;
-        }
+            .file - input - container button {
+                background - color: #e74c3c;
+                color: white;
+                border: none;
+                padding: 5px 10px;
+                cursor: pointer;
+                border - radius: 5px;
+            }
 
-                        .file - input - container button:hover {
-            background - color: #c0392b;
-        }
+                .file - input - container button:hover {
+                    background - color: #c0392b;
+                }
 
         #image - preview {
             max - width: 200px;
@@ -71,25 +72,25 @@
             display: none;
         }
 
-                .answers - container {
+        .answers - container {
             margin - bottom: 20px;
         }
 
-                .Answer {
+        .Answer {
             margin - bottom: 15px;
         }
 
-                    .Answer input[type = "text"], .marks - input {
-            width: 70 %;
-        }
+            .Answer input[type = "text"], .marks - input {
+                width: 70 %;
+            }
 
-                .marks - input {
+        .marks - input {
             display: none;
             width: 20 %;
             margin - left: 10px;
         }
 
-                .marks - label {
+        .marks - label {
             display: inline;
         }
 
@@ -109,41 +110,26 @@
             width: 100 %;
         }
 
-        button[type = "submit"]:hover {
-            background - color: #2980b9;
-        }
+            button[type = "submit"]:hover {
+                background - color: #2980b9;
+            }
 
-                .text - danger {
+        .text - danger {
             color: red;
         }
-    </script>
+    </style>
 </head>
 <body>
     <form id="quiz-form" asp-controller="Quiz" asp-action="UpdateQuiz" method="post" enctype="multipart/form-data">
         <input type="hidden" asp-for="Question_ID" />
+        <input type="text" asp-for="Quiz_Category" value="@Model.Quiz_Category" hidden />
 
-        <!-- Quiz Category Dropdown -->
-        <label asp-for="Quiz_Category">Category:</label>
-        <select asp-for="Quiz_Category" id="Quiz_Category" name="Quiz_Category" required>
-            @if ((SelectList)ViewData["Tissue_Info"] == null)
-            {
-                <option value="" disabled>No categories available</option>
-            }
-            else
-            {
-                @foreach (var item in (SelectList)ViewData["Tissue_Info"]!)
-                {
-                    <option value="@item.Text">@item.Text</option>
-                }
-            }
-        </select>
 
-        <!-- Question Text Input -->
         <label asp-for="QuestionText">Question:</label>
-        <input asp-for="QuestionText" type="text" id="QuestionText" name="QuestionText" required value="@Model.QuestionText" class="input-field" />QQ
+        <input asp-for="QuestionText" type="text" id="QuestionText" name="QuestionText" required value="@Model.QuestionText">
 
-        <!-- Question Type Dropdown -->
-        <label asp-for="QuestionType">Question Type:</label>
+
+        <label asp-for="QuestionType">QuestionType:</label>
         <select asp-for="QuestionType" id="QuestionType" name="QuestionType" required>
             <option value="">Select a question type</option>
             <option value="Multiple Choice (Radio)">Multiple Choice (Radio)</option>
@@ -151,29 +137,40 @@
             <option value="Multiple Choice (Dropdown)">Multiple Choice (Dropdown)</option>
         </select>
 
-        <!-- Picture URL (Hidden) -->
         <label asp-for="Photo_URL">Picture:</label>
         <input asp-for="Photo_URL" type="text" value="@Model.Photo_URL" hidden />
 
-        <!-- Image Preview -->
         <img id="image-preview"
              src="@((Model.Photo_URL == "No Picture Inserted") ? "" : Url.Content("~/images/" + Model.Quiz_Category + "/" + Model.Photo_URL))"
              alt="Image Preview"
              style="display:@((Model.Photo_URL == "No Picture Inserted") ? "none" : "block"); height:350px; max-width:100%;">
         <p id="no-picture-message" style="display:@((Model.Photo_URL == "No Picture Inserted") ? "block" : "none");">No Picture Inserted</p>
 
-        <!-- File Input for Photo -->
-        <input asp-for="Photos" type="file" id="Photos" name="Photo" class="file-input">
 
-        <!-- Total Marks Section -->
+        <input asp-for="Photo" type="file" id="Photo" name="Photo">
+
+
+
         <div id="total-marks-container">
             <strong>Total Marks: </strong><span id="question-marks">@Model.QuestionMarks</span>
             <input type="hidden" asp-for="QuestionMarks" id="QuestionMark" name="Question.QuestionMark" value="@Model.QuestionMarks" />
         </div>
 
-        <!-- Submit Button -->
-        <button type="submit" class="submit-btn">Update</button>
+        <button type="submit">Update</button>
+        @* @if (!ViewData.ModelState.IsValid)
+        {
+        <div class="validation-summary-errors">
+        @foreach (var state in ViewData.ModelState)
+        {
+        foreach (var error in state.Value.Errors)
+        {
+        <p>@state.Key :: @error.ErrorMessage</p>
+        }
+        }
+        </div>
+        } *@
     </form>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -197,4 +194,5 @@
             });
         });
     </script>
+
 </body>
