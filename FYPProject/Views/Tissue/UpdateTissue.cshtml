@@ -164,7 +164,7 @@
             @foreach (var photo in Model.Photos)
             {
                 <div class="photo">
-                    <img src="@Url.Content("~/images/" + Model.TissueName + "/" + photo.Photo_URL)" alt="Photo" style="max-width:100px; height:auto;" />
+                    <img src="@Url.Content("~/images/" + @Model.TissueName + "/" + photo.Photo_URL)" alt="Photo" style="max-width:100px; height:auto;" />
                     <p>@photo.Photo_URL</p>
                 </div>
             }

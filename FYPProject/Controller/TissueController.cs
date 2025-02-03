@@ -154,33 +154,78 @@ public class TissueController : Controller
     [HttpPost]
     public IActionResult UpdateTissue(TissueUpdateModel model)
     {
-        if (ModelState.IsValid)
+        ViewBag.HideNavbar = false;
+
+        if (!ModelState.IsValid)
         {
-            // Save uploaded files if any
+            // Log the validation errors
+            foreach (var state in ModelState)
+            {
+                Console.WriteLine($"{state.Key} :: {string.Join(", ", state.Value.Errors.Select(e => e.ErrorMessage))}");
+            }
+
+            TempData["Message"] = "Please correct the errors.";
+            TempData["MsgType"] = "danger";
+            ViewData["Tissue_Info"] = GetListTissue();
+            return View("UpdateTissue", model);
+        }
+
+        // Get Quiz ID based on category
+        string getQuizIdsQuery = "SELECT Quiz_ID FROM Quiz WHERE Quiz_Category = '{0}'";
+        List<int> quizIds = DBUtl.GetList<int>(getQuizIdsQuery, model.TissueName);
+        int quizId = quizIds.Any() ? quizIds.First() : 0;
+
+        // Ensure the quiz exists, otherwise insert a new one
+        if (quizId == 0)
+        {
+            string insertQuizCategory = "INSERT INTO Quiz(Quiz_Category) OUTPUT INSERTED.Quiz_ID VALUES('{0}')";
+            quizId = DBUtl.ExecSQLReturnId(insertQuizCategory, model.TissueName);
+        }
+
+        // Update the tissue information
+        string updateTissueQuery = "UPDATE Tissue_Info SET Tissue_Name = '{0}', Tissue_Description = '{1}' WHERE Tissue_ID = {2}";
+        int updateResult = DBUtl.ExecSQL(updateTissueQuery, model.TissueName, model.TissueDescription, model.TissueId);
+
+        if (updateResult > 0)
+        {
+            List<int> photoIds = new List<int>();
+
             if (model.PhotoFiles != null && model.PhotoFiles.Any())
             {
-                foreach (var file in model.PhotoFiles)
+                foreach (var photo in model.PhotoFiles)
                 {
-                    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", model.TissueName, file.FileName);
-
-                    // Save the file to the server
-                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    string photoFileName = DoPhotoUpload(photo, model.TissueName);
+                    string insertPhotoQuery = "INSERT INTO Photos (Photo_URL, Quiz_ID) OUTPUT INSERTED.Photo_ID VALUES ('{0}', {1})";
+                    int insertedPhotoId = DBUtl.ExecSQLReturnId(insertPhotoQuery, photoFileName, quizId);
+                    if (insertedPhotoId > 0)
                     {
-                        file.CopyTo(stream);
+                        photoIds.Add(insertedPhotoId);
                     }
-
-                    // Save photo details to the database if needed
-                    string insertPhoto = @"INSERT INTO Photos (Tissue_ID, Photo_URL) VALUES (@TissueId, @PhotoURL)";
-                    DBUtl.ExecSQL(insertPhoto, new { TissueId = model.TissueId, PhotoURL = file.FileName });
                 }
             }
 
-            return RedirectToAction("ManageTissues");
+            // Update existing photos with the new Tissue_ID
+            if (photoIds.Count > 0)
+            {
+                foreach (int pId in photoIds)
+                {
+                    string updatePhotos = "UPDATE Photos SET Tissue_ID = {1} WHERE Photo_ID = {0}";
+                    DBUtl.ExecSQL(updatePhotos, pId, model.TissueId);
+                }
+            }
+
+            TempData["Message"] = "Tissue updated successfully.";
+            TempData["MsgType"] = "success";
+        }
+        else
+        {
+            TempData["Message"] = "Update failed. Please try again.";
+            TempData["MsgType"] = "danger";
         }
 
-        // If the model state is not valid, return the same view with validation errors
-        return View(model);
+        return RedirectToAction("ManageLesson");
     }
+
 
     [HttpGet]
     public IActionResult AddTissue()
