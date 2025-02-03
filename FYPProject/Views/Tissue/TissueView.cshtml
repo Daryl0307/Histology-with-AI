@@ -1,0 +1,79 @@
+﻿@using FYPProject.Models;
+@model List<TissueViewModel>
+
+<link href="~/css/TissueVIew.css" rel="stylesheet" />
+
+<div class="main-content">
+    <div class="slider-wrapper">
+        <div class="slider-container" style="position: relative; z-index: 0;">
+            
+            @foreach (var tissue in Model)
+            {
+                <div class="slider-item @(Model.IndexOf(tissue) == 0 ? "active" : "")">
+                    <a href="#" class="image-link">
+                        <img src="@Url.Content("~/images/" + tissue.TissueName + "/" + tissue.PhotoURL)" alt="@tissue.TissueName" class="zoomable">
+                    </a>
+                </div>
+            }
+        </div>
+        <button class="prev-button" id="prevSlide" style="z-index: 1; position: absolute; left: 0; top: 50%; transform: translateY(-50%);">&#10094;</button>
+        <button class="next-button" id="nextSlide" style="z-index: 1; position: absolute; right: 0; top: 50%; transform: translateY(-50%);">&#10095;</button>
+    </div>
+
+    <div class="description-container">
+        @foreach (var tissue in Model)
+        {
+            <p id="description">@Html.Raw(tissue.TissueDescription)</p>
+            break;
+        }
+        
+    </div>
+</div>
+
+<script>
+    // Slider Variables
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slider-item');
+    const prevButton = document.getElementById('prevSlide');
+    const nextButton = document.getElementById('nextSlide');
+    const descriptionElement = document.getElementById('description');
+    const modelDescriptions = @Html.Raw(Json.Serialize(Model.Select(m => m.TissueDescription)));
+
+    // Event Listeners
+    prevButton.addEventListener('click', () => {
+        currentSlide--;
+        if (currentSlide < 0) {
+            currentSlide = slides.length - 1;
+        }
+        updateSlide();
+    });
+
+    nextButton.addEventListener('click', () => {
+        currentSlide++;
+        if (currentSlide >= slides.length) {
+            currentSlide = 0;
+        }
+        updateSlide();
+    });
+
+    // Update Slide Function
+    function updateSlide() {
+        slides.forEach(slide => slide.classList.remove('active'));
+        slides[currentSlide].classList.add('active');
+        descriptionElement.innerHTML = modelDescriptions[currentSlide];
+    }
+
+    // Zoom Functionality
+    const zoomableImages = document.querySelectorAll('.zoomable');
+    zoomableImages.forEach(img => {
+        img.addEventListener('click', (e) => {
+            e.preventDefault(); // Prevent default link behavior
+            e.stopPropagation(); // Prevent event bubbling
+            if (img.classList.contains('zoomed')) {
+                img.classList.remove('zoomed');
+            } else {
+                img.classList.add('zoomed');
+            }
+        });
+    });
+</script>

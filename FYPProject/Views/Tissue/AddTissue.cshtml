@@ -1,0 +1,242 @@
+﻿@using FYPProject.Models;
+@model TissueInfo
+<head>
+    <meta charset="UTF-8">
+    <link href="~/css/AddQuiz.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Quiz</title>
+    <style>
+        label {
+            display: inline-block;
+            margin-right: 10px; /* Spacing between radio buttons */
+        }
+
+        .image-preview img {
+            max-width: 200px;
+            max-height: 200px;
+            margin: 5px;
+        }
+
+        textarea {
+            resize: vertical; /* Allow only vertical resizing */
+        }
+
+    </style>
+</head>
+<body>
+    <form id="quiz-form" asp-action="AddTissue" asp-controller="Tissue" method="post" enctype="multipart/form-data">
+
+        <!-- Radio buttons for selecting existing category or new category -->
+        <label>Use Existing Category?</label>
+        <label>
+            <input type="radio" name="CategoryChoice" value="yes" id="existing-category" checked> Yes
+        </label>
+        <label>
+            <input type="radio" name="CategoryChoice" value="no" id="new-category"> No
+        </label>
+
+        <!-- Dropdown for existing category -->
+        <div id="existing-category-container">
+            <select asp-for="TissueName" id="TissueName" name="TissueName" required>
+                <option value="">-- Select a Category --</option>
+                @foreach (var item in (SelectList)ViewData["Tissue_Info"]!)
+                {
+                    <option value="@item.Text">@item.Text</option>
+                }
+            </select>
+            <span asp-validation-for="TissueName" class="text-danger"></span>
+        </div>
+
+        <!-- Text input for new category -->
+        <div id="new-category-container" style="display:none;">
+            <label asp-for="TissueName">New Category:</label>
+            <input asp-for="TissueName" type="text" id="new-TissueName" name="TissueName" required>
+            <span asp-validation-for="TissueName" class="text-danger"></span>
+        </div>
+
+        <label asp-for="TissueDescription">Tissue Description:</label>
+        <div id="format-buttons">
+            <button type="button" id="insert-paragraph" hidden>Insert Paragraph</button>
+            <button type="button" id="insert-ul">Insert Unordered List</button>
+            <button type="button" id="insert-li">Insert List Item</button>
+            <button type="button" id="insert-ol">Insert Number List</button>
+
+        </div>
+        <!-- Preview Area -->
+        <div id="preview" style="border: 1px solid #ccc; padding: 10px; margin-top: 20px; height: 300px; overflow-y: auto;">
+            <!-- The preview will be rendered here -->
+        </div>
+        <textarea asp-for="TissueDescription" name="TissueDescription" id="TissueDescription" rows="5" cols="72" required></textarea>
+        <label asp-for="PhotoFiles">Pictures:</label>
+        <div class="image-preview" id="image-preview" style="display:none;"></div>
+        <div class="file-input-container">
+            <input asp-for="PhotoFiles" type="file" id="PhotoFiles" name="PhotoFiles" multiple>
+            <button type="button" id="remove-photo" style="display:none;">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+        <span asp-validation-for="PhotoFiles" class="text-danger"></span>
+        <button type="submit">Submit</button>
+    </form>
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="validation-summary-errors">
+            @foreach (var state in ViewData.ModelState)
+            {
+                foreach (var error in state.Value.Errors)
+                {
+                    <p>@state.Key :: @error.ErrorMessage</p>
+                }
+            }
+        </div>
+    }
+    <script>
+        
+        document.addEventListener('DOMContentLoaded', function () {
+            const photoInput = document.getElementById('PhotoFiles');
+            const imagePreview = document.getElementById('image-preview');
+            const removePhotoButton = document.getElementById('remove-photo');
+            const existingCategoryRadio = document.getElementById('existing-category');
+            const newCategoryRadio = document.getElementById('new-category');
+            const existingCategoryContainer = document.getElementById('existing-category-container');
+            const newCategoryContainer = document.getElementById('new-category-container');
+            const tissueDescription = document.getElementById('TissueDescription');
+            const insertParagraphButton = document.getElementById('insert-paragraph');
+            const previewArea = document.getElementById('preview');
+            const insertUlButton = document.getElementById('insert-ul');
+            const insertLiButton = document.getElementById('insert-li');
+            const insertOlButton = document.getElementById('insert-ol'); // New button for ordered list
+            const form = document.getElementById('quiz-form');
+
+            // Show the preview of the uploaded images
+            photoInput.addEventListener('change', function () {
+                const files = this.files;
+                if (files.length > 0) {
+                    imagePreview.style.display = 'block'; // Display the preview container
+                    removePhotoButton.style.display = 'inline'; // Show the remove button
+                    imagePreview.innerHTML = ''; // Clear any previous previews
+
+                    Array.from(files).forEach(file => {
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            imagePreview.appendChild(img);
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                } else {
+                    resetImagePreview();
+                }
+            });
+
+            // Remove the uploaded images
+            removePhotoButton.addEventListener('click', function () {
+                resetImagePreview();
+            });
+
+            // Function to reset the image preview and file input
+            function resetImagePreview() {
+                photoInput.value = ''; // Clear the file input
+                imagePreview.innerHTML = ''; // Clear all image previews
+                imagePreview.style.display = 'none'; // Hide the preview container
+                removePhotoButton.style.display = 'none'; // Hide the remove button
+            }
+
+            // Toggle visibility of the category selection fields based on radio button selection
+            existingCategoryRadio.addEventListener('change', toggleCategoryFields);
+            newCategoryRadio.addEventListener('change', toggleCategoryFields);
+
+            function updatePreview() {
+                previewArea.innerHTML = tissueDescription.value;
+            }
+
+            // Function to insert text at the cursor position
+            function insertAtCursor(text) {
+                const startPos = tissueDescription.selectionStart;
+                const endPos = tissueDescription.selectionEnd;
+                const textBefore = tissueDescription.value.substring(0, startPos);
+                const textAfter = tissueDescription.value.substring(endPos, tissueDescription.value.length);
+                tissueDescription.value = textBefore + text + textAfter;
+                tissueDescription.setSelectionRange(startPos + text.length, startPos + text.length);
+                tissueDescription.focus();
+
+                updatePreview();  // Update preview after each insertion
+            }
+            tissueDescription.addEventListener('keydown', function (event) {
+                // Check if the Enter key is pressed
+                if (event.key === 'Enter') {
+                    const selectionStart = tissueDescription.selectionStart;
+                    const textBefore = tissueDescription.value.substring(0, selectionStart);
+                    const textAfter = tissueDescription.value.substring(tissueDescription.selectionEnd);
+
+                    // Check if the cursor is inside <ul> or <ol>
+                    const ulIndex = textBefore.lastIndexOf('<ul>');
+                    const olIndex = textBefore.lastIndexOf('<ol>');
+                    const ulEndIndex = textBefore.lastIndexOf('</ul>');
+                    const olEndIndex = textBefore.lastIndexOf('</ol>');
+
+                    // If cursor is inside a <ul> or <ol>, insert <li></li>
+                    if ((ulIndex > ulEndIndex) || (olIndex > olEndIndex)) {
+                        event.preventDefault();
+                        tissueDescription.value = textBefore + '\n<li></li>' + textAfter;
+                        tissueDescription.selectionStart = tissueDescription.selectionEnd = selectionStart + 5; // Set the cursor position inside the new <li> tag
+                    }
+                }
+            });
+
+            // Insert a paragraph
+            insertParagraphButton.addEventListener('click', function () {
+                insertAtCursor('<p></p>');
+            });
+
+            // Insert an unordered list
+            insertUlButton.addEventListener('click', function () {
+                insertAtCursor('<ul>\n\t<li></li>\n</ul>');
+            });
+
+            // Insert a list item (within an existing <ul>)
+            insertLiButton.addEventListener('click', function () {
+                insertAtCursor('<li></li>');
+            });
+
+            // Insert an ordered list (numbered list)
+            insertOlButton.addEventListener('click', function () {
+                insertAtCursor('<ol>\n\t<li></li>\n</ol>');
+            });
+
+
+            form.addEventListener('submit', function (event) {
+                // Wrap the entire content in <p> tags
+                if (tissueDescription.value.trim()) {
+                    // Wrap each line of text in <p> tags (if there are multiple lines)
+                    let wrappedContent = tissueDescription.value.split('\n').map(line => `<p>${line}</p>`).join('\n');
+                    tissueDescription.value = wrappedContent;
+                }
+            });
+
+            // Update the preview whenever the user types in the textarea
+            tissueDescription.addEventListener('input', updatePreview);
+            // Initial preview update
+            updatePreview();
+            function toggleCategoryFields() {
+                if (existingCategoryRadio.checked) {
+                    existingCategoryContainer.style.display = 'block';
+                    newCategoryContainer.style.display = 'none';
+                    document.getElementById("TissueName").disabled = false;  // Enable dropdown
+                    document.getElementById("new-TissueName").disabled = true; // Disable text input
+                } else {
+                    existingCategoryContainer.style.display = 'none';
+                    newCategoryContainer.style.display = 'block';
+                    document.getElementById("TissueName").disabled = true;  // Disable dropdown
+                    document.getElementById("new-TissueName").disabled = false; // Enable text input
+                }
+            }
+
+
+            // Initial category field state
+            toggleCategoryFields();
+        });
+    </script>
+</body>

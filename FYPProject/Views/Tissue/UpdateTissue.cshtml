@@ -1,0 +1,168 @@
+﻿@using FYPProject.Models;
+@model TissueUpdateModel
+
+<head>
+    <meta charset="UTF-8">
+    <link href="~/css/AddQuiz.css" rel="stylesheet" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Tissue</title>
+    <style>
+        label {
+            display: inline-block;
+            margin-right: 10px; /* Spacing between radio buttons */
+        }
+
+        .image-preview img {
+            max-width: 200px;
+            max-height: 200px;
+            margin: 5px;
+        }
+
+        textarea {
+            resize: vertical; /* Allow only vertical resizing */
+        }
+
+    </style>
+</head>
+<body>
+
+    <form id="quiz-form" asp-controller="Tissue" asp-action="UpdateTissue" method="post" enctype="multipart/form-data">
+        <input type="hidden" asp-for="TissueId" value="@Model.TissueId" />
+        <input type="text" asp-for="TissueName" value="@Model.TissueName" hidden />
+
+        <input asp-for="TissueName" type="text" id="TissueName" name="TissueName" value="@Model.TissueName" hidden />
+
+        <label asp-for="TissueDescription">Description:</label>
+        <div id="format-buttons">
+            <button type="button" id="insert-paragraph" hidden>Insert Paragraph</button>
+            <button type="button" id="insert-ul">Insert Unordered List</button>
+            <button type="button" id="insert-li">Insert List Item</button>
+            <button type="button" id="insert-ol">Insert Number List</button>
+
+        </div>
+        <!-- Preview Area -->
+        <div id="preview" style="border: 1px solid #ccc; padding: 10px; margin-top: 20px; height: 300px; overflow-y: auto;">
+            <!-- The preview will be rendered here -->
+        </div>
+        <textarea asp-for="TissueDescription" id="TissueDescription" name="TissueDescription" rows="5" cols="72" required>@Model.TissueDescription</textarea>
+        
+        <!-- Display existing photos -->
+        <label>Existing Photos:</label>
+        <div id="existing-photos">
+            @foreach (var photo in Model.Photos)
+            {
+                <div class="photo">
+                    <img src="@Url.Content("~/images/" + Model.TissueName + "/" + photo.Photo_URL)" alt="Photo" style="max-width:100px; height:auto;" />
+                    <p>@photo.Photo_URL</p>
+                </div>
+            }
+        </div>
+
+        <!-- File input for uploading new photos -->
+        <label asp-for="PhotoFiles">Upload New Photos:</label>
+        <input asp-for="PhotoFiles" type="file" id="PhotoFiles" name="PhotoFiles" multiple />
+
+        <button type="submit">Update Tissue</button>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const fileInput = document.getElementById('PhotoFiles');
+            const preview = document.getElementById('image-preview');
+            const noPictureMessage = document.getElementById('no-picture-message');
+            const tissueDescription = document.getElementById('TissueDescription');
+            const insertParagraphButton = document.getElementById('insert-paragraph');
+            const insertUlButton = document.getElementById('insert-ul');
+            const insertLiButton = document.getElementById('insert-li');
+            const insertOlButton = document.getElementById('insert-ol'); // New button for ordered list
+            const previewArea = document.getElementById('preview');
+
+            const form = document.getElementById('quiz-form');
+            function updatePreview() {
+                previewArea.innerHTML = tissueDescription.value;
+            }
+            // Function to insert text at the cursor position
+            function insertAtCursor(text) {
+                const startPos = tissueDescription.selectionStart;
+                const endPos = tissueDescription.selectionEnd;
+                const textBefore = tissueDescription.value.substring(0, startPos);
+                const textAfter = tissueDescription.value.substring(endPos, tissueDescription.value.length);
+                tissueDescription.value = textBefore + text + textAfter;
+                tissueDescription.setSelectionRange(startPos + text.length, startPos + text.length);
+                tissueDescription.focus();
+
+                updatePreview();  // Update preview after each insertion
+            }
+            tissueDescription.addEventListener('keydown', function (event) {
+                // Check if the Enter key is pressed
+                if (event.key === 'Enter') {
+                    const selectionStart = tissueDescription.selectionStart;
+                    const textBefore = tissueDescription.value.substring(0, selectionStart);
+                    const textAfter = tissueDescription.value.substring(tissueDescription.selectionEnd);
+
+                    // Check if the cursor is inside <ul> or <ol>
+                    const ulIndex = textBefore.lastIndexOf('<ul>');
+                    const olIndex = textBefore.lastIndexOf('<ol>');
+                    const ulEndIndex = textBefore.lastIndexOf('</ul>');
+                    const olEndIndex = textBefore.lastIndexOf('</ol>');
+
+                    // If cursor is inside a <ul> or <ol>, insert <li></li>
+                    if ((ulIndex > ulEndIndex) || (olIndex > olEndIndex)) {
+                        event.preventDefault();
+                        tissueDescription.value = textBefore + '\n<li></li>' + textAfter;
+                        tissueDescription.selectionStart = tissueDescription.selectionEnd = selectionStart + 5; // Set the cursor position inside the new <li> tag
+                    }
+                }
+            });
+
+            // Insert a paragraph
+            insertParagraphButton.addEventListener('click', function () {
+                insertAtCursor('<p></p>');
+            });
+
+            // Insert an unordered list
+            insertUlButton.addEventListener('click', function () {
+                insertAtCursor('<ul>\n\t<li></li>\n</ul>');
+            });
+
+            // Insert a list item (within an existing <ul>)
+            insertLiButton.addEventListener('click', function () {
+                insertAtCursor('<li></li>');
+            });
+
+            // Insert an ordered list (numbered list)
+            insertOlButton.addEventListener('click', function () {
+                insertAtCursor('<ol>\n\t<li></li>\n</ol>');
+            });
+
+
+            form.addEventListener('submit', function (event) {
+                // Wrap the entire content in <p> tags
+                if (tissueDescription.value.trim()) {
+                    // Wrap each line of text in <p> tags (if there are multiple lines)
+                    let wrappedContent = tissueDescription.value.split('\n').map(line => `<p>${line}</p>`).join('\n');
+                    tissueDescription.value = wrappedContent;
+                }
+            });
+
+            // Update the preview whenever the user types in the textarea
+            tissueDescription.addEventListener('input', updatePreview);
+            // Initial preview update
+            updatePreview();
+            fileInput.addEventListener('change', function () {
+                const file = this.files[0];
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block'; // Show the image
+                    noPictureMessage.style.display = 'none'; // Hide the message
+                };
+
+                if (file) {
+                    reader.readAsDataURL(file); // Read the file to update the preview
+                }
+            });
+        });
+    </script>
+</body>

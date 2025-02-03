@@ -45,6 +45,8 @@ namespace FYPProject.Models
                 entity.Property(e => e.TissueId).HasColumnName("Tissue_ID");
                 entity.Property(e => e.TissueName).HasColumnName("Tissue_Name");
                 entity.Property(e => e.TissueDescription).HasColumnName("Tissue_Description");
+                entity.Ignore(e => e.PhotoFiles);
+
             });
 
             base.OnModelCreating(modelBuilder);
