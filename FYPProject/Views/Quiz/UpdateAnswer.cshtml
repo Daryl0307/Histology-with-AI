@@ -1,122 +1,124 @@
 ﻿@model FYPProject.Models.Answer
 
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link href="~/css/AddQuiz.css" rel="stylesheet" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Update Answer</title>
-    <script>
+    <link href="~/css/AddQuiz.css" rel="stylesheet" asp-append-version="true">
+    <style>
         /* Applying the requested CSS styles */
         body {
             margin: 0;
-            font - family: Arial, sans - serif;
-            background - color: #80cbc4;
+            font-family: Arial, sans-serif;
+            background-color: #80cbc4;
             color: #333;
         }
 
         form {
-            max - width: 900px;
+            max-width: 900px;
             margin: 0 auto;
-            background - color: #ffffff;
+            background-color: #ffffff;
             padding: 20px;
-            border - radius: 10px;
-            box - shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         label {
-            display: inline - block;
-            margin - bottom: 10px;
-            font - weight: bold;
+            display: inline-block;
+            margin-bottom: 10px;
+            font-weight: bold;
         }
 
-        input[type = "text"], select, input[type = "file"] {
-            width: 100 %;
+        input[type="text"], select, input[type="file"] {
+            width: 100%;
             padding: 8px;
-            margin - bottom: 15px;
+            margin-bottom: 15px;
             border: 1px solid #ddd;
-            border - radius: 5px;
+            border-radius: 5px;
         }
 
-        input[type = "radio"] {
-            margin - right: 5px;
+        input[type="radio"] {
+            margin-right: 5px;
         }
 
-        .file - input - container {
+        .file-input-container {
             display: flex;
-            align - items: center;
+            align-items: center;
         }
 
-            .file - input - container input[type = "file"] {
-            width: auto;
-            margin - right: 10px;
-        }
+            .file-input-container input[type="file"] {
+                width: auto;
+                margin-right: 10px;
+            }
 
-            .file - input - container button {
-            background - color: #e74c3c;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            cursor: pointer;
-            border - radius: 5px;
-        }
+            .file-input-container button {
+                background-color: #e74c3c;
+                color: white;
+                border: none;
+                padding: 5px 10px;
+                cursor: pointer;
+                border-radius: 5px;
+            }
 
-                .file - input - container button:hover {
-            background - color: #c0392b;
-        }
+                .file-input-container button:hover {
+                    background-color: #c0392b;
+                }
 
-        #image - preview {
-            max - width: 200px;
-            max - height: 200px;
+        #image-preview {
+            max-width: 200px;
+            max-height: 200px;
             margin: 10px 0;
             display: none;
         }
 
-        .answers - container {
-            margin - bottom: 20px;
+        .answers-container {
+            margin-bottom: 20px;
         }
 
         .Answer {
-            margin - bottom: 15px;
+            margin-bottom: 15px;
         }
 
-            .Answer input[type = "text"], .marks - input {
-            width: 70 %;
-        }
+            .Answer input[type="text"], .marks-input {
+                width: 70%;
+            }
 
-        .marks - input {
+        .marks-input {
             display: none;
-            width: 20 %;
-            margin - left: 10px;
+            width: 20%;
+            margin-left: 10px;
         }
 
-        .marks - label {
+        .marks-label {
             display: inline;
         }
 
-        #total - marks - container {
-            margin - top: 20px;
-            font - weight: bold;
+        #total-marks-container {
+            margin-top: 20px;
+            font-weight: bold;
         }
 
-        button[type = "submit"] {
-            background - color: #3498db;
+        button[type="submit"] {
+            background-color: #3498db;
             color: white;
             padding: 10px 20px;
             border: none;
-            border - radius: 5px;
+            border-radius: 5px;
             cursor: pointer;
-            font - size: 16px;
-            width: 100 %;
+            font-size: 16px;
+            width: 100%;
         }
 
-        button[type = "submit"]:hover {
-            background - color: #2980b9;
-        }
+            button[type="submit"]:hover {
+                background-color: #2980b9;
+            }
 
-        .text - danger {
+        .text-danger {
             color: red;
         }
-    </script>
+    </style>
 </head>
 <body>
     <div class="quiz-container">
@@ -126,23 +128,21 @@
 
             <!-- Answer Text -->
             <div class="quiz-question">
-                <h3>Answer:</h3>
+                <label for="AnswerText">Answer:</label>
                 <input type="text" id="AnswerText" asp-for="AnswerText" name="AnswerText" value="@Model.AnswerText" required class="form-control">
                 <span asp-validation-for="AnswerText" class="text-danger"></span>
             </div>
 
             <!-- Correct Answer Checkbox -->
             <div class="form-check">
-                <label asp-for="Is_Correct">
-                    <input type="checkbox" id="Is_Correct" asp-for="Is_Correct" name="Is_Correct" value="true" class="form-check-input">
-                    Correct Answer
-                </label>
+                <input type="checkbox" id="Is_Correct" asp-for="Is_Correct" name="Is_Correct" value="true" class="form-check-input">
+                <label for="Is_Correct">Correct Answer</label>
                 <span asp-validation-for="Is_Correct" class="text-danger"></span>
             </div>
 
             <!-- Marks -->
             <div class="quiz-question">
-                <h3>Marks:</h3>
+                <label for="Marks" id="marks-label">Marks:</label>
                 <input type="number" id="Marks" asp-for="Marks" name="Marks" min="0" step="0.5" value="@Model.Marks" class="marks-input form-control">
                 <span asp-validation-for="Marks" class="text-danger"></span>
             </div>
@@ -159,7 +159,7 @@
             const marksLabel = document.getElementById("marks-label");
 
             // Initialize the visibility based on the model value
-            const isCorrect = '@Model.Is_Correct'.toLowerCase(); // Convert the server-side value to a JS boolean
+            const isCorrect = '@Model.Is_Correct'.toLowerCase();
             isCorrectCheckbox.checked = isCorrect === "true";
             toggleMarksInput(isCorrect === "true");
 
@@ -187,3 +187,4 @@
         });
     </script>
 </body>
+</html>

@@ -1,298 +1,177 @@
-﻿@model FYPProject.Models.QuizViewModel
+﻿@model FYPProject.Models.Answer
 
 <head>
     <meta charset="UTF-8">
     <link href="~/css/AddQuiz.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Quiz</title>
+    <title>Create Answer</title>
     <style>
-        
+        /* Applying the requested CSS styles */
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #80cbc4;
+            color: #333;
+        }
+
+        form {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: inline-block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        input[type="text"], select, input[type="file"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        input[type="radio"] {
+            margin-right: 5px;
+        }
+
+        .file-input-container {
+            display: flex;
+            align-items: center;
+        }
+
+            .file-input-container input[type="file"] {
+                width: auto;
+                margin-right: 10px;
+            }
+
+            .file-input-container button {
+                background-color: #e74c3c;
+                color: white;
+                border: none;
+                padding: 5px 10px;
+                cursor: pointer;
+                border-radius: 5px;
+            }
+
+                .file-input-container button:hover {
+                    background-color: #c0392b;
+                }
+
+        #image-preview {
+            max-width: 200px;
+            max-height: 200px;
+            margin: 10px 0;
+            display: none;
+        }
+
+        .answers-container {
+            margin-bottom: 20px;
+        }
+
+        .Answer {
+            margin-bottom: 15px;
+        }
+
+            .Answer input[type="text"], .marks-input {
+                width: 70%;
+            }
+
+        .marks-input {
+            display: none;
+            width: 20%;
+            margin-left: 10px;
+        }
+
+        .marks-label {
+            display: inline;
+        }
+
+        #total-marks-container {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        button[type="submit"] {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+
+            button[type="submit"]:hover {
+                background-color: #2980b9;
+            }
+
+        .text-danger {
+            color: red;
+        }
     </style>
 </head>
-
 <body>
-    <form id="quiz-form" asp-controller="Quiz" asp-action="AddQuiz" method="post" enctype="multipart/form-data">
-        <input type="hidden" asp-for="Quiz.QuizId" />
-        <input type="hidden" asp-for="Question.QuestionId" />
+    <form id="quiz-form" asp-controller="Quiz" asp-action="AddAnswer" method="post" enctype="multipart/form-data">
+        <input type="hidden" asp-for="AnswerId" />
+        <input type="hidden" asp-for="QuestionId" value="@ViewBag.QuestionId" />
 
-        <!-- Radio buttons for selecting existing category or new category -->
-        <label>Use Existing Category?</label>
-        <label>
-            <input type="radio" name="CategoryChoice" value="yes" id="existing-category" checked> Yes
+        <label asp-for="AnswerText">Answer:</label>
+        <input type="text" id="AnswerText" asp-for="AnswerText" name="AnswerText" required>
+        <span asp-validation-for="AnswerText" class="text-danger"></span>
+
+        <label asp-for="Is_Correct">
+            <input type="checkbox" id="Is_Correct" asp-for="Is_Correct" name="Is_Correct" value="true" onclick="toggleMarksField()">
+            Correct Answer
         </label>
-        <label>
-            <input type="radio" name="CategoryChoice" value="no" id="new-category"> No
-        </label>
+        <span asp-validation-for="Is_Correct" class="text-danger"></span>
 
-        <!-- Dropdown for existing category -->
-        <div id="existing-category-container">
-            <label asp-for="Quiz.QuizCategory">Category:</label>
-            <select asp-for="Quiz.QuizCategory" id="Quiz.QuizCategory" name="Quiz.QuizCategory" required>
-                <option value="">-- Select a Category --</option>
-                @foreach (var item in (SelectList)ViewData["Tissue_Info"]!)
-                {
-                    <option value="@item.Text">@item.Text</option>
-                }
-            </select>
-            <span asp-validation-for="Quiz.QuizCategory" class="text-danger"></span>
-        </div>
-
-        <!-- Text input for new category -->
-        <div id="new-category-container" style="display:none;">
-            <label asp-for="Quiz.QuizCategory">New Category:</label>
-            <input asp-for="Quiz.QuizCategory" type="text" id="new-Quiz.QuizCategory" name="Quiz.QuizCategory" required>
-            <span asp-validation-for="Quiz.QuizCategory" class="text-danger"></span>
-        </div>
-
-        <label asp-for="Question.QuestionText">Question:</label>
-        <input asp-for="Question.QuestionText" type="text" id="QuestionText" name="Question.QuestionText" required>
-
-        <label asp-for="Question.QuestionType">QuestionType:</label>
-        <select asp-for="Question.QuestionType" id="QuestionType" name="Question.QuestionType" required>
-            <option value="">Select a question type</option>
-            <option value="Multiple Choice (Radio)">Multiple Choice (Radio)</option>
-            <option value="Multiple Choice (Checkbox)">Multiple Choice (Checkbox)</option>
-            <option value="Multiple Choice (Dropdown)">Multiple Choice (Dropdown)</option>
-        </select>
-
-        <label for="Answers">Number of Answers:</label>
-        <select id="Answers" name="Answers" onchange="updateAnswers()">
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-        </select>
-
-        <div id="answers-container"></div>
-
-        <label asp-for="PhotoFiles">Picture:</label>
-        <img id="image-preview" alt="Image Preview" style="display:none; max-width:200px; max-height:200px;">
-        <div class="file-input-container">
-            <input asp-for="PhotoFiles" type="file" id="PhotoFile" name="Photo.PhotoFile">
-            <button type="button" id="remove-photo" style="display:none;">
-                <i class="fas fa-trash"></i>
-            </button>
-        </div>
-
-        <span asp-validation-for="PhotoFiles" class="text-danger"></span>
-
-        <div id="total-marks-container">
-            <strong>Total Marks: </strong><span id="question-marks">0</span>
-            <input type="hidden" asp-for="Question.QuestionMark" id="QuestionMark" name="Question.QuestionMark" value="0" />
+        <div id="marks-container" style="display: none;">
+            <label asp-for="Marks" class="marks-label">Marks:</label>
+            <input type="number" id="Marks" asp-for="Marks" name="Marks" min="0" step="0.5" value="0" class="marks-input">
+            <span asp-validation-for="Marks" class="text-danger"></span>
         </div>
 
         <button type="submit">Submit</button>
     </form>
 
+
+
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const form = document.getElementById('quiz-form');
-            const numAnswersSelect = document.getElementById('Answers');
-            const answersContainer = document.getElementById('answers-container');
-            const questionTypeSelect = document.getElementById('QuestionType');
-            const totalMarksDisplay = document.getElementById('question-marks');
-            const questionMarkInput = document.getElementById('QuestionMark');
-            const photoInput = document.getElementById('PhotoFile');
-            const imagePreview = document.getElementById('image-preview');
-            const removePhotoButton = document.getElementById('remove-photo');
-            const existingCategoryRadio = document.getElementById('existing-category');
-            const newCategoryRadio = document.getElementById('new-category');
-            const existingCategoryContainer = document.getElementById('existing-category-container');
-            const newCategoryContainer = document.getElementById('new-category-container');
+        // Function to toggle the visibility of the Marks input field based on the checkbox state
+        function toggleMarksField() {
+            var marksContainer = document.getElementById('marks-container');
+            var isCorrectChecked = document.getElementById('Is_Correct').checked;
 
-            // Show the preview of the uploaded image
-            photoInput.addEventListener('change', function () {
-                const file = this.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        imagePreview.src = e.target.result;
-                        imagePreview.style.display = 'block';
-                        removePhotoButton.style.display = 'inline';
-                    };
-                    reader.readAsDataURL(file);
-                } else {
-                    resetImagePreview();
-                }
-            });
-
-            // Remove the uploaded image
-            removePhotoButton.addEventListener('click', function () {
-                resetImagePreview();
-            });
-
-            function resetImagePreview() {
-                photoInput.value = ''; // Clear the file input
-                imagePreview.src = '';
-                imagePreview.style.display = 'none';
-                removePhotoButton.style.display = 'none';
+            // Toggle the visibility of marks input based on checkbox state
+            if (isCorrectChecked) {
+                marksContainer.style.display = 'block';
+            } else {
+                marksContainer.style.display = 'none';
             }
-            // Function to reset fields
-            function resetFields() {
-                // Clear answer fields but retain the selected number of answers
-                const currentAnswerCount = parseInt(numAnswersSelect.value);
-                answersContainer.innerHTML = '';
+        }
 
-                // Reset total marks display and hidden input
-                totalMarksDisplay.textContent = '0';
-                questionMarkInput.value = '0';
+        // Initial check in case the page is loaded with the checkbox already checked
+        toggleMarksField();
 
-                // Regenerate the answer fields with the same count
-                generateAnswerFields(currentAnswerCount);
-            }
+        // Get the question type and number of correct answers from ViewBag
+        var questionType = '@ViewBag.QuestionType';
+        var noOfCorrectAnswer = '@ViewBag.NoOfCorrectAnswer';
 
-            // Function to validate the selection of correct answers
-            function validateCorrectAnswers() {
-                const correctCheckboxes = answersContainer.querySelectorAll('input[type="checkbox"]');
-                let maxCorrect = getMaxCorrectAnswers();
-
-                correctCheckboxes.forEach(checkbox => {
-                    checkbox.addEventListener('change', function () {
-                        const selectedCorrect = Array.from(correctCheckboxes).filter(cb => cb.checked).length;
-
-                        if (selectedCorrect > maxCorrect) {
-                            alert(`You can only select up to ${maxCorrect} correct answer(s).`);
-                            this.checked = false;
-                            hideMarksInput(this);
-                        } else {
-                            updateMarksVisibility(this);
-                        }
-
-                        if (maxCorrect === 1 && this.checked) {
-                            correctCheckboxes.forEach(cb => {
-                                if (cb !== this) {
-                                    cb.checked = false; // Deselect others
-                                    hideMarksInput(cb);
-                                }
-                            });
-                        }
-                    });
-                });
-
-                form.addEventListener('submit', function (e) {
-                    const correctAnswers = answersContainer.querySelectorAll('input[type="checkbox"]:checked');
-                    let hasError = false;
-
-                    correctAnswers.forEach(checkbox => {
-                        const marksInput = checkbox.closest('div').querySelector('.marks-input');
-                        if (marksInput && marksInput.value <= 0) {
-                            alert('You must provide marks greater than 0 for each correct answer.');
-                            hasError = true;
-                            e.preventDefault();
-                            return;
-                        }
-                    });
-
-                    if (!hasError && correctAnswers.length === 0) {
-                        alert('You must select at least one correct answer.');
-                        e.preventDefault();
-                    }
-                });
-            }
-
-            function getMaxCorrectAnswers() {
-                const questionType = questionTypeSelect.value;
-                if (questionType === "Multiple Choice (Radio)" || questionType === "Multiple Choice (Dropdown)") {
-                    return 1; // Only one correct answer allowed
-                }
-                return parseInt(numAnswersSelect.value) - 1; // Default for checkboxes
-            }
-
-            function hideMarksInput(checkbox) {
-                const marksLabel = checkbox.closest('div').querySelector('.marks-label');
-                const marksInput = checkbox.closest('div').querySelector('.marks-input');
-
-                if (marksLabel && marksInput) {
-                    marksLabel.style.display = 'none';
-                    marksInput.style.display = 'none';
-                }
-            }
-
-            function updateMarksVisibility(checkbox) {
-                const marksLabel = checkbox.closest('div').querySelector('.marks-label');
-                const marksInput = checkbox.closest('div').querySelector('.marks-input');
-
-                if (checkbox.checked) {
-                    marksLabel.style.display = 'inline';
-                    marksInput.style.display = 'inline';
-                } else {
-                    hideMarksInput(checkbox);
-                }
-            }
-
-            function generateAnswerFields(count) {
-                answersContainer.innerHTML = '';
-                let totalMarks = 0;
-
-                for (let i = 0; i < count; i++) {
-                    const answerDiv = document.createElement('div');
-                    answerDiv.classList.add('Answer');
-                    answerDiv.innerHTML = `
-                                                    <label asp-for="Answer_${i}_AnswerText">Answer:</label>
-                                                    <input type="text" id="Answer_${i}_AnswerText" asp-for="Answer${i}.AnswerText" name="Answer[${i}].AnswerText" required>
-                                                    <span asp-validation-for="Answer_${i}_AnswerText" class="text-danger"></span>
-
-                                                    <label asp-for="Answer_${i}_IsCorrect">
-                                                        <input type="checkbox" id="Answer_${i}_Is_Correct" asp-for="Answer${i}.Is_Correct" name="Answer[${i}].Is_Correct" value="true">
-                                                        Correct Answer
-                                                    </label>
-                                                    <span asp-validation-for="Answer_${i}_IsCorrect" class="text-danger"></span>
-
-                                                    <label asp-for="Answer_${i}_Marks" class="marks-label">Marks:</label>
-                                                    <input type="number" id="Answer_${i}_Marks" asp-for="Answer${i}.Marks" name="Answer[${i}].Marks" min="0" step="0.5" value="0" class="marks-input">
-                                                    <span asp-validation-for="Answer_${i}_Marks" class="text-danger"></span>
-                                                `;
-                    answersContainer.appendChild(answerDiv);
-
-                    const checkbox = answerDiv.querySelector(`#Answer_${i}_Is_Correct`);
-                    const marksInput = answerDiv.querySelector('.marks-input');
-
-                    updateMarksVisibility(checkbox);
-
-                    marksInput.addEventListener('input', function () {
-                        this.value = this.value || 0; // Default to 0 if empty
-                        totalMarks = Array.from(answersContainer.querySelectorAll('.marks-input'))
-                            .map(input => parseFloat(input.value) || 0)
-                            .reduce((sum, value) => sum + value, 0);
-
-                        totalMarksDisplay.textContent = totalMarks.toFixed(1);
-                        questionMarkInput.value = totalMarks.toFixed(1); // Update hidden input
-                    });
-                }
-
-                validateCorrectAnswers();
-            }
-            // Toggle visibility of the category selection fields based on radio button selection
-            existingCategoryRadio.addEventListener('change', toggleCategoryFields);
-            newCategoryRadio.addEventListener('change', toggleCategoryFields);
-
-            function toggleCategoryFields() {
-                if (existingCategoryRadio.checked) {
-                    existingCategoryContainer.style.display = 'block';
-                    newCategoryContainer.style.display = 'none';
-                    document.getElementById("Quiz.QuizCategory").disabled = false;  // Enable dropdown
-                    document.getElementById("new-Quiz.QuizCategory").disabled = true; // Disable text input
-                } else {
-                    existingCategoryContainer.style.display = 'none';
-                    newCategoryContainer.style.display = 'block';
-                    document.getElementById("Quiz.QuizCategory").disabled = true;  // Disable dropdown
-                    document.getElementById("new-Quiz.QuizCategory").disabled = false; // Enable text input
-                }
-            }
-
-            // Initial category field state
-            toggleCategoryFields();
-            // Event handlers
-            const initialNumAnswers = parseInt(numAnswersSelect.value);
-            generateAnswerFields(initialNumAnswers);
-
-            numAnswersSelect.addEventListener('change', function () {
-                generateAnswerFields(parseInt(this.value));
-            });
-
-            questionTypeSelect.addEventListener('change', function () {
-                resetFields();
-            });
-        });
+        // Disable the checkbox for the correct answer if question type is Radio or Dropdown and there is already 1 correct answer
+        if ((questionType === 'Multiple Choice (Radio)' || questionType === 'Multiple Choice (Dropdown)') && noOfCorrectAnswer == 1) {
+            var checkbox = document.getElementById('Is_Correct');
+            checkbox.disabled = true;  // Disable checkbox
+            checkbox.title = "Only 1 correct answer allowed for this question type."; // Show title with explanation
+            checkbox.checked = false;  // Uncheck the checkbox if disabled
+            document.getElementById('marks-container').style.display = 'none';  // Hide Marks input when checkbox is disabled
+        }
     </script>
 </body>
