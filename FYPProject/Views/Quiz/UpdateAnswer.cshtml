@@ -1,4 +1,4 @@
-﻿@model FYPProject.Model.Answer
+﻿@model FYPProject.Models.Answer
 <head>
     <meta charset="UTF-8">
     <link href="~/css/AddQuiz.css" rel="stylesheet" />
@@ -6,7 +6,6 @@
     <title>Update Answer</title>
 </head>
 <body>
-    @await Html.PartialAsync("navbar")
     <form id="quiz-form" asp-controller="Quiz" asp-action="UpdateAnswer" method="post">
         <input type="hidden" asp-for="AnswerId" />
         <input type="hidden" asp-for="QuestionId" />

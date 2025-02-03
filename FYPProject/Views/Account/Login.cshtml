@@ -1,112 +1,250 @@
 ﻿@page
-@model FYPProject.Views.Account.LoginModel
-
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
     <meta charset="UTF-8">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-image: url('images/f6-smInt-thumbnail.png');
-            background-size: cover; /* Ensures the image covers the whole screen */
-            background-repeat: no-repeat; /* Prevents the image from repeating */
-            background-position: center center; /* Centers the image */
-            margin: 0;
-            padding: 0;
+            background-color: #90B2B8;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            margin: 0;
         }
 
-        .login-card {
-            background: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
-            width: 75%;
-            padding: 30px;
-            text-align: center;
+        @@media (min-width: 1px) and (max-width: 399px) {
+            .login-card {
+                background: #ffffff;
+                border-radius: 8px;
+                box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+                width: 100%;
+                max-width: 400px;
+                padding: 18px;
+                text-align: center;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                position: relative;
+                right: 12px;
+            }
         }
 
-            .login-card img {
-                height: 100px;
-               
+        @@media (min-width: 400px) and (max-width: 499px) {
+            .login-card {
+                background: #ffffff;
+                border-radius: 8px;
+                box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+                width: 100%;
+                max-width: 400px;
+                padding: 30px;
+                text-align: center;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                position: relative;
+                right: 30px;
             }
+        }
 
-            .login-card h1 {
-                font-size: 24px;
-                font-weight: bold;
-                margin-bottom: 20px;
-                color: #333;
+
+        @@media (min-width: 700px) {
+            .login-card {
+                background: #ffffff;
+                border-radius: 8px;
+                box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+                width: 140%;
+                max-width: 400px;
+                padding: 30px;
+                text-align: center;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                position: relative;
+                right: 90px;
             }
+        }
 
-            .login-card .form-control {
+        @@media (min-width: 366px) and (max-width: 500px) {
+            .form-control {
                 border: 1px solid #ddd;
                 border-radius: 4px;
                 padding: 10px;
-                width: 100%;
+                width: 130% !important;
                 margin-bottom: 15px;
                 font-size: 14px;
+                position: relative;
+                right: 43px;
+            }
+        }
+
+        @@media (min-width: 500px) {
+            .form-control {
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                padding: 10px;
+                width: 160%;
+                margin-bottom: 15px;
+                font-size: 14px;
+                position: relative;
+                right: 80px;
+            }
+        }
+
+        .password-wrapper {
+            position: relative;
+            width: 90%;
+        }
+
+            .password-wrapper input {
+                padding-right: 40px;
             }
 
-                .login-card .form-control:focus {
-                    border-color: #007bff;
-                    outline: none;
-                    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-                }
+        @@media (min-width: 366px) and (max-width: 500px) {
+            .password-wrapper .toggle-password {
+                position: absolute;
+                left: 240px;
+                top: 20px;
+                transform: translateY(-50%);
+                cursor: pointer;
+                font-size: 18px;
+                color: #999;
+            }
+        }
 
-            .login-card .btn-primary {
-                background-color: #007bff;
+        @@media (min-width: 500px) {
+            .password-wrapper .toggle-password {
+                position: absolute;
+                left: 275px;
+                top: 20px;
+                transform: translateY(-50%);
+                cursor: pointer;
+                font-size: 18px;
+                color: #999;
+            }
+        }
+
+        @@media (min-width: 366px) and (max-width: 500px) {
+            .btn-primary {
+                background-color: #005792;
                 border: none;
                 padding: 10px 15px;
                 border-radius: 4px;
                 color: #fff;
                 cursor: pointer;
                 font-size: 16px;
-                width: 100%;
-                margin-top: 10px;
+                width: 130%; /* Matches the width of input fields */
+                position: relative;
+                right: 30px;
             }
+        }
 
-                .login-card .btn-primary:hover {
-                    background-color: #0056b3;
-                }
-
-            .login-card p {
-                margin-top: 20px;
-                font-size: 14px;
-                color: #666;
-                font-weight:bold;
+        @@media (min-width: 500px) {
+            .btn-primary {
+                background-color: #005792;
+                border: none;
+                padding: 10px 15px;
+                border-radius: 4px;
+                color: #fff;
+                cursor: pointer;
+                font-size: 16px;
+                width: 160%; /* Matches the width of input fields */
+                position: relative;
+                right: 68px;
             }
+        }
 
-                .login-card p a {
-                    color: #007bff;
-                    text-decoration: none;
-                }
+        .btn-primary:hover {
+            background-color: #005792
+        }
 
-                    .login-card p a:hover {
-                        text-decoration: underline;
-                    }
+        .footer-link {
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        @@media (min-width: 366px) and (max-width: 500px) {
+            .footer-link a {
+                color: #007bff;
+                text-decoration: none;
+                position: relative;
+                left: 38px;
+            }
+        }
+
+        @@media (min-width: 500px) {
+            .footer-link a {
+                color: #007bff;
+                text-decoration: none;
+            }
+        }
+
+        .signup-link {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .footer-link a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            color: red;
+            margin-bottom: 15px;
+        }
+
+        .logo {
+            width: 150px; /* Adjust the logo size */
+            margin-bottom: 20px; /* Add spacing below the logo */
+        }
     </style>
 </head>
 <body>
-    <div class="login-card" style="margin:50px auto;">
-        <img src="images/logo.png" alt="Logo">
-      
-        <p>Sign in to start your session</p>
-        <form method="post">
+    <div class="login-card">
+        <img src="@ViewBag.ImageUrl" alt="Logo" class="logo" />
+        @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+        {
+            <div class="error-message">@ViewBag.ErrorMessage</div>
+        }
+        else
+        {
+            <p>Login in to start your session</p>
+        }
+        <form method="post" asp-action="Login" asp-controller="Account">
             @Html.AntiForgeryToken()
-            <input name="Username" type="text" id="Username" class="form-control" style="box-sizing: border-box;" placeholder="Enter User ID" required />
-            <input name="Password" type="password" id="Password" class="form-control" style="box-sizing: border-box;" placeholder="Enter Password" required />
-            <button type="submit" class="btn-primary">Sign In</button>
+            <input name="usernameOrEmail" type="text" class="form-control" placeholder="Enter Username or Email" required />
+            <div class="password-wrapper">
+                <input id="password" name="password" type="password" style="width:163.5%" class="form-control" placeholder="Enter Password" required />
+                <i id="togglePasswordIcon" class="fas fa-eye toggle-password" onclick="togglePasswordVisibility()"></i>
+            </div>
+            <p class="footer-link" style="text-align: right; margin-top: -10px; position: relative; right: 190px; top:10px;">
+                <a href="/Account/ResetPW">Forget Password?</a>
+            </p>
+            <button type="submit" class="btn-primary" style="position:relative; top:12px;">Log In</button>
         </form>
-        <p>Don't have an account? <a href="/Account/Signup">Sign up here</a></p>
+        <p class="signup-link" style="position:relative; top:10px;">Don't have an account? <a href="/Account/Signup">Sign up here</a></p>
     </div>
 </body>
 </html>
+<script>
+    function togglePasswordVisibility() {
+        const passwordField = document.getElementById('password');
+        const icon = document.getElementById('togglePasswordIcon');
 
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            passwordField.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+</script>

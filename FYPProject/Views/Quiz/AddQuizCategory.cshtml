@@ -1,4 +1,4 @@
-﻿@model FYPProject.Model.Quiz
+﻿@model FYPProject.Models.Quiz
 
 <head>
     <meta charset="UTF-8">
@@ -9,7 +9,6 @@
     <title>Create Quiz</title>
 </head>
 <body>
-    @await Html.PartialAsync("navbar")
     <form id="quiz-form" asp-controller="Quiz" asp-action="AddQuizCategory" method="post" enctype="multipart/form-data">
         <input type="hidden" asp-for="QuizId" />
         <label asp-for="QuizCategory">Category:</label>

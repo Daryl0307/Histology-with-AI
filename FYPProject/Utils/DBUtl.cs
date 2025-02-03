@@ -2,7 +2,7 @@
 using System.Data.SqlClient;
 using System.Dynamic;
 using System.Reflection;
-//using MySql.Data.MySqlClient;
+using System.Security.Cryptography;
 namespace RP.SOI.DotNet.Utils;
 
 public static class DBUtl
@@ -121,13 +121,6 @@ public static class DBUtl
         DB_Message = "";
         DB_SQL = string.Format(sql, list);
 
-        // Following restriction removed for Lesson 12 to enable QR code generation 2023 PK
-        /* Prohibit modification non-development databases 2022 PK*/
-        //if (env is not null && env.ToUpper() != "DEVELOPMENT")
-        //{
-        //    DB_Message = "C236: Data modification only permitted in development database";
-        //    return 0;
-        //}
 
         int rowsAffected = 0;
         using (SqlConnection dbConn = new(DB_CONNECTION))
@@ -214,5 +207,16 @@ public static class DBUtl
     {
         return line?.Replace("'", "''")!;
     }
+
+    public static string HashPassword(string password)
+    {
+        using (var sha1 = SHA1.Create())
+        {
+            byte[] data = System.Text.Encoding.UTF8.GetBytes(password);
+            byte[] hash = sha1.ComputeHash(data);
+            return Convert.ToBase64String(hash);
+        }
+    }
+
 
 }

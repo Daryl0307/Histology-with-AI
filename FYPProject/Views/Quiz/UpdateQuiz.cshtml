@@ -1,4 +1,4 @@
-﻿@model FYPProject.Model.QuizViewModelForManagement
+﻿@model FYPProject.Models.QuizViewModelForManagement
 
 <head>
     <meta charset="UTF-8">
@@ -8,7 +8,6 @@
     <title>Update Quiz</title>
 </head>
 <body>
-    @await Html.PartialAsync("navbar")
     <form id="quiz-form" asp-controller="Quiz" asp-action="UpdateQuiz" method="post" enctype="multipart/form-data">
         <input type="hidden" asp-for="Question_ID" />
         <label asp-for="Quiz_Category">Category:</label>
@@ -50,7 +49,7 @@
         <p id="no-picture-message" style="display:@((Model.Photo_URL == "No Picture Inserted") ? "block" : "none");">No Picture Inserted</p>
 
 
-        <input asp-for="Photo" type="file" id="Photo" name="Photo">
+        <input asp-for="Photos" type="file" id="Photos" name="Photo">
 
 
 

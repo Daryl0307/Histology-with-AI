@@ -1,4 +1,4 @@
-﻿using FYPProject.Model;
+﻿using FYPProject.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using RP.SOI.DotNet.Utils;
@@ -90,6 +90,7 @@ ORDER BY S.Score DESC;
     [HttpGet]
     public IActionResult AddQuizCategory()
     {
+        ViewBag.HideNavbar = false;
         return View();
     }
 
@@ -152,6 +153,9 @@ ORDER BY S.Score DESC;
 
     public IActionResult HistoQuiz()
     {
+        ViewBag.HideNavbar = false;
+        ViewBag.ActivePage = "HistoQuiz";
+
 
         List<HistoQuiz> quizlist = DBUtl.GetList<HistoQuiz>("SELECT Quiz.Quiz_Category AS 'QuizCategory',  SUM(Q.QuestionMarks) AS 'TotalQuestionMarks' FROM Quiz INNER JOIN Question Q ON Quiz.Quiz_ID = Q.Quiz_ID  GROUP BY Quiz.Quiz_Category");
 
@@ -223,6 +227,8 @@ ORDER BY S.Score DESC;
 
     public IActionResult QuizView()
     {
+        ViewBag.HideNavbar = false;
+        ViewBag.ActivePage = "QuizView";
         List<HistoQuiz> quizlist = DBUtl.GetList<HistoQuiz>("SELECT Quiz.Quiz_Category AS 'QuizCategory',  SUM(Q.QuestionMarks) AS 'TotalQuestionMarks' FROM Quiz INNER JOIN Question Q ON Quiz.Quiz_ID = Q.Quiz_ID  GROUP BY Quiz.Quiz_Category");
         List<QuizStatistics> statisticslist = DBUtl.GetList<QuizStatistics>("SELECT User_Id AS 'UserId', Quiz_Category AS 'QuizCategory', Date_Attempted AS 'DateAttempted', Score FROM Quiz_Statistics ");
 
@@ -260,6 +266,8 @@ ORDER BY S.Score DESC;
 
     public IActionResult Management(string quizCategory)
     {
+        ViewBag.HideNavbar = false;
+
         string query = @"
         SELECT 
             Q.Question_ID, 
@@ -314,9 +322,9 @@ ORDER BY S.Score DESC;
                         QuizCategory = group.First()["Quiz_Category"].ToString(),
                     },
 
-                    Photo = new Photo
+                    Photos = new Photos
                     {
-                        PhotoUrl = group.First()["Photo_URL"].ToString()
+                        Photo_URL = group.First()["Photo_URL"].ToString()
                     },
                     Answer = group.Select(row => new Answer
                     {
@@ -335,6 +343,7 @@ ORDER BY S.Score DESC;
 
     public IActionResult AddQuiz()
     {
+        ViewBag.HideNavbar = false;
         var model = new QuizViewModel
         {
             Quiz = new Quiz(),
@@ -345,93 +354,93 @@ ORDER BY S.Score DESC;
         return View(model);
     }
 
-    [HttpPost]
-    public IActionResult AddQuiz(QuizViewModel model)
-    {
-        ModelState.Remove("Photo");
-        if (!ModelState.IsValid)
-        {
-            foreach (var state in ModelState)
-            {
-                Console.WriteLine($"{state.Key} :: {string.Join(", ", state.Value.Errors.Select(e => e.ErrorMessage))}");
-            }
+    //[HttpPost]
+    //public IActionResult AddQuiz(QuizViewModel model)
+    //{
+    //    ModelState.Remove("Photo");
+    //    if (!ModelState.IsValid)
+    //    {
+    //        foreach (var state in ModelState)
+    //        {
+    //            Console.WriteLine($"{state.Key} :: {string.Join(", ", state.Value.Errors.Select(e => e.ErrorMessage))}");
+    //        }
 
-            TempData["Message"] = "Please correct the errors.";
-            TempData["MsgType"] = "danger";
-            return View("AddQuiz", model);
-        }
-        else
-        {
+    //        TempData["Message"] = "Please correct the errors.";
+    //        TempData["MsgType"] = "danger";
+    //        return View("AddQuiz", model);
+    //    }
+    //    else
+    //    {
 
-            string insertQuiz = @"INSERT INTO Quiz(Quiz_Category) OUTPUT INSERTED.Quiz_ID VALUES('{0}')";
-            int newQuizId = DBUtl.ExecSQLReturnId(insertQuiz, model.Quiz.QuizCategory);
-
-
-            if (newQuizId >= 1)
-            {
-                if (model.Photo != null && model.Photo.PhotoFile != null)
-                {
-                    string picfilename = DoPhotoUpload(model.Photo.PhotoFile, model.Quiz.QuizCategory);
-                    string insertPhoto = @"INSERT INTO Photos (Photo_URL, Quiz_ID) VALUES ('{0}', {1})";
-                    int result = DBUtl.ExecSQL(insertPhoto, picfilename, newQuizId);
-                }
-                else
-                {
-                    string picfilename = "No Picture Inserted";
-                    string insertPhoto = @"INSERT INTO Photos (Photo_URL, Quiz_ID) VALUES ('{0}', {1})";
-                    int result = DBUtl.ExecSQL(insertPhoto, picfilename, newQuizId);
-                }
+    //        string insertQuiz = @"INSERT INTO Quiz(Quiz_Category) OUTPUT INSERTED.Quiz_ID VALUES('{0}')";
+    //        int newQuizId = DBUtl.ExecSQLReturnId(insertQuiz, model.Quiz.QuizCategory);
 
 
+    //        if (newQuizId >= 1)
+    //        {
+    //            if (model.Photos != null && model.Photos.PhotoFile != null)
+    //            {
+    //                string picfilename = DoPhotoUpload(model.Photos.PhotoFile, model.Quiz.QuizCategory);
+    //                string insertPhoto = @"INSERT INTO Photos (Photo_URL, Quiz_ID) VALUES ('{0}', {1})";
+    //                int result = DBUtl.ExecSQL(insertPhoto, picfilename, newQuizId);
+    //            }
+    //            else
+    //            {
+    //                string picfilename = "No Picture Inserted";
+    //                string insertPhoto = @"INSERT INTO Photos (Photo_URL, Quiz_ID) VALUES ('{0}', {1})";
+    //                int result = DBUtl.ExecSQL(insertPhoto, picfilename, newQuizId);
+    //            }
 
 
-                model.Question.QuizId = newQuizId;
-                string insertQuestion = @"INSERT INTO Question(Quiz_ID, QuestionText, QuestionMarks, QuestionType) OUTPUT INSERTED.Question_ID VALUES('{0}', '{1}', '{2}', '{3}')";
-                int newQuestionId = DBUtl.ExecSQLReturnId(insertQuestion, model.Question.QuizId, model.Question.QuestionText, model.Question.QuestionMark, model.Question.QuestionType);
-
-                if (newQuestionId >= 1)
-                {
-
-                    foreach (var answer in model.Answer)
-                    {
-                        answer.QuestionId = newQuestionId;
-                        string insertAnswer = @"INSERT INTO Answer(Question_ID, AnswerText, Is_Correct, AnswerMarks) VALUES({0}, '{1}', {2}, {3})";
-                        int resultAnswer = DBUtl.ExecSQL(insertAnswer, answer.QuestionId, answer.AnswerText, answer.Is_Correct ? 1 : 0, answer.Marks);
-
-                        if (resultAnswer <= 1)
-                        {
-                            TempData["Message"] = DBUtl.DB_Message;
-                            TempData["MsgType"] = "danger";
-
-                        }
-                        else
-                        {
-                            TempData["Message"] = "Quiz created successfully!";
-                            TempData["MsgType"] = "success";
-                        }
-                    }
 
 
-                }
-                else
-                {
-                    TempData["Message"] = DBUtl.DB_Message;
-                    TempData["MsgType"] = "danger";
-                }
+    //            model.Question.QuizId = newQuizId;
+    //            string insertQuestion = @"INSERT INTO Question(Quiz_ID, QuestionText, QuestionMarks, QuestionType) OUTPUT INSERTED.Question_ID VALUES('{0}', '{1}', '{2}', '{3}')";
+    //            int newQuestionId = DBUtl.ExecSQLReturnId(insertQuestion, model.Question.QuizId, model.Question.QuestionText, model.Question.QuestionMark, model.Question.QuestionType);
+
+    //            if (newQuestionId >= 1)
+    //            {
+
+    //                foreach (var answer in model.Answer)
+    //                {
+    //                    answer.QuestionId = newQuestionId;
+    //                    string insertAnswer = @"INSERT INTO Answer(Question_ID, AnswerText, Is_Correct, AnswerMarks) VALUES({0}, '{1}', {2}, {3})";
+    //                    int resultAnswer = DBUtl.ExecSQL(insertAnswer, answer.QuestionId, answer.AnswerText, answer.Is_Correct ? 1 : 0, answer.Marks);
+
+    //                    if (resultAnswer <= 1)
+    //                    {
+    //                        TempData["Message"] = DBUtl.DB_Message;
+    //                        TempData["MsgType"] = "danger";
+
+    //                    }
+    //                    else
+    //                    {
+    //                        TempData["Message"] = "Quiz created successfully!";
+    //                        TempData["MsgType"] = "success";
+    //                    }
+    //                }
 
 
-            }
-            else
-            {
-                TempData["Message"] = DBUtl.DB_Message;
-                TempData["MsgType"] = "danger";
-            }
-
-            return RedirectToAction("QuizView");
-        }
+    //            }
+    //            else
+    //            {
+    //                TempData["Message"] = DBUtl.DB_Message;
+    //                TempData["MsgType"] = "danger";
+    //            }
 
 
-    }
+    //        }
+    //        else
+    //        {
+    //            TempData["Message"] = DBUtl.DB_Message;
+    //            TempData["MsgType"] = "danger";
+    //        }
+
+    //        return RedirectToAction("QuizView");
+    //    }
+
+
+    //}
 
     public IActionResult AddAnswer(int id)
     {
@@ -746,14 +755,14 @@ ORDER BY S.Score DESC;
                 else
                 {
 
-                    if (model.Photo != null)
+                    if (model.Photos != null)
                     {
                         string fullpath = Path.Combine(_env.WebRootPath, "images", model.Quiz_Category, model.Photo_URL).Replace("\\", "/");
                         if (!System.IO.File.Exists(fullpath))
                         {
                             System.IO.File.Delete(fullpath);
                         }
-                        string picfilename = DoPhotoUpload(model.Photo, model.Quiz_Category);
+                        string picfilename = DoPhotoUpload(model.Photos, model.Quiz_Category);
                         string updatePhoto = @"UPDATE Photos SET Photo_URL = '{1}'  WHERE Quiz_ID = {0}";
                         int photoResult = DBUtl.ExecSQL(updatePhoto, model.Question_ID, picfilename);
                     }
@@ -975,9 +984,9 @@ ORDER BY S.Score DESC;
                     QuestionMark = questionKey.QuestionMark,
                     QuizId = questionKey.QuizId
                 },
-                Photo = new Photo
+                Photos = new Photos
                 {
-                    PhotoUrl = questionKey.Photo_Url
+                    Photo_URL = questionKey.Photo_Url
                 },
                 Answer = firstQuestionGroup.Select(row => new Answer
                 {
@@ -1128,9 +1137,9 @@ ORDER BY S.Score DESC;
                             QuestionMark = questionKey.QuestionMark,
                             QuizId = questionKey.QuizId
                         },
-                        Photo = new Photo
+                        Photos = new Photos
                         {
-                            PhotoUrl = questionKey.Photo_Url
+                            Photo_URL = questionKey.Photo_Url
                         },
                         Answer = nextQuestionGroup.Select(row => new Answer
                         {

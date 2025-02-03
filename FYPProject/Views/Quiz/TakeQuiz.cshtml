@@ -1,5 +1,5 @@
 ﻿
-@model FYPProject.Model.QuizViewModel
+@model FYPProject.Models.QuizViewModel
 
 @{
     ViewData["Title"] = "Take Quiz";
@@ -14,13 +14,13 @@
     <div class="quiz-container">
         <!-- Display question image or a placeholder -->
         <div class="quiz-image">
-            @if (Model.Photo.PhotoUrl == "No Picture Inserted")
+            @if (Model.Photos.Photo_URL == "No Picture Inserted")
             {
                 <p>No image available for this question.</p>
             }
             else
             {
-                <img src="@Url.Content("~/images/" + Model.Quiz.QuizCategory + "/" + Model.Photo.PhotoUrl)"
+                <img src="@Url.Content("~/images/" + Model.Quiz.QuizCategory + "/" + Model.Photos.Photo_URL)"
                      width="150" height="150" alt="Quiz image"
                      style="padding-right: 5px;" />
             }

@@ -1,0 +1,38 @@
+﻿using FYPProject.Models;
+using Microsoft.AspNetCore.Mvc;
+using System.Linq;
+
+namespace FYPProject.Components
+{
+    public class NavbarViewComponent : ViewComponent
+    {
+        private readonly ApplicationDBContext _context;
+
+        public NavbarViewComponent(ApplicationDBContext context)
+        {
+            _context = context;
+        }
+
+        public IViewComponentResult Invoke()
+        {
+            // Fetch logo and background image URLs
+            var logoUrl = _context.Photos
+                .Where(photo => photo.Photo_Description == "AILogo")
+                .Select(photo => photo.Photo_URL)
+                .FirstOrDefault() ?? "/images/default-logo.png";
+
+            var backgroundImageUrl = _context.Photos
+                .Where(photo => photo.Photo_Description == "BackgroundImage")
+                .Select(photo => photo.Photo_URL)
+                .FirstOrDefault() ?? "/images/default-background.png";
+
+            // Set ViewBag properties
+            ViewBag.LogoImage = logoUrl;
+            ViewBag.BackgroundImage = backgroundImageUrl;
+            ViewBag.IsLoggedIn = false; // Default to false for demonstration purposes
+            ViewBag.HasNotifications = false; // Default to false to prevent null
+
+            return View("~/Views/Shared/Components/Navbar/_Navbar.cshtml");
+        }
+    }
+}

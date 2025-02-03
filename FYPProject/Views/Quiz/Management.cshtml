@@ -1,25 +1,25 @@
-﻿@using FYPProject.Model;
+﻿@using FYPProject.Models;
 @model List<QuizViewModel>
 
-@section MoreScripts {
-    <link href="~/lib/datatables/css/jquery.dataTables.min.css" rel="stylesheet" />
-    <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
+    @section MoreScripts {
+        <link href="~/lib/datatables/css/jquery.dataTables.min.css" rel="stylesheet" />
+        <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
 
-    <script>
-        $(document).ready(function () {
-            $('#jsTable').DataTable({
-                paging: true,
-                ordering: true,
-                info: true,
-                lengthChange: true,
-                pageLength: 5,
-                stateSave: true,
-                lengthMenu: [[5, 7, -1], [5, 7, "All"]],
-                searching: false
+        <script>
+            $(document).ready(function () {
+                $('#jsTable').DataTable({
+                    paging: true,
+                    ordering: true,
+                    info: true,
+                    lengthChange: true,
+                    pageLength: 5,
+                    stateSave: true,
+                    lengthMenu: [[5, 7, -1], [5, 7, "All"]],
+                    searching: false
+                });
             });
-        });
-    </script>
-}
+        </script>
+    }
 @if (TempData["Message"] != null)
 {
     <div class="tempdata-popup @TempData["MsgType"]">
@@ -54,7 +54,7 @@
     <link href="~/css/HistoQuiz.css" rel="stylesheet" />
 </head>
 <body>
-    @await Html.PartialAsync("navbar")
+ 
     <div class="container mt-5">
         <div class="card big-card">
 
@@ -95,13 +95,13 @@
                                         </td>
                                         <td>
                                             <a>
-                                                @if (quizViewModel.Photo.PhotoUrl == "No Picture Inserted")
+                                                @if (quizViewModel.Photos.Photo_URL == "No Picture Inserted")
                                                 {
-                                                    <p>@quizViewModel.Photo.PhotoUrl</p>
+                                                    <p>@quizViewModel.Photos.Photo_URL</p>
                                                 }
                                                 else
                                                 {
-                                                    <img src="@Url.Content("~/images/" + quizViewModel.Quiz.QuizCategory + "/" + quizViewModel.Photo.PhotoUrl)"
+                                                    <img src="@Url.Content("~/images/" + quizViewModel.Quiz.QuizCategory + "/" + quizViewModel.Photos.Photo_URL)"
                                                          width="150" height="90"
                                                          class="pull-left" style="padding-right: 5px;" />
                                                 }

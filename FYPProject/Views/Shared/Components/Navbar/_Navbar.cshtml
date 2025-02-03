@@ -1,0 +1,321 @@
+﻿<header class="navbar" style="@(ViewBag.HideNavbar ? "display: none;" : "display: block;")">
+    <div class="navbar-container">
+        <!-- Logo -->
+        <div class="navbar-logo">
+            <img src="@ViewBag.LogoImage" alt="AI Logo" />
+        </div>
+
+        <!-- Site Title -->
+        <div class="navbar-title">
+            <h1>Learn Histology with AI!</h1>
+        </div>
+
+        <!-- Hamburger Icon for Mobile -->
+        <div class="navbar-hamburger" id="hamburger-icon">
+            <i class="fa fa-bars" style="font-size: 24px; cursor: pointer;"></i>
+        </div>
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav class="navbar-menu" id="navbar-menu">
+        <!-- Close Button ("X") for Mobile Menu -->
+        <div class="menu-close" id="menu-close">
+            <i class="fa fa-times" style="font-size: 24px; cursor: pointer;"></i>
+        </div>
+
+        <ul class="menu-list">
+            <li><a href="/Histology/Home" class="@(ViewBag.ActivePage == "Home" ? "active" : "")">Home</a></li>
+            <li><span class="separator"> / </span></li>
+
+            @if (Context.Session.GetString("UserRole") == "0")
+            {
+                <!-- STUDENT -->
+                <li><a href="/Histology/Histopedia" class="@(ViewBag.ActivePage == "Histopedia" ? "active" : "")">Histopedia</a></li>
+                <li><span class="separator"> / </span></li>
+                <li><a href="/AI/Histoscanner" class="@(ViewBag.ActivePage == "Histoscanner" ? "active" : "")">Histoscanner</a></li>
+                <li><span class="separator"> / </span></li>
+                <li><a href="/Quiz/HistoQuiz" class="@(ViewBag.ActivePage == "HistoQuiz" ? "active" : "")">HistoQuiz</a></li>
+            }
+            else if (Context.Session.GetString("UserRole") == "1")
+            {
+                <!-- ADMIN -->
+                <li><a href="/Histology/Histopedia" class="@(ViewBag.ActivePage == "Histopedia" ? "active" : "")">Histopedia</a></li>
+                <li><span class="separator"> / </span></li>
+                <li><a href="/AI/Histoscanner" class="@(ViewBag.ActivePage == "Histoscanner" ? "active" : "")">Histoscanner</a></li>
+                <li><span class="separator"> / </span></li>
+                <li><a href="/Quiz/HistoQuiz" class="@(ViewBag.ActivePage == "HistoQuiz" ? "active" : "")">HistoQuiz</a></li>
+                <li><span class="separator"> / </span></li>
+                <li><a href="/ControlPanel/ControlPanel" class="@(ViewBag.ActivePage == "ControlPanel" ? "active" : "")">Control Panel</a></li>
+                <li><span class="separator"> / </span></li>
+                <li><a href="/Quiz/QuizView" class="@(ViewBag.ActivePage == "QuizView" ? "active" : "")">Quiz Management</a></li>
+            }
+            else
+            {
+                <!-- GUEST -->
+                <li><a href="/Histology/Histopedia" class="@(ViewBag.ActivePage == "Histopedia" ? "active" : "")">Histopedia</a></li>
+            }
+        </ul>
+    </nav>
+
+    <!-- Profile Icon -->
+    <div class="navbar-profile">
+        <i class="fa fa-user" id="profile-icon" style="font-size: 24px; cursor: pointer;"></i>
+        <div id="profile-dropdown" class="profile-dropdown hidden">
+            @if (Context.Session.GetString("UserRole") == null || (Context.Session.GetString("UserRole") != "0" && Context.Session.GetString("UserRole") != "1"))
+            {
+                <a href="/Account/Login">Login</a>
+                <a href="/Account/Signup">Register</a>
+            }
+            else
+            {
+                <a href="/Account/Profile">Profile</a>
+                <a href="/Account/Logout">Logout</a>
+            }
+        </div>
+    </div>
+
+    <style>
+        .navbar {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("@ViewBag.BackgroundImage");
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .navbar-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .navbar-logo img {
+            max-height: 100px;
+            border-radius: 50%;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .navbar-title h1 {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin: 0;
+            color: white;
+            text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .navbar-menu {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center; /* Center the menu */
+            width: 100%; /* Ensure it spans the full width */
+        }
+
+        .menu-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Center the links */
+            gap: 5px;
+        }
+
+            .menu-list li {
+                display: inline;
+            }
+
+            .menu-list a {
+                color: white;
+                text-decoration: none;
+                font-size: 1rem;
+                font-weight: 600;
+                padding: 5px 10px;
+                transition: color 0.3s ease, font-weight 0.3s ease;
+            }
+
+                .menu-list a.active {
+                    text-decoration: underline;
+                    font-weight: bold;
+                }
+
+        .separator {
+            color: white;
+        }
+
+        .navbar-profile {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            top: 40px;
+            right: 0;
+            background-color: #f5f9f8;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            padding: 5px 0;
+            display: none;
+            flex-direction: column;
+            z-index: 100;
+            min-width: 160px;
+        }
+
+            .profile-dropdown a {
+                text-decoration: none;
+                color: #007b7f;
+                padding: 12px 16px;
+                font-size: 1rem;
+                font-weight: bold;
+                text-align: center;
+                transition: background-color 0.3s ease, color 0.3s ease;
+            }
+
+                .profile-dropdown a:hover {
+                    background-color: #d4f1f0;
+                    color: #004e4f;
+                }
+
+            .profile-dropdown.show {
+                display: flex;
+            }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Mobile Styles */
+        @@media (max-width: 768px) {
+            .navbar-menu {
+                position: fixed;
+                top: 0;
+                left: -100%; /* Hide off-screen by default */
+                width: 250px; /* Fixed width for the slide-out menu */
+                height: 100vh; /* Full height */
+                background-color: rgba(255, 255, 255, 0.9); /* White and translucent */
+                backdrop-filter: blur(10px); /* Blur effect */
+                padding: 20px;
+                box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+                transition: left 0.3s ease; /* Smooth slide-in animation */
+                z-index: 1000;
+            }
+
+                .navbar-menu.active {
+                    left: 0; /* Slide in */
+                }
+
+            .menu-list {
+                flex-direction: column;
+                gap: 20px;
+                margin-top: 50px; /* Space for the close button */
+            }
+
+                .menu-list a {
+                    color: #333; /* Dark text for contrast */
+                    font-size: 1.2rem;
+                    white-space: nowrap; /* Prevent text from wrapping */
+                }
+
+            .menu-close {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                color: #333;
+                cursor: pointer;
+            }
+
+            .navbar-hamburger {
+                display: block;
+                position: absolute;
+                top: 20px;
+                left: 20px;
+                color: white;
+                font-size: 24px;
+                cursor: pointer;
+                z-index: 1001; /* Ensure it's above the menu */
+            }
+
+            .navbar-profile {
+                top: 20px;
+                right: 20px;
+            }
+        }
+
+        /* Hide Hamburger on Desktop */
+        @@media (min-width: 769px) {
+            .navbar-hamburger {
+                display: none;
+            }
+
+            .navbar-menu {
+                display: flex !important;
+                left: auto !important; /* Reset for desktop */
+                width: auto !important;
+                height: auto !important;
+                background-color: transparent !important;
+                backdrop-filter: none !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+            }
+
+            .menu-list {
+                flex-direction: row !important;
+                gap: 5px !important;
+                margin-top: 0 !important;
+                justify-content: center; /* Ensure links are centered on desktop */
+            }
+
+                .menu-list a {
+                    color: white !important; /* Reset text color for desktop */
+                    font-size: 1rem !important;
+                }
+
+            .menu-close {
+                display: none !important; /* Hide close button on desktop */
+            }
+        }
+    </style>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const profileIcon = document.getElementById("profile-icon");
+            const dropdown = document.getElementById("profile-dropdown");
+            const hamburgerIcon = document.getElementById("hamburger-icon");
+            const navbarMenu = document.getElementById("navbar-menu");
+            const menuClose = document.getElementById("menu-close");
+
+            // Toggle dropdown visibility
+            profileIcon.addEventListener("click", function () {
+                dropdown.classList.toggle("show");
+            });
+
+            // Toggle menu visibility
+            hamburgerIcon.addEventListener("click", function () {
+                navbarMenu.classList.toggle("active");
+            });
+
+            // Close menu when clicking the "X" button
+            menuClose.addEventListener("click", function () {
+                navbarMenu.classList.remove("active");
+            });
+
+            // Close dropdown and menu when clicking outside
+            document.addEventListener("click", function (event) {
+                if (!profileIcon.contains(event.target) && !dropdown.contains(event.target)) {
+                    dropdown.classList.remove("show");
+                }
+                if (!hamburgerIcon.contains(event.target) && !navbarMenu.contains(event.target)) {
+                    navbarMenu.classList.remove("active");
+                }
+            });
+        });
+    </script>
+
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</header>

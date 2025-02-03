@@ -1,5 +1,5 @@
-﻿@using FYPProject.Model;
-@model FYPProject.Model.Answer
+﻿@using FYPProject.Models;
+@model FYPProject.Models.Answer
 
 <head>
     <meta charset="UTF-8">
@@ -8,7 +8,6 @@
     <title>Create Answer</title>
 </head>
 <body>
-    @await Html.PartialAsync("navbar")
     <form id="quiz-form" asp-controller="Quiz" asp-action="AddAnswer" method="post" enctype="multipart/form-data">
         <input type="hidden" asp-for="AnswerId" />
         <input type="hidden" asp-for="QuestionId" value="@ViewBag.QuestionId" />
