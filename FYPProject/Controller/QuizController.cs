@@ -87,69 +87,7 @@ ORDER BY S.Score DESC;
         return View(HighestsScorePerUserlist);
     }
 
-    [HttpGet]
-    public IActionResult AddQuizCategory()
-    {
-        ViewBag.HideNavbar = false;
-        return View();
-    }
-
-    [HttpPost]
-    public IActionResult AddQuizCategory(Quiz model)
-    {
-        ModelState.Remove("QuizId");
-        if (!ModelState.IsValid)
-        {
-            foreach (var state in ModelState)
-            {
-                Console.WriteLine($"{state.Key} :: {string.Join(", ", state.Value.Errors.Select(e => e.ErrorMessage))}");
-            }
-
-            TempData["Message"] = "Please correct the errors.";
-            TempData["MsgType"] = "danger";
-            return View("AddQuizCategory", model);
-        }
-        else
-        {
-            string quizCategorysql = @"SELECT DISTINCT Quiz_Category 'QuizCategory' FROM Quiz";
-            var quizCategoryList = DBUtl.GetList<Quiz>(quizCategorysql);
-
-            bool categoryExists = false;
-
-            foreach (var quizCategory in quizCategoryList)
-            {
-                if (string.Equals(quizCategory.QuizCategory?.Trim(), model.QuizCategory, StringComparison.OrdinalIgnoreCase))
-                {
-                    categoryExists = true;
-                    break;
-                }
-            }
-            if (categoryExists)
-            {
-                TempData["Message"] = "Quiz Category Already Exists";
-                TempData["MsgType"] = "danger";
-            }
-            else
-            {
-
-                string addQuizCategorySql = @"INSERT INTO Quiz(Quiz_Category) VALUES ('{0}')";
-                int result = DBUtl.ExecSQL(addQuizCategorySql, model.QuizCategory);
-                if (result == 1)
-                {
-                    TempData["Message"] = "Quiz Category created successfully!";
-                    TempData["MsgType"] = "success";
-                }
-                else
-                {
-                    TempData["Message"] = DBUtl.DB_Message;
-                    TempData["MsgType"] = "danger";
-                }
-            }
-
-        }
-
-        return RedirectToAction("QuizView");
-    }
+    
 
     public IActionResult HistoQuiz()
     {
@@ -354,93 +292,104 @@ ORDER BY S.Score DESC;
         return View(model);
     }
 
-    //[HttpPost]
-    //public IActionResult AddQuiz(QuizViewModel model)
-    //{
-    //    ModelState.Remove("Photo");
-    //    if (!ModelState.IsValid)
-    //    {
-    //        foreach (var state in ModelState)
-    //        {
-    //            Console.WriteLine($"{state.Key} :: {string.Join(", ", state.Value.Errors.Select(e => e.ErrorMessage))}");
-    //        }
+    [HttpPost]
+    public IActionResult AddQuiz(QuizViewModel model)
+    {
+        ModelState.Remove("Photo");
+        if (!ModelState.IsValid)
+        {
+            foreach (var state in ModelState)
+            {
+                Console.WriteLine($"{state.Key} :: {string.Join(", ", state.Value.Errors.Select(e => e.ErrorMessage))}");
+            }
 
-    //        TempData["Message"] = "Please correct the errors.";
-    //        TempData["MsgType"] = "danger";
-    //        return View("AddQuiz", model);
-    //    }
-    //    else
-    //    {
-
-    //        string insertQuiz = @"INSERT INTO Quiz(Quiz_Category) OUTPUT INSERTED.Quiz_ID VALUES('{0}')";
-    //        int newQuizId = DBUtl.ExecSQLReturnId(insertQuiz, model.Quiz.QuizCategory);
-
-
-    //        if (newQuizId >= 1)
-    //        {
-    //            if (model.Photos != null && model.Photos.PhotoFile != null)
-    //            {
-    //                string picfilename = DoPhotoUpload(model.Photos.PhotoFile, model.Quiz.QuizCategory);
-    //                string insertPhoto = @"INSERT INTO Photos (Photo_URL, Quiz_ID) VALUES ('{0}', {1})";
-    //                int result = DBUtl.ExecSQL(insertPhoto, picfilename, newQuizId);
-    //            }
-    //            else
-    //            {
-    //                string picfilename = "No Picture Inserted";
-    //                string insertPhoto = @"INSERT INTO Photos (Photo_URL, Quiz_ID) VALUES ('{0}', {1})";
-    //                int result = DBUtl.ExecSQL(insertPhoto, picfilename, newQuizId);
-    //            }
+            TempData["Message"] = "Please correct the errors.";
+            TempData["MsgType"] = "danger";
+            return View("AddQuiz", model);
+        }
+        else
+        {
+            int quizId = 0;
+            string getQuizIdsQuery = @"SELECT Quiz_ID FROM Quiz WHERE Quiz_Category = '{0}'";
+            int quizIds = Convert.ToInt32(DBUtl.GetValue(getQuizIdsQuery, model.Quiz.QuizCategory));
 
 
+            if (quizIds > 0)
+            {
+                quizId = quizIds;
+            }
+            else
+            {
+                string insertQuizCategory = @"INSERT INTO Quiz(Quiz_Category) OUTPUT INSERTED.Quiz_ID VALUES('{0}')";
+                quizId = DBUtl.ExecSQLReturnId(insertQuizCategory, model.Quiz.QuizCategory);
+            }
+
+            model.Quiz.QuizId = quizId;
+            string insertQuestion = @"INSERT INTO Question(Quiz_ID, QuestionText, QuestionMarks, QuestionType) OUTPUT INSERTED.Question_ID VALUES('{0}', '{1}', '{2}', '{3}')";
+            int newQuestionId = DBUtl.ExecSQLReturnId(insertQuestion, quizId, model.Question.QuestionText, model.Question.QuestionMark, model.Question.QuestionType);
+            if (quizId >= 1)
+            {
+                if (model.Photos != null && model.Photos.PhotoFile != null)
+                {
+                    string picfilename = DoPhotoUpload(model.Photos.PhotoFile, model.Quiz.QuizCategory);
+                    string insertPhoto = @"INSERT INTO Photos (Photo_URL, Quiz_ID,Question_ID) VALUES ('{0}', {1},{2})";
+                    int result = DBUtl.ExecSQL(insertPhoto, picfilename, quizId, newQuestionId);
+                }
+                else
+                {
+                    string picfilename = "No Picture Inserted";
+                    string insertPhoto = @"INSERT INTO Photos (Photo_URL, Quiz_ID,Question_ID) VALUES ('{0}', {1},{2})";
+                    int result = DBUtl.ExecSQL(insertPhoto, picfilename, quizId, newQuestionId);
+                }
 
 
-    //            model.Question.QuizId = newQuizId;
-    //            string insertQuestion = @"INSERT INTO Question(Quiz_ID, QuestionText, QuestionMarks, QuestionType) OUTPUT INSERTED.Question_ID VALUES('{0}', '{1}', '{2}', '{3}')";
-    //            int newQuestionId = DBUtl.ExecSQLReturnId(insertQuestion, model.Question.QuizId, model.Question.QuestionText, model.Question.QuestionMark, model.Question.QuestionType);
-
-    //            if (newQuestionId >= 1)
-    //            {
-
-    //                foreach (var answer in model.Answer)
-    //                {
-    //                    answer.QuestionId = newQuestionId;
-    //                    string insertAnswer = @"INSERT INTO Answer(Question_ID, AnswerText, Is_Correct, AnswerMarks) VALUES({0}, '{1}', {2}, {3})";
-    //                    int resultAnswer = DBUtl.ExecSQL(insertAnswer, answer.QuestionId, answer.AnswerText, answer.Is_Correct ? 1 : 0, answer.Marks);
-
-    //                    if (resultAnswer <= 1)
-    //                    {
-    //                        TempData["Message"] = DBUtl.DB_Message;
-    //                        TempData["MsgType"] = "danger";
-
-    //                    }
-    //                    else
-    //                    {
-    //                        TempData["Message"] = "Quiz created successfully!";
-    //                        TempData["MsgType"] = "success";
-    //                    }
-    //                }
 
 
-    //            }
-    //            else
-    //            {
-    //                TempData["Message"] = DBUtl.DB_Message;
-    //                TempData["MsgType"] = "danger";
-    //            }
 
 
-    //        }
-    //        else
-    //        {
-    //            TempData["Message"] = DBUtl.DB_Message;
-    //            TempData["MsgType"] = "danger";
-    //        }
+                if (newQuestionId >= 1)
+                {
 
-    //        return RedirectToAction("QuizView");
-    //    }
+                    foreach (var answer in model.Answer)
+                    {
+                        answer.QuestionId = newQuestionId;
+                        string insertAnswer = @"INSERT INTO Answer(Question_ID, AnswerText, Is_Correct, AnswerMarks) VALUES({0}, '{1}', {2}, {3})";
+                        int resultAnswer = DBUtl.ExecSQL(insertAnswer, answer.QuestionId, answer.AnswerText, answer.Is_Correct ? 1 : 0, answer.Marks);
+
+                        if (resultAnswer <= 1)
+                        {
+                            TempData["Message"] = DBUtl.DB_Message;
+                            TempData["MsgType"] = "danger";
+
+                        }
+                        else
+                        {
+                            TempData["Message"] = "Quiz created successfully!";
+                            TempData["MsgType"] = "success";
+                        }
+                    }
 
 
-    //}
+                }
+                else
+                {
+                    TempData["Message"] = DBUtl.DB_Message;
+                    TempData["MsgType"] = "danger";
+                }
+
+
+            }
+            else
+            {
+                TempData["Message"] = DBUtl.DB_Message;
+                TempData["MsgType"] = "danger";
+            }
+
+            return RedirectToAction("QuizView");
+        }
+
+
+    }
 
     public IActionResult AddAnswer(int id)
     {
@@ -471,8 +420,10 @@ ORDER BY S.Score DESC;
     [HttpPost]
     public IActionResult AddAnswer(Answer model)
     {
+        string getQuizId = @"SELECT Quiz_ID FROM Question WHERE Question_ID = {0}";
+        int quizId = Convert.ToInt32(DBUtl.GetValue(getQuizId, model.QuestionId));
         string categorySql = @"SELECT Quiz_Category AS 'Quiz Category' FROM Quiz WHERE Quiz_ID = {0}";
-        string category = Convert.ToString(DBUtl.GetValue(categorySql, model.QuestionId));
+        string category = Convert.ToString(DBUtl.GetValue(categorySql, quizId));
 
         ModelState.Remove("AnswerId");
         if (!ModelState.IsValid)
@@ -497,6 +448,9 @@ ORDER BY S.Score DESC;
             }
             else
             {
+
+
+
                 string insertAnswer = @"INSERT INTO Answer(Question_ID, AnswerText, Is_Correct, AnswerMarks) VALUES({0}, '{1}', {2}, {3})";
                 int resultAnswer = DBUtl.ExecSQL(insertAnswer, model.QuestionId, model.AnswerText, model.Is_Correct ? 1 : 0, model.Marks);
 
@@ -532,7 +486,6 @@ ORDER BY S.Score DESC;
         }
         return RedirectToAction("Management", new { quizCategory = category });
     }
-
     [HttpGet]
     public IActionResult UpdateAnswer(int id)
     {
@@ -559,8 +512,10 @@ ORDER BY S.Score DESC;
     [HttpPost]
     public IActionResult UpdateAnswer(Answer model)
     {
+        string getQuizId = @"SELECT Quiz_ID FROM Question WHERE Question_ID = {0}";
+        int quizId = Convert.ToInt32(DBUtl.GetValue(getQuizId, model.QuestionId));
         string categorySql = @"SELECT Quiz_Category AS 'Quiz Category' FROM Quiz WHERE Quiz_ID = {0}";
-        string category = Convert.ToString(DBUtl.GetValue(categorySql, model.QuestionId));
+        string category = Convert.ToString(DBUtl.GetValue(categorySql, quizId));
         if (!ModelState.IsValid)
         {
             foreach (var state in ModelState)
@@ -582,26 +537,26 @@ ORDER BY S.Score DESC;
         string AnswerTextsql = @"SELECT AnswerText FROM Answer WHERE Answer_ID = {0}";
         string answerText = Convert.ToString(DBUtl.GetValue(AnswerTextsql, model.AnswerId));
 
-        if (questionType == "Multiple Choice (Radio)" && noofCorrectAnswer == 1 && model.Is_Correct)
+        if (questionType == "Multiple Choice (Radio)" && noofCorrectAnswer > 1 && model.Is_Correct)
         {
             TempData["Message"] = "You're not allowed to have more than 1 correct answer in this question type.";
             TempData["MsgType"] = "danger";
             return RedirectToAction("AnswerList", new { id = model.QuestionId });
         }
-        else if (questionType == "Multiple Choice (Dropdown)" && noofCorrectAnswer == 1 && model.Is_Correct)
+        else if (questionType == "Multiple Choice (Dropdown)" && noofCorrectAnswer > 1 && model.Is_Correct)
         {
             TempData["Message"] = "You're not allowed to have more than 1 correct answer in this question type.";
             TempData["MsgType"] = "danger";
             return RedirectToAction("AnswerList", new { id = model.QuestionId });
 
         }
-        else if (questionType == "Multiple Choice (Radio)" && noofCorrectAnswer == 1 && !model.Is_Correct && answerText == model.AnswerText)
+        else if (questionType == "Multiple Choice (Radio)" && noofCorrectAnswer < 1 && !model.Is_Correct && answerText == model.AnswerText)
         {
             TempData["Message"] = "You're not allowed to have no correct answer.";
             TempData["MsgType"] = "danger";
             return RedirectToAction("AnswerList", new { id = model.QuestionId });
         }
-        else if (questionType == "Multiple Choice (Dropdown)" && noofCorrectAnswer == 1 && !model.Is_Correct && answerText == model.AnswerText)
+        else if (questionType == "Multiple Choice (Dropdown)" && noofCorrectAnswer < 1 && !model.Is_Correct && answerText == model.AnswerText)
         {
             TempData["Message"] = "You're not allowed to have no correct answer.";
             TempData["MsgType"] = "danger";
@@ -630,7 +585,7 @@ ORDER BY S.Score DESC;
         {
             TempData["Message"] = "Please input more than 0 marks.";
             TempData["MsgType"] = "danger";
-            return RedirectToAction("NewManagement", new { quizCategory = category });
+            return RedirectToAction("Management", new { quizCategory = category });
         }
 
         bool hasOnlyOneIncorrect = incorrectAnswersCount == 1;
@@ -639,7 +594,7 @@ ORDER BY S.Score DESC;
         {
             TempData["Message"] = "Too much correct answers";
             TempData["MsgType"] = "danger";
-            return RedirectToAction("NewManagement", new { quizCategory = category });
+            return RedirectToAction("Management", new { quizCategory = category });
         }
 
         double answerMarks = Convert.ToDouble(DBUtl.GetValue(answerMarksSql, model.AnswerId));
@@ -688,7 +643,7 @@ ORDER BY S.Score DESC;
 
 
         // Explicitly return RedirectToAction
-        return RedirectToAction("NewManagement", new { quizCategory = category });
+        return RedirectToAction("Management", new { quizCategory = category });
     }
 
 
@@ -716,9 +671,11 @@ ORDER BY S.Score DESC;
     [HttpPost]
     public IActionResult UpdateQuiz(QuizViewModelForManagement model)
     {
-
+        string getQuizId = @"SELECT Quiz_ID FROM Question WHERE Question_ID = {0}";
+        int quizId = Convert.ToInt32(DBUtl.GetValue(getQuizId, model.Question_ID));
         string categorySql = @"SELECT Quiz_Category AS 'Quiz Category' FROM Quiz WHERE Quiz_ID = {0}";
-        string category = Convert.ToString(DBUtl.GetValue(categorySql, model.Question_ID));
+        string category = Convert.ToString(DBUtl.GetValue(categorySql, quizId));
+
         if (!ModelState.IsValid)
         {
             foreach (var state in ModelState)
@@ -730,21 +687,22 @@ ORDER BY S.Score DESC;
             TempData["MsgType"] = "danger";
             return View("UpdateQuiz", model);
         }
-
-        string updateQuiz = @"UPDATE Quiz SET Quiz_Category = '{1}' WHERE Quiz_ID = {0}";
-        int quizResult = DBUtl.ExecSQL(updateQuiz, model.Question_ID, model.Quiz_Category);
+        string quizCategoryIdSql = @"SELECT Quiz_ID FROM Quiz WHERE Quiz_Category = '{0}'";
+        int quizCategoryId = Convert.ToInt32(DBUtl.GetValue(quizCategoryIdSql, model.Quiz_Category));
+        string updateQuiz = @"UPDATE Question SET Quiz_ID = {1} WHERE Question_ID = {0}";
+        int quizResult = DBUtl.ExecSQL(updateQuiz, model.Question_ID, quizId);
         if (quizResult == 1)
         {
             string queryPhotoUrl = @"SELECT Photo_URL FROM Question WHERE Question_ID = {0}";
             if (model.Photo_URL == "No Picture Inserted")
             {
-                string updatePhoto = @"UPDATE Photos SET Photo_URL = '{1}'  WHERE Quiz_ID = {0}";
+                string updatePhoto = @"UPDATE Photos SET Photo_URL = '{1}'  WHERE Question_ID = {0}";
                 int photoResult = DBUtl.ExecSQL(updatePhoto, model.Question_ID, model.Photo_URL);
 
             }
             else
             {
-                string photoUrlSql = @"SELECT Photo_URL FROM Photos WHERE Quiz_ID = {0}";
+                string photoUrlSql = @"SELECT Photo_URL FROM Photos WHERE Question_ID = {0}";
                 string photoUrl = Convert.ToString(DBUtl.GetValue(photoUrlSql, model.Question_ID));
 
                 if (model.Photo_URL == null)
@@ -763,7 +721,7 @@ ORDER BY S.Score DESC;
                             System.IO.File.Delete(fullpath);
                         }
                         string picfilename = DoPhotoUpload(model.Photos, model.Quiz_Category);
-                        string updatePhoto = @"UPDATE Photos SET Photo_URL = '{1}'  WHERE Quiz_ID = {0}";
+                        string updatePhoto = @"UPDATE Photos SET Photo_URL = '{1}'  WHERE Question_ID = {0}";
                         int photoResult = DBUtl.ExecSQL(updatePhoto, model.Question_ID, picfilename);
                     }
 
@@ -797,7 +755,7 @@ ORDER BY S.Score DESC;
 
     public IActionResult DeleteAnswer(int id)
     {
-        string categorySql = @"SELECT Quiz_Category AS 'Quiz Category' FROM Quiz WHERE Quiz_ID = {0}";
+        string categorySql = @"SELECT Q.Quiz_Category FROM Answer INNER JOIN Quiz Q on Q.Quiz_ID = Answer.Question_ID WHERE Answer.Answer_ID = {0}";
         string category = Convert.ToString(DBUtl.GetValue(categorySql, id));
         string sql = @"SELECT * FROM Answer WHERE Answer_ID = {0}";
         DataTable ds = DBUtl.GetTable(sql, id);
@@ -842,10 +800,13 @@ ORDER BY S.Score DESC;
 
     public IActionResult DeleteQuiz(int id)
     {
+        string getQuizId = @"SELECT Quiz_ID FROM Question WHERE Question_ID = {0}";
+        int quizId = Convert.ToInt32(DBUtl.GetValue(getQuizId, id));
         string categorySql = @"SELECT Quiz_Category AS 'Quiz Category' FROM Quiz WHERE Quiz_ID = {0}";
-        string quizcategory = Convert.ToString(DBUtl.GetValue(categorySql, id));
+        string quizcategory = Convert.ToString(DBUtl.GetValue(categorySql, quizId));
+
         string sql = @"SELECT * FROM Quiz WHERE Quiz_ID = {0}";
-        DataTable ds = DBUtl.GetTable(sql, id);
+        DataTable ds = DBUtl.GetTable(sql, quizId);
         if (ds.Rows.Count != 1)
         {
             TempData["Message"] = "Quiz Record does not exist";
@@ -853,16 +814,16 @@ ORDER BY S.Score DESC;
         }
         else
         {
-            sql = @"SELECT * FROM Photos WHERE Quiz_ID = {0}";
+            sql = @"SELECT Quiz_Category, Photo_URL FROM Photos INNER JOIN Quiz Q ON Q.Quiz_ID = Photos.Quiz_ID WHERE Question_ID = {0}";
             DataTable table = DBUtl.GetTable(sql, id);
             if (table.Rows[0]["Photo_URL"].ToString()! != "No Picture Inserted")
             {
                 string category = ds.Rows[0]["Quiz_Category"].ToString()!;
                 string photoFile = table.Rows[0]["Photo_URL"].ToString()!;
-                string fullpath = Path.Combine(_env.WebRootPath, "images", category, photoFile).Replace("\\", "/");
+                string fullpath = Path.Combine(_env.WebRootPath, "images", quizcategory, photoFile).Replace("\\", "/");
                 System.IO.File.Delete(fullpath);
 
-                sql = @"DELETE FROM Quiz WHERE Quiz_ID = {0}";
+                sql = @"DELETE FROM Question WHERE Question_ID = {0}";
                 int result = DBUtl.ExecSQL(sql, id);
                 if (result == 1)
                 {
@@ -878,7 +839,8 @@ ORDER BY S.Score DESC;
             }
             else
             {
-                sql = @"DELETE FROM Quiz WHERE Quiz_ID = {0}";
+
+                sql = @"DELETE FROM Question WHERE Question_ID = {0}";
                 int result = DBUtl.ExecSQL(sql, id);
                 if (result == 1)
                 {
@@ -899,7 +861,6 @@ ORDER BY S.Score DESC;
         }
         return RedirectToAction("Management", new { quizCategory = quizcategory });
     }
-
     [HttpGet]
     public IActionResult TakeQuiz(string quizCategory)
     {
