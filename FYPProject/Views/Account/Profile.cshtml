@@ -6,79 +6,551 @@
 
 <!-- Main Profile Section -->
 <div class="profile-page">
-    <!-- Profile Box -->
+    <!-- Updated Profile Header Section -->
+    <div class="profile-header">
+        <h1 class="profile-title">Account Settings</h1>
+        <div class="title-decoration"></div>
+    </div>
+
     <div class="profile-container">
-        <table class="profile-table">
-            <tr>
-                <td class="label">Username:</td>
-                <td class="value">@Model.Username</td>
-            </tr>
-            <tr>
-                <td class="label">Email:</td>
-                <td class="value">@Model.Email</td>
-            </tr>
-            <tr>
-                <td class="label">Role:</td>
-                <td class="value">
+        <div class="profile-section">
+            <div class="profile-item">
+                <div class="item-label">Username</div>
+                <div class="item-value">@Model.Username</div>
+                <button class="edit-button" onclick="openModal('usernameModal')">
+                    <svg class="edit-icon" viewBox="0 0 24 24">
+                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="profile-item">
+                <div class="item-label">Email</div>
+                <div class="item-value">
+                    @Model.Email
+                    <span class="verification-badge">Verified</span>
+                </div>
+                <button class="edit-button" onclick="openModal('emailModal')">
+                    <svg class="edit-icon" viewBox="0 0 24 24">
+                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="profile-item">
+                <div class="item-label">Password</div>
+                <div class="item-value">••••••••</div>
+                <button class="edit-button" onclick="openModal('passwordModal')">
+                    <svg class="edit-icon" viewBox="0 0 24 24">
+                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="profile-item">
+                <div class="item-label">Account Role</div>
+                <div class="item-value role-tag">
                     @(Model.Role_Status == 0 ? "Student" : Model.Role_Status == 1 ? "Admin" : "Unknown")
-                </td>
-            </tr>
-        </table>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-<!-- CSS Styling -->
+<!-- Edit Modals -->
+<div id="usernameModal" class="custom-modal">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3>Update Username</h3>
+            <span class="close-modal" onclick="closeModal('usernameModal')">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="input-group">
+                <label>New Username</label>
+                <input type="text" id="newUsername" class="form-input">
+                <div class="input-error" id="usernameError"></div>
+            </div>
+            <div class="modal-actions">
+                <button class="action-btn secondary" onclick="closeModal('usernameModal')">Cancel</button>
+                <button class="action-btn primary" onclick="updateProfile('username')">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="emailModal" class="custom-modal">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3>Update Email Address</h3>
+            <span class="close-modal" onclick="closeModal('emailModal')">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="input-group">
+                <label>New Email</label>
+                <input type="email" id="newEmail" class="form-input">
+                <div class="input-error" id="emailError"></div>
+            </div>
+            <div class="modal-actions">
+                <button class="action-btn secondary" onclick="closeModal('emailModal')">Cancel</button>
+                <button class="action-btn primary" onclick="updateProfile('email')">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Updated Password Modal -->
+<div id="passwordModal" class="custom-modal">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3>Change Password</h3>
+            <span class="close-modal" onclick="closeModal('passwordModal')">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="input-group">
+                <label>Current Password</label>
+                <input type="password" id="currentPassword" class="form-input">
+            </div>
+            <div class="input-group">
+                <label>New Password</label>
+                <input type="password" id="newPassword" class="form-input">
+            </div>
+            <div class="input-group">
+                <label>Confirm New Password</label>
+                <input type="password" id="confirmPassword" class="form-input">
+                <div class="input-error" id="passwordMatchError"></div>
+            </div>
+            <div class="password-rules">
+                <span>Password Requirements:</span>
+                <ul>
+                    <li id="lengthRule">8-24 characters</li>
+                    <li id="numberRule">At least one number</li>
+                    <li id="caseRule">Mix of uppercase and lowercase</li>
+                    <li id="matchRule">Passwords must match</li>
+                </ul>
+            </div>
+            <div class="modal-actions">
+                <button class="action-btn secondary" onclick="closeModal('passwordModal')">Cancel</button>
+                <button class="action-btn primary" onclick="updateProfile('password')">Save Password</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Updated CSS -->
 <style>
-    /* Set the background to match Histoscanner */
+    /* Base Styles */
     body {
+        background-color: #80cbc4;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        color: #2d2d2d;
         margin: 0;
-        font-family: Arial, sans-serif;
-        background-color: #90B2B8;
-        color: #333;
+        padding: 0;
     }
 
-    /* Prevents layout shift on navbar */
     .profile-page {
-        display: flex;
-        justify-content: center;
-        align-items: flex-start; /* Keeps navbar at the top */
-        padding-top: 50px; /* Adjust to avoid overlapping */
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
     }
 
-    /* Profile Card */
+    /* Enhanced Header Styling */
+    .profile-header {
+        position: relative;
+        margin: 40px 0;
+        text-align: center;
+    }
+
+    .profile-title {
+        font-size: 2.5rem;
+        color: #1a1a1a;
+        display: inline-block;
+        position: relative;
+        padding: 0 20px;
+        background: #80cbc4;
+        z-index: 2;
+        margin: 0;
+    }
+
+    .title-decoration {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: #1a1a1a;
+        z-index: 1;
+    }
+
     .profile-container {
-        background-color: #ffffff;
-        border-radius: 12px;
-        width: 100%;
-        max-width: 350px;
-        padding: 25px;
-        box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.1);
-        text-align: left;
+        background: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        padding: 28px;
+        margin: 0 20px;
     }
 
-    /* Profile Table Styling */
-    .profile-table {
-        width: 100%;
-        border-collapse: collapse;
+    .profile-item {
+        display: flex;
+        align-items: center;
+        padding: 18px 0;
+        border-bottom: 1px solid #eaecef;
     }
 
-        .profile-table tr {
-            border-bottom: 1px solid #ddd;
+    .item-label {
+        width: 160px;
+        font-weight: 700;
+        color: #2d2d2d;
+        font-size: 16px;
+    }
+
+    .item-value {
+        flex: 1;
+        color: #1a1a1a;
+        font-weight: 500;
+    }
+
+    .edit-button {
+        background: none;
+        border: none;
+        padding: 6px;
+        margin-left: 16px;
+        cursor: pointer;
+        transition: opacity 0.2s;
+    }
+
+        .edit-button:hover {
+            opacity: 0.8;
         }
 
-        .profile-table td {
-            padding: 12px;
+    .edit-icon {
+        width: 20px;
+        height: 20px;
+        fill: #007bff;
+    }
+
+    .verification-badge {
+        background: #e8f4ff;
+        color: #0066cc;
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-size: 13px;
+        margin-left: 10px;
+        font-weight: 500;
+    }
+
+    .role-tag {
+        background: #f3f4f6;
+        padding: 6px 12px;
+        border-radius: 4px;
+        display: inline-block;
+        font-size: 14px;
+    }
+
+    /* Modals */
+    .custom-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.4);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .modal-container {
+        background: white;
+        border-radius: 8px;
+        width: 440px;
+        max-width: 95%;
+        animation: modalSlideIn 0.3s ease;
+        box-sizing: border-box;
+    }
+
+    @@keyframes modalSlideIn {
+        from {
+            transform: translateY(-20px);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .modal-header {
+        padding: 18px 24px;
+        border-bottom: 1px solid #eaecef;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+    .close-modal {
+        color: #666;
+        font-size: 28px;
+        cursor: pointer;
+        line-height: 1;
+    }
+
+    .modal-body {
+        padding: 24px;
+        overflow: hidden;
+    }
+
+    .input-group {
+        margin-bottom: 20px;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1px solid #d0d7de;
+        border-radius: 6px;
+        font-size: 14px;
+        margin-top: 8px;
+        box-sizing: border-box;
+        max-width: 100%;
+    }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+        }
+
+    .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 24px;
+    }
+
+    .action-btn {
+        padding: 10px 20px;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 14px;
+        transition: all 0.2s;
+        min-width: 100px;
+    }
+
+        .action-btn.primary {
+            background: #007bff;
+            color: white;
+        }
+
+            .action-btn.primary:hover {
+                background: #0069d9;
+            }
+
+        .action-btn.secondary {
+            background: #f8f9fa;
+            color: #2d2d2d;
+            border: 1px solid #d0d7de;
+        }
+
+            .action-btn.secondary:hover {
+                background: #f1f3f5;
+            }
+
+    .input-error {
+        color: #dc3545;
+        font-size: 13px;
+        margin-top: 6px;
+        height: 18px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .password-rules {
+        margin-top: 16px;
+        font-size: 13px;
+        color: #666;
+    }
+
+        .password-rules ul {
+            margin: 8px 0 0 20px;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .password-rules li::before {
+            content: "•";
+            color: #666;
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
+        }
+
+    /* Updated Password Rules Styling */
+    #matchRule {
+        color: #dc3545;
+    }
+
+    .password-rules li {
+        transition: color 0.3s ease;
+    }
+
+    @@media (max-width: 768px) {
+        .profile-page {
+            padding: 0 15px;
+        }
+
+        .profile-item {
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .item-label {
+            width: 100%;
+        }
+
+        .edit-button {
+            margin-left: auto;
+        }
+
+        .modal-container {
+            width: 90%;
+        }
+
+        .form-input {
             font-size: 16px;
         }
-
-    .label {
-        font-weight: bold;
-        width: 40%;
-        color: #002b5c;
-    }
-
-    .value {
-        font-weight: bold;
-        color: #005792;
     }
 </style>
+
+<!-- Updated JavaScript -->
+<script>
+    // Modal Management
+    function openModal(modalId) {
+        document.getElementById(modalId).style.display = "flex";
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = "none";
+        clearValidationErrors();
+    }
+
+    function clearValidationErrors() {
+        document.querySelectorAll('.input-error').forEach(el => el.textContent = '');
+    }
+
+    // Validation Functions
+    function isValidUsername(username) {
+        const regex = /^[\w]{6,24}$/;
+        return regex.test(username);
+    }
+
+    // Modified Validation Function
+    function validatePasswordStrength(password, confirmPassword) {
+        const hasNumber = /\d/.test(password);
+        const hasUpper = /[A-Z]/.test(password);
+        const hasLower = /[a-z]/.test(password);
+        const isValidLength = password.length >= 8 && password.length <= 24;
+        const passwordsMatch = password === confirmPassword;
+
+        // Update visual indicators
+        document.getElementById('lengthRule').style.color = isValidLength ? '#28a745' : '#dc3545';
+        document.getElementById('numberRule').style.color = hasNumber ? '#28a745' : '#dc3545';
+        document.getElementById('caseRule').style.color = (hasUpper && hasLower) ? '#28a745' : '#dc3545';
+        document.getElementById('matchRule').style.color = passwordsMatch ? '#28a745' : '#dc3545';
+
+        return isValidLength && hasNumber && hasUpper && hasLower && passwordsMatch;
+    }
+
+    // Modified Update Profile Function
+    async function updateProfile(fieldType) {
+        let value, isValid = true;
+        const errorElement = document.getElementById(`${fieldType}Error`);
+
+        switch(fieldType) {
+            case 'username':
+                value = document.getElementById('newUsername').value;
+                if (!isValidUsername(value)) {
+                    errorElement.textContent = 'Username must be 6-24 alphanumeric characters';
+                    isValid = false;
+                }
+                break;
+
+            case 'email':
+                value = document.getElementById('newEmail').value;
+                if (!/^\w+([\.-]?\w+)*@@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(value)) {
+                    errorElement.textContent = 'Please enter a valid email address';
+                    isValid = false;
+                }
+                break;
+
+            case 'password':
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                const currentPassword = document.getElementById('currentPassword').value;
+
+                if (!currentPassword) {
+                    document.getElementById('passwordError').textContent = 'Current password is required';
+                    isValid = false;
+                }
+
+                if (!validatePasswordStrength(newPassword, confirmPassword)) {
+                    if (newPassword !== confirmPassword) {
+                        document.getElementById('passwordMatchError').textContent = 'Passwords do not match';
+                    }
+                    isValid = false;
+                }
+                value = { currentPassword, newPassword };
+                break;
+        }
+
+        if (!isValid) return;
+
+        try {
+            const response = await fetch('/Profile/Update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('input[name="__RequestVerificationToken"]').value
+                },
+                body: JSON.stringify({ fieldType, value })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                location.reload();
+            } else {
+                errorElement.textContent = result.message || 'Update failed. Please try again.';
+            }
+        } catch (error) {
+            console.error('Update error:', error);
+            errorElement.textContent = 'An unexpected error occurred';
+        }
+    }
+
+    // Add real-time password validation
+    document.getElementById('newPassword')?.addEventListener('input', validatePasswords);
+    document.getElementById('confirmPassword')?.addEventListener('input', validatePasswords);
+
+    function validatePasswords() {
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        validatePasswordStrength(newPassword, confirmPassword);
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        if (event.target.classList.contains('custom-modal')) {
+            event.target.style.display = 'none';
+        }
+    }
+</script>
