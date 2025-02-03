@@ -1,127 +1,110 @@
-﻿body {
+﻿/* Applying the requested CSS styles */
+body {
     margin: 0;
     font-family: Arial, sans-serif;
     background-color: #80cbc4;
     color: #333;
 }
-/* Form container styling */
-#quiz-form {
+
+form {
+    max-width: 900px;
+    margin: 0 auto;
     background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    max-width: 600px;
-    margin: 50px auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-
-/* Form label styling */
 label {
-    display: block;
-    margin-bottom: 8px;
+    display: inline-block;
+    margin-bottom: 10px;
     font-weight: bold;
 }
 
-/* Input field styling */
-input[type="text"], input[type="file"], select {
+input[type="text"], select, input[type="file"] {
     width: 100%;
-    margin-bottom: 16px;
+    padding: 8px;
+    margin-bottom: 15px;
     border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 16px;
-    box-sizing: border-box; /* Ensures padding and border are included in the total width */
-    padding: 8px; /* Add padding inside the input */
-    padding-right: 12px; /* Add extra padding on the right */
+    border-radius: 5px;
 }
-/* Container to align the input and button */
+
+input[type="radio"] {
+    margin-right: 5px;
+}
+
 .file-input-container {
     display: flex;
-    align-items: center; /* Align button and input field */
-    gap: 10px; /* Adds space between the input and button */
-}
-
-/* Match the button height with the input */
-#PhotoFile {
-    height: 40px; /* Adjust this based on your actual input height */
-    padding: 8px;
-}
-/* Textarea styling */
-#TissueDescription {
-    width: 100%; /* Ensures it takes up 100% of the available space in its container */
-    max-width: 500px; /* Prevents it from exceeding the form container's width */
-    box-sizing: border-box; /* Ensures padding doesn't affect the width calculation */
-}
-
-/* Make the remove button the same height as the input */
-#remove-photo {
-    height: 40px; /* Same as input field */
-    width: 40px; /* Keep it square for the icon */
-    display: flex;
     align-items: center;
-    justify-content: center;
-    background-color: #dc3545; /* Red color for delete */
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s;
 }
 
-    /* Icon inside button */
-    #remove-photo i {
-        font-size: 18px;
+    .file-input-container input[type="file"] {
+        width: auto;
+        margin-right: 10px;
+    }
+
+    .file-input-container button {
+        background-color: #e74c3c;
         color: white;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+        border-radius: 5px;
     }
 
-    /* Hover effect */
-    #remove-photo:hover {
-        background-color: #b02a37;
-    }
+        .file-input-container button:hover {
+            background-color: #c0392b;
+        }
 
+#image-preview {
+    max-width: 200px;
+    max-height: 200px;
+    margin: 10px 0;
+    display: none;
+}
 
-/* Styling for the answers container */
-#answers-container {
+.answers-container {
     margin-bottom: 20px;
 }
 
-/* Styling for each answer div */
-.answer {
-    margin-bottom: 10px;
+.Answer {
+    margin-bottom: 15px;
 }
 
-/* Checkbox styling */
-input[type="checkbox"] {
-    margin-left: 8px;
+    .Answer input[type="text"], .marks-input {
+        width: 70%;
+    }
+
+.marks-input {
+    display: none;
+    width: 20%;
+    margin-left: 10px;
 }
 
-/* Button styling */
-button {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
+.marks-label {
+    display: inline;
+}
+
+#total-marks-container {
+    margin-top: 20px;
+    font-weight: bold;
+}
+
+button[type="submit"] {
+    background-color: #3498db;
+    color: white;
     padding: 10px 20px;
-    border-radius: 4px;
+    border: none;
+    border-radius: 5px;
     cursor: pointer;
     font-size: 16px;
-    transition: background-color 0.3s;
+    width: 100%;
 }
 
-    /* Button hover effect */
-    button:hover {
-        background-color: #0056b3;
+    button[type="submit"]:hover {
+        background-color: #2980b9;
     }
 
-/* Styling for the form elements on smaller screens */
-@media (max-width: 800px) {
-    #quiz-form {
-        padding: 20px;
-        margin: 20px;
-    }
-
-    input[type="text"], input[type="file"], select {
-        font-size: 14px;
-    }
-
-    button {
-        font-size: 14px;
-    }
+.text-danger {
+    color: red;
 }

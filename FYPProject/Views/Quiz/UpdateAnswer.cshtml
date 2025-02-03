@@ -5,36 +5,152 @@
     <link href="~/css/AddQuiz.css" rel="stylesheet" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Update Answer</title>
+    <script>
+        /* Applying the requested CSS styles */
+        body {
+            margin: 0;
+            font - family: Arial, sans - serif;
+            background - color: #80cbc4;
+            color: #333;
+        }
+
+        form {
+            max - width: 900px;
+            margin: 0 auto;
+            background - color: #ffffff;
+            padding: 20px;
+            border - radius: 10px;
+            box - shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: inline - block;
+            margin - bottom: 10px;
+            font - weight: bold;
+        }
+
+        input[type = "text"], select, input[type = "file"] {
+            width: 100 %;
+            padding: 8px;
+            margin - bottom: 15px;
+            border: 1px solid #ddd;
+            border - radius: 5px;
+        }
+
+        input[type = "radio"] {
+            margin - right: 5px;
+        }
+
+        .file - input - container {
+            display: flex;
+            align - items: center;
+        }
+
+            .file - input - container input[type = "file"] {
+            width: auto;
+            margin - right: 10px;
+        }
+
+            .file - input - container button {
+            background - color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border - radius: 5px;
+        }
+
+                .file - input - container button:hover {
+            background - color: #c0392b;
+        }
+
+        #image - preview {
+            max - width: 200px;
+            max - height: 200px;
+            margin: 10px 0;
+            display: none;
+        }
+
+        .answers - container {
+            margin - bottom: 20px;
+        }
+
+        .Answer {
+            margin - bottom: 15px;
+        }
+
+            .Answer input[type = "text"], .marks - input {
+            width: 70 %;
+        }
+
+        .marks - input {
+            display: none;
+            width: 20 %;
+            margin - left: 10px;
+        }
+
+        .marks - label {
+            display: inline;
+        }
+
+        #total - marks - container {
+            margin - top: 20px;
+            font - weight: bold;
+        }
+
+        button[type = "submit"] {
+            background - color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border - radius: 5px;
+            cursor: pointer;
+            font - size: 16px;
+            width: 100 %;
+        }
+
+        button[type = "submit"]:hover {
+            background - color: #2980b9;
+        }
+
+        .text - danger {
+            color: red;
+        }
+    </script>
 </head>
 <body>
-    <form id="quiz-form" asp-controller="Quiz" asp-action="UpdateAnswer" method="post">
-        <input type="hidden" asp-for="AnswerId" />
-        <input type="hidden" asp-for="QuestionId" />
+    <div class="quiz-container">
+        <form id="quiz-form" asp-controller="Quiz" asp-action="UpdateAnswer" method="post">
+            <input type="hidden" asp-for="AnswerId" />
+            <input type="hidden" asp-for="QuestionId" />
 
-        <!-- Answer Text -->
-        <label asp-for="AnswerText">Answer:</label>
-        <input type="text" id="AnswerText" asp-for="AnswerText" name="AnswerText" value="@Model.AnswerText" required>
-        <span asp-validation-for="AnswerText" class="text-danger"></span>
+            <!-- Answer Text -->
+            <div class="quiz-question">
+                <h3>Answer:</h3>
+                <input type="text" id="AnswerText" asp-for="AnswerText" name="AnswerText" value="@Model.AnswerText" required class="form-control">
+                <span asp-validation-for="AnswerText" class="text-danger"></span>
+            </div>
 
-        <!-- Correct Answer Checkbox -->
-        <label asp-for="Is_Correct">
-            <input type="checkbox" id="Is_Correct" asp-for="Is_Correct" name="Is_Correct" value="true">
-            Correct Answer
-        </label>
-        <span asp-validation-for="Is_Correct" class="text-danger"></span>
+            <!-- Correct Answer Checkbox -->
+            <div class="form-check">
+                <label asp-for="Is_Correct">
+                    <input type="checkbox" id="Is_Correct" asp-for="Is_Correct" name="Is_Correct" value="true" class="form-check-input">
+                    Correct Answer
+                </label>
+                <span asp-validation-for="Is_Correct" class="text-danger"></span>
+            </div>
 
-        <!-- Marks -->
-        <label asp-for="Marks" class="marks-label" id="marks-label">Marks:</label>
-        <input type="number" id="Marks" asp-for="Marks" name="Marks" min="0" step="0.5" value="@Model.Marks" class="marks-input">
-        <span asp-validation-for="Marks" class="text-danger"></span>
+            <!-- Marks -->
+            <div class="quiz-question">
+                <h3>Marks:</h3>
+                <input type="number" id="Marks" asp-for="Marks" name="Marks" min="0" step="0.5" value="@Model.Marks" class="marks-input form-control">
+                <span asp-validation-for="Marks" class="text-danger"></span>
+            </div>
 
-        <!-- Hidden Fields -->
-        <input type="hidden" value="@Model.AnswerId" />
-        <input type="hidden" value="@Model.QuestionId" />
-
-        <!-- Submit Button -->
-        <button type="submit">Update</button>
-    </form>
+            <!-- Submit Button -->
+            <button type="submit">Update</button>
+        </form>
+    </div>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
@@ -54,8 +170,8 @@
 
             // Add a hidden input to set unchecked value to 'false'
             isCorrectCheckbox.insertAdjacentHTML('afterend', `
-                                <input type="hidden" name="Is_Correct" value="false">
-                            `);
+                        <input type="hidden" name="Is_Correct" value="false">
+                    `);
 
             // Function to toggle Marks input visibility
             function toggleMarksInput(isCorrect) {

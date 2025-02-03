@@ -79,32 +79,10 @@
         }
     </style>
 </head>
-<body>
+<body >
     <div class="container mt-5">
         <div class="card big-card">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
-                    <h1 style="font-weight:400">Quizzes</h1>
-                    <a class="btn btn-primary" asp-controller="Quiz" asp-action="AddQuiz" role="button">
-                        <i class="fas fa-plus"></i> Add Quiz
-                    </a>
-                </div>
-
-                <div class="stats-group mb-4 d-flex gap-3">
-                    <div class="card stats-card bg-info text-white p-3 flex-fill text-center">
-                        <h3 id="quizzesAvailable">@(Model != null ? Model.GroupBy(m => m.Quiz.QuizCategory!).Count() : 0)</h3>
-                        <p>Quizzes Available</p>
-                    </div>
-                    <div class="card stats-card bg-success text-white p-3 flex-fill text-center">
-                        <h3 id="quizzesCompleted">@ViewBag.TotalAttempts</h3>
-                        <p>Quiz Attempts</p>
-                    </div>
-                    <div class="card stats-card bg-primary text-white p-3 flex-fill text-center">
-                        <h3 id="passPercentage">@ViewBag.passpercent%</h3>
-                        <p>Passing Rate</p>
-                    </div>
-                </div>
-
                 <div class="manage-section mb-3">
                     <h1 style="font-weight:400">Manage Quizzes</h1>
                     <select class="form-select w-auto" id="idQuizCategoryChooser">
