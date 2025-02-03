@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <link href="~/css/AddQuiz.css" rel="stylesheet" />
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Update Quiz</title>
 </head>
 <body>
     <form id="quiz-form" asp-controller="Quiz" asp-action="UpdateQuiz" method="post" enctype="multipart/form-data">
         <input type="hidden" asp-for="Question_ID" />
+
+        <!-- Quiz Category Dropdown -->
         <label asp-for="Quiz_Category">Category:</label>
         <select asp-for="Quiz_Category" id="Quiz_Category" name="Quiz_Category" required>
             @if ((SelectList)ViewData["Tissue_Info"] == null)
@@ -22,16 +23,15 @@
                 {
                     <option value="@item.Text">@item.Text</option>
                 }
-
             }
-
         </select>
 
+        <!-- Question Text Input -->
         <label asp-for="QuestionText">Question:</label>
-        <input asp-for="QuestionText" type="text" id="QuestionText" name="QuestionText" required value="@Model.QuestionText">
+        <input asp-for="QuestionText" type="text" id="QuestionText" name="QuestionText" required value="@Model.QuestionText" class="input-field" />QQ
 
-
-        <label asp-for="QuestionType">QuestionType:</label>
+        <!-- Question Type Dropdown -->
+        <label asp-for="QuestionType">Question Type:</label>
         <select asp-for="QuestionType" id="QuestionType" name="QuestionType" required>
             <option value="">Select a question type</option>
             <option value="Multiple Choice (Radio)">Multiple Choice (Radio)</option>
@@ -39,40 +39,29 @@
             <option value="Multiple Choice (Dropdown)">Multiple Choice (Dropdown)</option>
         </select>
 
+        <!-- Picture URL (Hidden) -->
         <label asp-for="Photo_URL">Picture:</label>
         <input asp-for="Photo_URL" type="text" value="@Model.Photo_URL" hidden />
 
+        <!-- Image Preview -->
         <img id="image-preview"
              src="@((Model.Photo_URL == "No Picture Inserted") ? "" : Url.Content("~/images/" + Model.Quiz_Category + "/" + Model.Photo_URL))"
              alt="Image Preview"
              style="display:@((Model.Photo_URL == "No Picture Inserted") ? "none" : "block"); height:350px; max-width:100%;">
         <p id="no-picture-message" style="display:@((Model.Photo_URL == "No Picture Inserted") ? "block" : "none");">No Picture Inserted</p>
 
+        <!-- File Input for Photo -->
+        <input asp-for="Photos" type="file" id="Photos" name="Photo" class="file-input">
 
-        <input asp-for="Photos" type="file" id="Photos" name="Photo">
-
-
-
+        <!-- Total Marks Section -->
         <div id="total-marks-container">
             <strong>Total Marks: </strong><span id="question-marks">@Model.QuestionMarks</span>
             <input type="hidden" asp-for="QuestionMarks" id="QuestionMark" name="Question.QuestionMark" value="@Model.QuestionMarks" />
         </div>
 
-        <button type="submit">Update</button>
-        @* @if (!ViewData.ModelState.IsValid)
-        {
-        <div class="validation-summary-errors">
-        @foreach (var state in ViewData.ModelState)
-        {
-        foreach (var error in state.Value.Errors)
-        {
-        <p>@state.Key :: @error.ErrorMessage</p>
-        }
-        }
-        </div>
-        } *@
+        <!-- Submit Button -->
+        <button type="submit" class="submit-btn">Update</button>
     </form>
-
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -96,5 +85,4 @@
             });
         });
     </script>
-
 </body>

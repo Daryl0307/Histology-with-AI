@@ -6,6 +6,11 @@
     <title>@ViewData["Title"] - Learn Histology with AI</title>
     <link rel="stylesheet" href="~/css/site.css" />
 </head>
+<!-- Custom Page-Level Scripts (DataTables, jQuery, etc.) -->
+@RenderSection("MoreScripts", required: false)
+
+<!-- General Site-Wide Scripts -->
+@RenderSection("Scripts", required: false)
 <body>
     <!-- Include Navbar -->
     @await Component.InvokeAsync("Navbar")
@@ -15,11 +20,7 @@
         @RenderBody()
     </main>
 
-    <!-- Custom Page-Level Scripts (DataTables, jQuery, etc.) -->
-    @RenderSection("MoreScripts", required: false)
-
-    <!-- General Site-Wide Scripts -->
-    @RenderSection("Scripts", required: false)
+    
 
     <style>
         body {

@@ -8,9 +8,10 @@ using System.Data;
 
 namespace FYPProject.Controllers;
 [AuthRequired]
+
 public class QuizController : Controller
 {
-    
+
     private readonly IWebHostEnvironment _env;
 
 
@@ -22,6 +23,8 @@ public class QuizController : Controller
 
     public IActionResult QuizStatistics(string quizCategory)
     {
+        ViewBag.HideNavbar = false;
+
         List<HistoQuiz> quizlist = DBUtl.GetList<HistoQuiz>("SELECT Quiz.Quiz_Category AS 'QuizCategory',  SUM(Q.QuestionMarks) AS 'TotalQuestionMarks' FROM Quiz INNER JOIN Question Q ON Quiz.Quiz_ID = Q.Quiz_ID  GROUP BY Quiz.Quiz_Category");
         int noofusers = Convert.ToInt32(DBUtl.GetValue("SELECT COUNT(*) FROM User_Info"));
         int usersAttempted = Convert.ToInt32(DBUtl.GetValue("SELECT COUNT(DISTINCT(User_ID)) FROM Quiz_Statistics WHERE Quiz_Category = '{0}'", quizCategory));
@@ -88,120 +91,8 @@ ORDER BY S.Score DESC;
         return View(HighestsScorePerUserlist);
     }
 
-    
-
-    public IActionResult HistoQuiz()
-    {
-        ViewBag.HideNavbar = false;
-        ViewBag.ActivePage = "HistoQuiz";
 
 
-        List<HistoQuiz> quizlist = DBUtl.GetList<HistoQuiz>("SELECT Quiz.Quiz_Category AS 'QuizCategory',  SUM(Q.QuestionMarks) AS 'TotalQuestionMarks' FROM Quiz INNER JOIN Question Q ON Quiz.Quiz_ID = Q.Quiz_ID  GROUP BY Quiz.Quiz_Category");
-
-        List<QuizStatistics> statisticslist = DBUtl.GetList<QuizStatistics>("SELECT User_Id AS 'UserId', Quiz_Category AS 'QuizCategory', Date_Attempted AS 'DateAttempted', Score FROM Quiz_Statistics WHERE User_Id = {0}", 1);
-
-        string getPhotoUrl = @"SELECT Photo_URL FROM Photos WHERE Quiz_Id = {0}";
-
-        string deleteResponsesql = @"DELETE FROM Quiz_Responses";
-        int resultResponse = DBUtl.ExecSQL(deleteResponsesql);
-        string deleteSavedQuestionId = @"DELETE FROM UserAnsweredQuestions";
-        int resultDeleteSaved = DBUtl.ExecSQL(deleteSavedQuestionId);
-
-        double totalMarks = 0;
-        double totalScore = 0;
-        double noofpass = 0;
-        double passingScore = 0;
-        for (int i = 0; i < quizlist.Count; i++)
-        {
-
-            passingScore = quizlist[i].TotalQuestionMarks / 2;
-            for (int j = 0; j < statisticslist.Count; j++)
-            {
-                totalMarks += quizlist[i].TotalQuestionMarks;
-                totalScore += statisticslist[j].Score;
-                if (statisticslist[j].Score >= passingScore)
-                {
-                    noofpass++;
-                }
-            }
-
-        }
-
-        double avgScore = (totalScore / totalMarks) * 100;
-
-        double passpercent = ((noofpass / statisticslist.Count) * 100);
-
-        ViewBag.passpercent = Math.Round(passpercent, 2);
-        ViewBag.avgScore = Math.Round(avgScore, 2);
-
-        var viewModel = new HistoQuizViewModel
-        {
-            HistoQuiz = quizlist,
-            QuizStatistics = statisticslist
-        };
-
-
-        ViewData["Tissue_Info"] = GetListTissue();
-        return View(viewModel);
-    }
-
-    public IActionResult AnswerList(int id)
-    {
-
-        List<Answer> answerList = DBUtl.GetList<Answer>("SELECT Answer_ID AS 'AnswerId', Question_ID AS 'QuestionId' , AnswerText, CAST(Is_Correct AS BIT) AS 'Is_Correct', AnswerMarks AS 'Marks' FROM Answer WHERE Question_ID =  {0}", id);
-        if (answerList == null || answerList.Count == 0)
-        {
-            TempData["Message"] = "No data found. Please check your query.";
-            TempData["MsgType"] = "danger";
-            return View();
-        }
-        ViewBag.QuestionId = answerList[0].QuestionId;
-        string questionTypeSql = @"SELECT QuestionType FROM Question WHERE Question_Id = {0}";
-        string questionType = Convert.ToString(DBUtl.GetValue(questionTypeSql, id));
-        ViewBag.QuestionType = questionType;
-        ViewBag.AnswerCount = answerList.Count; // Passing the count of answers
-
-        return View(answerList);
-    }
-
-    public IActionResult QuizView()
-    {
-        ViewBag.HideNavbar = false;
-        ViewBag.ActivePage = "QuizView";
-        List<HistoQuiz> quizlist = DBUtl.GetList<HistoQuiz>("SELECT Quiz.Quiz_Category AS 'QuizCategory',  SUM(Q.QuestionMarks) AS 'TotalQuestionMarks' FROM Quiz INNER JOIN Question Q ON Quiz.Quiz_ID = Q.Quiz_ID  GROUP BY Quiz.Quiz_Category");
-        List<QuizStatistics> statisticslist = DBUtl.GetList<QuizStatistics>("SELECT User_Id AS 'UserId', Quiz_Category AS 'QuizCategory', Date_Attempted AS 'DateAttempted', Score FROM Quiz_Statistics ");
-
-        double totalMarks = 0;
-        double totalScore = 0;
-        double noofpass = 0;
-        double passingScore = 0;
-        for (int i = 0; i < quizlist.Count; i++)
-        {
-
-            passingScore = quizlist[i].TotalQuestionMarks / 2;
-            for (int j = 0; j < statisticslist.Count; j++)
-            {
-                totalMarks += quizlist[i].TotalQuestionMarks;
-                totalScore += statisticslist[j].Score;
-                if (statisticslist[j].Score >= passingScore)
-                {
-                    noofpass++;
-                }
-            }
-            ViewData["tissue_info"] = GetListTissue();
-            string totalAttemptssql = @"SELECT COUNT(*) FROM Quiz_Statistics";
-            int totalAttempts = Convert.ToInt32(DBUtl.GetValue(totalAttemptssql));
-            ViewBag.TotalAttempts = totalAttempts;
-
-        }
-
-
-        double passpercent = ((noofpass / statisticslist.Count) * 100);
-
-        ViewBag.passpercent = Math.Round(passpercent, 2);
-
-        return View(quizlist);
-    }
 
     public IActionResult Management(string quizCategory)
     {
@@ -223,7 +114,7 @@ ORDER BY S.Score DESC;
         INNER JOIN 
             Quiz ON Q.Quiz_ID = Quiz.Quiz_ID
         INNER JOIN 
-            Photos P ON P.Quiz_ID = Quiz.Quiz_ID
+            Photos P ON P.Question_ID = Q.Question_ID
         LEFT JOIN 
             Answer A ON A.Question_ID = Q.Question_ID
         WHERE 
@@ -280,9 +171,501 @@ ORDER BY S.Score DESC;
 
     }
 
+    public IActionResult QuizView()
+    {
+        ViewBag.HideNavbar = false;
+
+        List<HistoQuiz> quizlist = DBUtl.GetList<HistoQuiz>("SELECT Quiz.Quiz_Category AS 'QuizCategory',  SUM(Q.QuestionMarks) AS 'TotalQuestionMarks' FROM Quiz INNER JOIN Question Q ON Quiz.Quiz_ID = Q.Quiz_ID  GROUP BY Quiz.Quiz_Category");
+        List<QuizStatistics> statisticslist = DBUtl.GetList<QuizStatistics>("SELECT User_Id AS 'UserId', Quiz_Category AS 'QuizCategory', Date_Attempted AS 'DateAttempted', Score FROM Quiz_Statistics ");
+
+        double totalMarks = 0;
+        double totalScore = 0;
+        double noofpass = 0;
+        double passingScore = 0;
+        for (int i = 0; i < quizlist.Count; i++)
+        {
+
+            passingScore = quizlist[i].TotalQuestionMarks / 2;
+            for (int j = 0; j < statisticslist.Count; j++)
+            {
+                totalMarks += quizlist[i].TotalQuestionMarks;
+                totalScore += statisticslist[j].Score;
+                if (statisticslist[j].Score >= passingScore)
+                {
+                    noofpass++;
+                }
+            }
+            ViewData["tissue_info"] = GetListTissue();
+            string totalAttemptssql = @"SELECT COUNT(*) FROM Quiz_Statistics";
+            int totalAttempts = Convert.ToInt32(DBUtl.GetValue(totalAttemptssql));
+            ViewBag.TotalAttempts = totalAttempts;
+
+        }
+
+
+        double passpercent = ((noofpass / statisticslist.Count) * 100);
+
+        ViewBag.passpercent = Math.Round(passpercent, 2);
+
+        return View(quizlist);
+    }
+
+    public IActionResult HistoQuiz()
+    {
+        ViewBag.HideNavbar = false;
+
+        List<HistoQuiz> quizlist = DBUtl.GetList<HistoQuiz>("SELECT Quiz.Quiz_Category AS 'QuizCategory',  SUM(Q.QuestionMarks) AS 'TotalQuestionMarks' FROM Quiz INNER JOIN Question Q ON Quiz.Quiz_ID = Q.Quiz_ID  GROUP BY Quiz.Quiz_Category");
+
+        List<QuizStatistics> statisticslist = DBUtl.GetList<QuizStatistics>("SELECT User_Id AS 'UserId', Quiz_Category AS 'QuizCategory', Date_Attempted AS 'DateAttempted', Score FROM Quiz_Statistics WHERE User_Id = {0}", 1);
+
+        string getPhotoUrl = @"SELECT Photo_URL FROM Photos WHERE Quiz_Id = {0}";
+
+        string deleteResponsesql = @"DELETE FROM Quiz_Responses";
+        int resultResponse = DBUtl.ExecSQL(deleteResponsesql);
+        string deleteSavedQuestionId = @"DELETE FROM UserAnsweredQuestions";
+        int resultDeleteSaved = DBUtl.ExecSQL(deleteSavedQuestionId);
+
+        double totalMarks = 0;
+        double totalScore = 0;
+        double noofpass = 0;
+        double passingScore = 0;
+        for (int i = 0; i < quizlist.Count; i++)
+        {
+
+            passingScore = quizlist[i].TotalQuestionMarks / 2;
+            for (int j = 0; j < statisticslist.Count; j++)
+            {
+                totalMarks += quizlist[i].TotalQuestionMarks;
+                totalScore += statisticslist[j].Score;
+                if (statisticslist[j].Score >= passingScore)
+                {
+                    noofpass++;
+                }
+            }
+
+        }
+
+        double avgScore = (totalScore / totalMarks) * 100;
+
+        double passpercent = ((noofpass / statisticslist.Count) * 100);
+
+        ViewBag.passpercent = Math.Round(passpercent, 2);
+        ViewBag.avgScore = Math.Round(avgScore, 2);
+
+        var viewModel = new HistoQuizViewModel
+        {
+            HistoQuiz = quizlist,
+            QuizStatistics = statisticslist
+        };
+
+
+        ViewData["Tissue_Info"] = GetListTissue();
+        return View(viewModel);
+    }
+
+    [HttpGet]
+    public IActionResult TakeQuiz(string quizCategory)
+    {
+        ViewBag.HideNavbar = true;
+
+        int userId = 1; // Replace with the logged-in user's ID
+        string questionWithAnswersSql = @"
+    SELECT 
+        q.Question_ID AS 'QuestionId', q.QuestionText, q.QuestionType, q.QuestionMarks AS 'QuestionMark', 
+        q.Quiz_ID AS 'QuizId', Quiz.Quiz_Category AS 'QuizCategory', 
+        a.Answer_ID AS 'AnswerId', a.AnswerText, a.Is_Correct, a.AnswerMarks AS 'Marks', P.Photo_URL AS 'Photo_Url'
+    FROM 
+        Question q
+    INNER JOIN 
+        Quiz ON q.Quiz_ID = Quiz.Quiz_ID
+    INNER JOIN
+        Photos P ON P.Quiz_ID = q.Quiz_ID
+    LEFT JOIN 
+        Answer a ON q.Question_ID = a.Question_ID
+    WHERE 
+        Quiz.Quiz_Category = '{0}' AND 
+        q.Question_ID NOT IN (SELECT Question_Id FROM UserAnsweredQuestions WHERE User_Id = {1})
+    ORDER BY 
+        NEWID();";
+
+        var rawResults = DBUtl.GetTable(questionWithAnswersSql, quizCategory, userId);
+
+        if (rawResults.Rows.Count > 0)
+        {
+            var currentQuestionId = rawResults.Rows[0].Field<int>("QuestionId");
+            string insertAnsweredQuestionSql = @"
+        INSERT INTO UserAnsweredQuestions (User_Id, Question_Id, QuizCategory) 
+        VALUES ({0}, {1}, '{2}')";
+
+            int rowsAffected = DBUtl.ExecSQL(insertAnsweredQuestionSql, userId, currentQuestionId, quizCategory);
+
+            if (rowsAffected == 1)
+            {
+                return PrepareQuestionView(rawResults);
+            }
+            else
+            {
+                TempData["Message"] = $"Error saving answered question (ID: {currentQuestionId}). Please try again.";
+                TempData["MsgType"] = "danger";
+                return RedirectToAction("HistoQuiz");
+            }
+        }
+        else
+        {
+            TempData["Message"] = "No more questions available.";
+            return RedirectToAction("HistoQuiz");
+        }
+    }
+
+    private IActionResult PrepareQuestionView(DataTable rawResults)
+    {
+        ViewBag.HideNavbar = true;
+
+        var groupedData = rawResults.AsEnumerable()
+            .GroupBy(row => new
+            {
+                QuestionId = row.Field<int>("QuestionId"),
+                QuestionText = row.Field<string>("QuestionText"),
+                QuestionType = row.Field<string>("QuestionType"),
+                QuestionMark = row.Field<double>("QuestionMark"),
+                QuizId = row.Field<int>("QuizId"),
+                QuizCategory = row.Field<string>("QuizCategory"),
+                Photo_Url = row.Field<string>("Photo_Url")
+            });
+
+        var firstQuestionGroup = groupedData.FirstOrDefault();
+        if (firstQuestionGroup != null)
+        {
+            var questionKey = firstQuestionGroup.Key;
+
+            var quizViewModel = new QuizViewModel
+            {
+                Quiz = new Quiz
+                {
+                    QuizCategory = questionKey.QuizCategory
+                },
+                Question = new Question
+                {
+                    QuestionId = questionKey.QuestionId,
+                    QuestionText = questionKey.QuestionText,
+                    QuestionType = questionKey.QuestionType,
+                    QuestionMark = questionKey.QuestionMark,
+                    QuizId = questionKey.QuizId
+                },
+                Photos = new Photos
+                {
+                    Photo_URL = questionKey.Photo_Url
+                },
+                Answer = firstQuestionGroup.Select(row => new Answer
+                {
+                    AnswerId = row.Field<int?>("AnswerId") ?? 0,
+                    QuestionId = questionKey.QuestionId,
+                    AnswerText = row.Field<string>("AnswerText"),
+                    Is_Correct = row.Field<bool?>("Is_Correct") ?? false,
+                    Marks = row.Field<double?>("Marks") ?? 0
+                }).ToList()
+            };
+
+            return View("TakeQuiz", quizViewModel);
+        }
+        return View();
+    }
+
+
+    [HttpPost]
+    public IActionResult SubmitAnswer(QuizResponse model, List<int> selectedAnswerIds)
+    {
+        ViewBag.HideNavbar = true;
+
+        if (!ModelState.IsValid)
+        {
+            TempData["Message"] = "Please correct the errors.";
+            TempData["MsgType"] = "danger";
+            return RedirectToAction("TakeQuiz", new { quizCategory = model.QuizCategory });
+        }
+
+        double totalScore = 0;
+        bool isFullyCorrect = true;
+
+        foreach (var answerId in selectedAnswerIds)
+        {
+            string correctnessSql = @"SELECT Is_Correct, AnswerMarks AS Marks FROM Answer WHERE Answer_ID = {0}";
+            var answer = DBUtl.GetList<Answer>(correctnessSql, answerId).FirstOrDefault();
+
+            if (answer != null)
+            {
+                totalScore += answer.Is_Correct ? (double)answer.Marks : 0;
+                if (!answer.Is_Correct)
+                {
+                    isFullyCorrect = false;
+                }
+
+                string insertResponseSql = @"
+            INSERT INTO Quiz_Responses (User_ID, Quiz_ID, Question_ID, Answer_ID, Quiz_Category, Is_Correct, Response_Time, Score) 
+            VALUES ({0}, {1}, {2}, {3}, '{4}', {5}, GETDATE(),{6})";
+
+                int result = DBUtl.ExecSQL(
+                    insertResponseSql,
+                    1,
+                    model.QuizId,
+                    model.QuestionId,
+                    answerId,
+                    model.QuizCategory,
+                    answer.Is_Correct ? 1 : 0,
+                    answer.Marks
+                );
+
+                if (result != 1)
+                {
+                    TempData["Message"] = $"Error saving response for Answer ID {answerId}: {DBUtl.DB_Message}";
+                    TempData["MsgType"] = "danger";
+                }
+                else
+                {
+                    TempData["Message"] = "Answer submitted successfully.";
+                    TempData["MsgType"] = "success";
+                }
+
+            }
+            else
+            {
+                TempData["Message"] = $"Invalid answer ID {answerId}.";
+                TempData["MsgType"] = "danger";
+            }
+        }
+
+        model.Score = totalScore;
+        model.IsCorrect = isFullyCorrect;
+
+
+
+        return RedirectToAction("NextQuestion", new { quizCategory = model.QuizCategory, questionId = model.QuestionId });
+    }
+
+
+    public IActionResult NextQuestion(string quizCategory)
+    {
+        ViewBag.HideNavbar = true;
+
+        int userId = 1; // Replace with the logged-in user's ID
+
+        string questionWithAnswersSql = @"
+            SELECT 
+                q.Question_ID AS 'QuestionId', q.QuestionText, q.QuestionType, q.QuestionMarks AS 'QuestionMark', 
+                q.Quiz_ID AS 'QuizId', Quiz.Quiz_Category AS 'QuizCategory', 
+                a.Answer_ID AS 'AnswerId', a.AnswerText, a.Is_Correct, a.AnswerMarks AS 'Marks', P.Photo_URL AS 'Photo_Url'
+            FROM 
+                Question q
+            INNER JOIN 
+                Quiz ON q.Quiz_ID = Quiz.Quiz_ID
+            INNER JOIN
+                Photos P ON P.Quiz_ID = q.Quiz_ID
+            LEFT JOIN 
+                Answer a ON q.Question_ID = a.Question_ID
+            WHERE 
+                Quiz.Quiz_Category = '{0}' AND 
+                q.Question_ID NOT IN (SELECT Question_Id FROM UserAnsweredQuestions WHERE User_Id = {1})
+            ORDER BY 
+                NEWID();"; // Randomize the next question
+
+        var rawResults = DBUtl.GetTable(questionWithAnswersSql, quizCategory, userId);
+
+        if (rawResults.Rows.Count > 0)
+        {
+            var currentQuestionId = rawResults.Rows[0].Field<int>("QuestionId");
+            string insertAnsweredQuestionSql = @"
+        INSERT INTO UserAnsweredQuestions (User_Id, Question_Id, QuizCategory) 
+        VALUES ({0}, {1}, '{2}')";
+
+            int rowsAffected = DBUtl.ExecSQL(insertAnsweredQuestionSql, userId, currentQuestionId, quizCategory);
+
+            if (rowsAffected == 1)
+            {
+                var groupedData = rawResults.AsEnumerable()
+                    .GroupBy(row => new
+                    {
+                        QuestionId = row.Field<int>("QuestionId"),
+                        QuestionText = row.Field<string>("QuestionText"),
+                        QuestionType = row.Field<string>("QuestionType"),
+                        QuestionMark = row.Field<double>("QuestionMark"),
+                        QuizId = row.Field<int>("QuizId"),
+                        QuizCategory = row.Field<string>("QuizCategory"),
+                        Photo_Url = row.Field<string>("Photo_Url")
+                    });
+
+                var nextQuestionGroup = groupedData.FirstOrDefault();
+                if (nextQuestionGroup != null)
+                {
+                    var questionKey = nextQuestionGroup.Key;
+
+                    var quizViewModel = new QuizViewModel
+                    {
+                        Quiz = new Quiz
+                        {
+                            QuizCategory = questionKey.QuizCategory
+                        },
+                        Question = new Question
+                        {
+                            QuestionId = questionKey.QuestionId,
+                            QuestionText = questionKey.QuestionText,
+                            QuestionType = questionKey.QuestionType,
+                            QuestionMark = questionKey.QuestionMark,
+                            QuizId = questionKey.QuizId
+                        },
+                        Photos = new Photos
+                        {
+                            Photo_URL = questionKey.Photo_Url
+                        },
+                        Answer = nextQuestionGroup.Select(row => new Answer
+                        {
+                            AnswerId = row.Field<int?>("AnswerId") ?? 0,
+                            QuestionId = questionKey.QuestionId,
+                            AnswerText = row.Field<string>("AnswerText"),
+                            Is_Correct = row.Field<bool?>("Is_Correct") ?? false,
+                            Marks = row.Field<double?>("Marks") ?? 0
+                        }).ToList()
+                    };
+
+                    return View("TakeQuiz", quizViewModel);
+                }
+            }
+            else
+            {
+                TempData["Message"] = $"Error saving answered question (ID: {currentQuestionId}). Please try again.";
+                TempData["MsgType"] = "danger";
+                return RedirectToAction("HistoQuiz");
+            }
+        }
+        else
+        {
+            TempData["Message"] = "You have completed this quiz or no more questions are available.";
+            TempData["MsgType"] = "info";
+            return RedirectToAction("QuizSummary", new { quizCategory });
+        }
+
+        return View(); // Default view if no data
+    }
+
+
+
+
+
+
+    public IActionResult QuizSummary(string quizCategory)
+    {
+        ViewBag.HideNavbar = false;
+
+        int userid = 1;
+
+        // Fetch responses for the quiz
+        string summarySql = @"
+    SELECT q.Question_ID,q.QuestionText, a.AnswerText, CAST(r.Is_Correct AS BIT) AS'IsCorrect', Score
+    FROM Quiz_Responses r
+    INNER JOIN Question q ON r.Question_ID = q.Question_ID
+    INNER JOIN Answer a ON r.Answer_ID = a.Answer_ID
+    WHERE r.Quiz_Category = '{0}'";
+
+        var responses = DBUtl.GetList<QuizSummaryResponse>(summarySql, quizCategory);
+
+        if (responses.Count == 0)
+        {
+            TempData["Message"] = "No responses found for this quiz.";
+            TempData["MsgType"] = "danger";
+            return RedirectToAction("HistoQuiz");
+        }
+
+        double totalScore = responses.Sum(r => r.Score);
+        ViewBag.TotalScore = totalScore;
+
+        List<HistoQuiz> quizlist = DBUtl.GetList<HistoQuiz>("SELECT Quiz.Quiz_Category AS 'QuizCategory',  SUM(Q.QuestionMarks) AS 'TotalQuestionMarks' FROM Quiz INNER JOIN Question Q ON Quiz.Quiz_ID = Q.Quiz_ID  GROUP BY Quiz.Quiz_Category");
+
+        double totalQuestionMarks = 0;
+
+        for (int i = 0; i < quizlist.Count; i++)
+        {
+            if (quizlist[i].QuizCategory == quizCategory)
+            {
+                totalQuestionMarks = quizlist[i].TotalQuestionMarks;
+                break;
+            }
+        }
+        ViewBag.TotalQuestionMarks = totalQuestionMarks;
+
+        string checkAttemptsSql = @"SELECT COUNT(*) FROM Quiz_Statistics WHERE User_Id = {0} and Quiz_Category = '{1}'";
+        int checkAttempts = Convert.ToInt32(DBUtl.GetValue(checkAttemptsSql, userid, quizCategory));
+
+        checkAttempts = checkAttempts + 1;
+        string insertSql = @"
+        INSERT INTO Quiz_Statistics (User_ID, Quiz_Category, Date_Attempted, Score)
+        VALUES ({0}, '{1}', GETDATE(), {2})";
+        int result = DBUtl.ExecSQL(insertSql, userid, quizCategory, totalScore);
+
+        string correctAnswerSql = @"SELECT 
+                                        Quiz.Quiz_Category AS 'QuizCategory', 
+                                        Q.Question_Id AS 'QuestionId',
+                                        STRING_AGG(A.AnswerText, ',') AS 'GroupedAnswerText', 
+                                        MAX(CAST(A.Is_Correct AS INT)) AS 'IsCorrect'
+                                    FROM 
+                                        Question Q 
+                                    INNER JOIN 
+                                        Quiz Quiz ON Quiz.Quiz_ID = Q.Quiz_ID 
+                                    INNER JOIN 
+                                        Answer A ON A.Question_ID = Q.Question_ID 
+                                    WHERE 
+                                        A.Is_Correct = 1 
+                                        AND Quiz.Quiz_Category = '{0}'
+                                    GROUP BY 
+                                        Quiz.Quiz_Category, 
+                                        Q.Question_Id";
+        var correctAnswer = DBUtl.GetList<CorrectAnswers>(correctAnswerSql, quizCategory);
+        var model = new QuizSummaryViewModel
+        {
+            QuizSummaryResponse = responses,
+            CorrectAnswewrs = correctAnswer
+        };
+
+
+        return View(model);
+    }
+
+    public IActionResult Quit()
+    {
+        string deleteResponsesql = @"DELETE FROM Quiz_Responses";
+        int resultResponse = DBUtl.ExecSQL(deleteResponsesql);
+        string deleteSavedQuestionId = @"DELETE FROM UserAnsweredQuestions";
+        int resultDeleteSaved = DBUtl.ExecSQL(deleteSavedQuestionId);
+
+        return RedirectToAction("HistoQuiz");
+    }
+
+
+
+    public IActionResult AnswerList(int id)
+    {
+        ViewBag.HideNavbar = false;
+
+        List<Answer> answerList = DBUtl.GetList<Answer>("SELECT Answer_ID AS 'AnswerId', Question_ID AS 'QuestionId' , AnswerText, CAST(Is_Correct AS BIT) AS 'Is_Correct', AnswerMarks AS 'Marks' FROM Answer WHERE Question_ID =  {0}", id);
+        if (answerList == null || answerList.Count == 0)
+        {
+            TempData["Message"] = "No data found. Please check your query.";
+            TempData["MsgType"] = "danger";
+            return View();
+        }
+        ViewBag.QuestionId = answerList[0].QuestionId;
+        string questionTypeSql = @"SELECT QuestionType FROM Question WHERE Question_Id = {0}";
+        string questionType = Convert.ToString(DBUtl.GetValue(questionTypeSql, id));
+        ViewBag.QuestionType = questionType;
+        ViewBag.AnswerCount = answerList.Count; // Passing the count of answers
+
+        return View(answerList);
+    }
+
+
+
     public IActionResult AddQuiz()
     {
         ViewBag.HideNavbar = false;
+
         var model = new QuizViewModel
         {
             Quiz = new Quiz(),
@@ -292,6 +675,88 @@ ORDER BY S.Score DESC;
         ViewData["Tissue_Info"] = GetListTissue();
         return View(model);
     }
+    /*
+    //Changed to MySQL Format
+    [HttpPost]
+    public IActionResult AddQuiz(QuizViewModel model)
+    {
+        ModelState.Remove("Photo");
+        if (!ModelState.IsValid)
+        {
+            foreach (var state in ModelState)
+            {
+                Console.WriteLine($"{state.Key} :: {string.Join(", ", state.Value.Errors.Select(e => e.ErrorMessage))}");
+            }
+
+            TempData["Message"] = "Please correct the errors.";
+            TempData["MsgType"] = "danger";
+            return View("AddQuiz", model);
+        }
+        else
+        {
+            // Insert quiz and retrieve new ID
+            string insertQuiz = "INSERT INTO Quiz(Quiz_Category) VALUES('{0}'); SELECT LAST_INSERT_ID();";
+            int newQuizId = DBUtl.ExecSQLReturnId(insertQuiz, model.Quiz.QuizCategory);
+
+            if (newQuizId >= 1)
+            {
+                // Insert photo if available
+                if (model.Photo != null && model.Photo.PhotoFile != null)
+                {
+                    string picfilename = DoPhotoUpload(model.Photo.PhotoFile, model.Quiz.QuizCategory);
+                    string insertPhoto = "INSERT INTO Photos (Photo_URL, Quiz_ID) VALUES ('{0}', {1})";
+                    DBUtl.ExecSQL(insertPhoto, picfilename, newQuizId);
+                }
+                else
+                {
+                    string picfilename = "No Picture Inserted";
+                    string insertPhoto = "INSERT INTO Photos (Photo_URL, Quiz_ID) VALUES ('{0}', {1})";
+                    DBUtl.ExecSQL(insertPhoto, picfilename, newQuizId);
+                }
+
+                // Insert question and retrieve new ID
+                model.Question.QuizId = newQuizId;
+                string insertQuestion = "INSERT INTO Question(Quiz_ID, QuestionText, QuestionMarks, QuestionType) VALUES('{0}', '{1}', '{2}', '{3}'); SELECT LAST_INSERT_ID();";
+                int newQuestionId = DBUtl.ExecSQLReturnId(insertQuestion, model.Question.QuizId, model.Question.QuestionText, model.Question.QuestionMark, model.Question.QuestionType);
+
+                if (newQuestionId >= 1)
+                {
+                    // Insert answers
+                    foreach (var answer in model.Answer)
+                    {
+                        answer.QuestionId = newQuestionId;
+                        string insertAnswer = "INSERT INTO Answer(Question_ID, AnswerText, Is_Correct, AnswerMarks) VALUES({0}, '{1}', {2}, {3})";
+                        int resultAnswer = DBUtl.ExecSQL(insertAnswer, answer.QuestionId, answer.AnswerText, answer.Is_Correct ? 1 : 0, answer.Marks);
+
+                        if (resultAnswer <= 0)
+                        {
+                            TempData["Message"] = DBUtl.DB_Message;
+                            TempData["MsgType"] = "danger";
+                            return View("AddQuiz", model);
+                        }
+                    }
+
+                    TempData["Message"] = "Quiz created successfully!";
+                    TempData["MsgType"] = "success";
+                }
+                else
+                {
+                    TempData["Message"] = DBUtl.DB_Message;
+                    TempData["MsgType"] = "danger";
+                }
+            }
+            else
+            {
+                TempData["Message"] = DBUtl.DB_Message;
+                TempData["MsgType"] = "danger";
+            }
+
+            return RedirectToAction("Management");
+        }
+    }
+    */
+
+    //SQL Format
 
     [HttpPost]
     public IActionResult AddQuiz(QuizViewModel model)
@@ -392,8 +857,12 @@ ORDER BY S.Score DESC;
 
     }
 
+
+
     public IActionResult AddAnswer(int id)
     {
+        ViewBag.HideNavbar = false;
+
         string questionsql = @"SELECT * FROM Question WHERE Question_ID = {0}";
         int result = DBUtl.ExecSQL(questionsql, id);
         ViewBag.QuestionId = id;
@@ -487,9 +956,13 @@ ORDER BY S.Score DESC;
         }
         return RedirectToAction("Management", new { quizCategory = category });
     }
+
+
     [HttpGet]
     public IActionResult UpdateAnswer(int id)
     {
+        ViewBag.HideNavbar = false;
+
         string questionsql = @"SELECT Question_ID AS 'QuestionId', Answer_ID AS 'AnswerId', AnswerText,
             Is_Correct,
             AnswerMarks AS 'Marks' FROM Answer WHERE Answer_ID = {0}";
@@ -651,8 +1124,10 @@ ORDER BY S.Score DESC;
     [HttpGet]
     public IActionResult UpdateQuiz(int id)
     {
+        ViewBag.HideNavbar = false;
+
         // Get the record from the database using the id
-        string quizSql = @"SELECT Q.Question_ID, Quiz.Quiz_Category, Q.QuestionText, Q.QuestionType, Q.QuestionMarks, P.Photo_URL FROM Question Q INNER JOIN Quiz ON Q.Quiz_ID = Quiz.Quiz_ID INNER JOIN Photos P ON P.Quiz_ID = Quiz.Quiz_ID WHERE Q.Quiz_ID ={0}";
+        string quizSql = @"SELECT Q.Question_ID, Quiz.Quiz_Category, Q.QuestionText, Q.QuestionType, Q.QuestionMarks, P.Photo_URL FROM Question Q INNER JOIN Quiz ON Q.Quiz_ID = Quiz.Quiz_ID INNER JOIN Photos P ON P.Question_ID = Q.Question_ID WHERE Q.Question_ID ={0}";
         List<QuizViewModelForManagement> lstQuiz = DBUtl.GetList<QuizViewModelForManagement>(quizSql, id);
         ViewData["Tissue_Info"] = GetListTissue();
         if (lstQuiz.Count == 1)
@@ -666,7 +1141,7 @@ ORDER BY S.Score DESC;
         {
             TempData["Message"] = "Quiz record does not exist";
             TempData["MsgType"] = "danger";
-            return RedirectToAction("Management");
+            return RedirectToAction("QuizView");
         }
     }
     [HttpPost]
@@ -753,7 +1228,6 @@ ORDER BY S.Score DESC;
 
         return RedirectToAction("Management", new { quizCategory = category });
     }
-
     public IActionResult DeleteAnswer(int id)
     {
         string categorySql = @"SELECT Q.Quiz_Category FROM Answer INNER JOIN Quiz Q on Q.Quiz_ID = Answer.Question_ID WHERE Answer.Answer_ID = {0}";
@@ -798,7 +1272,6 @@ ORDER BY S.Score DESC;
         }
         return RedirectToAction("Management", new { quizCategory = category });
     }
-
     public IActionResult DeleteQuiz(int id)
     {
         string getQuizId = @"SELECT Quiz_ID FROM Question WHERE Question_ID = {0}";
@@ -862,359 +1335,7 @@ ORDER BY S.Score DESC;
         }
         return RedirectToAction("Management", new { quizCategory = quizcategory });
     }
-    [HttpGet]
-    public IActionResult TakeQuiz(string quizCategory)
-    {
-        int userId = 1; // Replace with the logged-in user's ID
-        string questionWithAnswersSql = @"
-    SELECT 
-        q.Question_ID AS 'QuestionId', q.QuestionText, q.QuestionType, q.QuestionMarks AS 'QuestionMark', 
-        q.Quiz_ID AS 'QuizId', Quiz.Quiz_Category AS 'QuizCategory', 
-        a.Answer_ID AS 'AnswerId', a.AnswerText, a.Is_Correct, a.AnswerMarks AS 'Marks', P.Photo_URL AS 'Photo_Url'
-    FROM 
-        Question q
-    INNER JOIN 
-        Quiz ON q.Quiz_ID = Quiz.Quiz_ID
-    INNER JOIN
-        Photos P ON P.Quiz_ID = q.Quiz_ID
-    LEFT JOIN 
-        Answer a ON q.Question_ID = a.Question_ID
-    WHERE 
-        Quiz.Quiz_Category = '{0}' AND 
-        q.Question_ID NOT IN (SELECT Question_Id FROM UserAnsweredQuestions WHERE User_Id = {1})
-    ORDER BY 
-        NEWID();";
 
-        var rawResults = DBUtl.GetTable(questionWithAnswersSql, quizCategory, userId);
-
-        if (rawResults.Rows.Count > 0)
-        {
-            var currentQuestionId = rawResults.Rows[0].Field<int>("QuestionId");
-            string insertAnsweredQuestionSql = @"
-        INSERT INTO UserAnsweredQuestions (User_Id, Question_Id, QuizCategory) 
-        VALUES ({0}, {1}, '{2}')";
-
-            int rowsAffected = DBUtl.ExecSQL(insertAnsweredQuestionSql, userId, currentQuestionId, quizCategory);
-
-            if (rowsAffected == 1)
-            {
-                return PrepareQuestionView(rawResults);
-            }
-            else
-            {
-                TempData["Message"] = $"Error saving answered question (ID: {currentQuestionId}). Please try again.";
-                TempData["MsgType"] = "danger";
-                return RedirectToAction("HistoQuiz");
-            }
-        }
-        else
-        {
-            TempData["Message"] = "No more questions available.";
-            return RedirectToAction("HistoQuiz");
-        }
-    }
-    private IActionResult PrepareQuestionView(DataTable rawResults)
-    {
-        var groupedData = rawResults.AsEnumerable()
-            .GroupBy(row => new
-            {
-                QuestionId = row.Field<int>("QuestionId"),
-                QuestionText = row.Field<string>("QuestionText"),
-                QuestionType = row.Field<string>("QuestionType"),
-                QuestionMark = row.Field<double>("QuestionMark"),
-                QuizId = row.Field<int>("QuizId"),
-                QuizCategory = row.Field<string>("QuizCategory"),
-                Photo_Url = row.Field<string>("Photo_Url")
-            });
-
-        var firstQuestionGroup = groupedData.FirstOrDefault();
-        if (firstQuestionGroup != null)
-        {
-            var questionKey = firstQuestionGroup.Key;
-
-            var quizViewModel = new QuizViewModel
-            {
-                Quiz = new Quiz
-                {
-                    QuizCategory = questionKey.QuizCategory
-                },
-                Question = new Question
-                {
-                    QuestionId = questionKey.QuestionId,
-                    QuestionText = questionKey.QuestionText,
-                    QuestionType = questionKey.QuestionType,
-                    QuestionMark = questionKey.QuestionMark,
-                    QuizId = questionKey.QuizId
-                },
-                Photos = new Photos
-                {
-                    Photo_URL = questionKey.Photo_Url
-                },
-                Answer = firstQuestionGroup.Select(row => new Answer
-                {
-                    AnswerId = row.Field<int?>("AnswerId") ?? 0,
-                    QuestionId = questionKey.QuestionId,
-                    AnswerText = row.Field<string>("AnswerText"),
-                    Is_Correct = row.Field<bool?>("Is_Correct") ?? false,
-                    Marks = row.Field<double?>("Marks") ?? 0
-                }).ToList()
-            };
-
-            return View("TakeQuiz", quizViewModel);
-        }
-        return View();
-    }
-    [HttpPost]
-    public IActionResult SubmitAnswer(QuizResponse model, List<int> selectedAnswerIds)
-    {
-        if (!ModelState.IsValid)
-        {
-            TempData["Message"] = "Please correct the errors.";
-            TempData["MsgType"] = "danger";
-            return RedirectToAction("TakeQuiz", new { quizCategory = model.QuizCategory });
-        }
-
-        double totalScore = 0;
-        bool isFullyCorrect = true;
-
-        foreach (var answerId in selectedAnswerIds)
-        {
-            string correctnessSql = @"SELECT Is_Correct, AnswerMarks AS Marks FROM Answer WHERE Answer_ID = {0}";
-            var answer = DBUtl.GetList<Answer>(correctnessSql, answerId).FirstOrDefault();
-
-            if (answer != null)
-            {
-                totalScore += answer.Is_Correct ? (double)answer.Marks : 0;
-                if (!answer.Is_Correct)
-                {
-                    isFullyCorrect = false;
-                }
-
-                string insertResponseSql = @"
-            INSERT INTO Quiz_Responses (User_ID, Quiz_ID, Question_ID, Answer_ID, Quiz_Category, Is_Correct, Response_Time, Score) 
-            VALUES ({0}, {1}, {2}, {3}, '{4}', {5}, GETDATE(),{6})";
-
-                int result = DBUtl.ExecSQL(
-                    insertResponseSql,
-                    1,
-                    model.QuizId,
-                    model.QuestionId,
-                    answerId,
-                    model.QuizCategory,
-                    answer.Is_Correct ? 1 : 0,
-                    answer.Marks
-                );
-
-                if (result != 1)
-                {
-                    TempData["Message"] = $"Error saving response for Answer ID {answerId}: {DBUtl.DB_Message}";
-                    TempData["MsgType"] = "danger";
-                }
-                else
-                {
-                    TempData["Message"] = "Answer submitted successfully.";
-                    TempData["MsgType"] = "success";
-                }
-
-            }
-            else
-            {
-                TempData["Message"] = $"Invalid answer ID {answerId}.";
-                TempData["MsgType"] = "danger";
-            }
-        }
-
-        model.Score = totalScore;
-        model.IsCorrect = isFullyCorrect;
-
-
-
-        return RedirectToAction("NextQuestion", new { quizCategory = model.QuizCategory, questionId = model.QuestionId });
-    }
-
-    public IActionResult NextQuestion(string quizCategory)
-    {
-        int userId = 1; // Replace with the logged-in user's ID
-
-        string questionWithAnswersSql = @"
-            SELECT 
-                q.Question_ID AS 'QuestionId', q.QuestionText, q.QuestionType, q.QuestionMarks AS 'QuestionMark', 
-                q.Quiz_ID AS 'QuizId', Quiz.Quiz_Category AS 'QuizCategory', 
-                a.Answer_ID AS 'AnswerId', a.AnswerText, a.Is_Correct, a.AnswerMarks AS 'Marks', P.Photo_URL AS 'Photo_Url'
-            FROM 
-                Question q
-            INNER JOIN 
-                Quiz ON q.Quiz_ID = Quiz.Quiz_ID
-            INNER JOIN
-                Photos P ON P.Quiz_ID = q.Quiz_ID
-            LEFT JOIN 
-                Answer a ON q.Question_ID = a.Question_ID
-            WHERE 
-                Quiz.Quiz_Category = '{0}' AND 
-                q.Question_ID NOT IN (SELECT Question_Id FROM UserAnsweredQuestions WHERE User_Id = {1})
-            ORDER BY 
-                NEWID();"; // Randomize the next question
-
-        var rawResults = DBUtl.GetTable(questionWithAnswersSql, quizCategory, userId);
-
-        if (rawResults.Rows.Count > 0)
-        {
-            var currentQuestionId = rawResults.Rows[0].Field<int>("QuestionId");
-            string insertAnsweredQuestionSql = @"
-        INSERT INTO UserAnsweredQuestions (User_Id, Question_Id, QuizCategory) 
-        VALUES ({0}, {1}, '{2}')";
-
-            int rowsAffected = DBUtl.ExecSQL(insertAnsweredQuestionSql, userId, currentQuestionId, quizCategory);
-
-            if (rowsAffected == 1)
-            {
-                var groupedData = rawResults.AsEnumerable()
-                    .GroupBy(row => new
-                    {
-                        QuestionId = row.Field<int>("QuestionId"),
-                        QuestionText = row.Field<string>("QuestionText"),
-                        QuestionType = row.Field<string>("QuestionType"),
-                        QuestionMark = row.Field<double>("QuestionMark"),
-                        QuizId = row.Field<int>("QuizId"),
-                        QuizCategory = row.Field<string>("QuizCategory"),
-                        Photo_Url = row.Field<string>("Photo_Url")
-                    });
-
-                var nextQuestionGroup = groupedData.FirstOrDefault();
-                if (nextQuestionGroup != null)
-                {
-                    var questionKey = nextQuestionGroup.Key;
-
-                    var quizViewModel = new QuizViewModel
-                    {
-                        Quiz = new Quiz
-                        {
-                            QuizCategory = questionKey.QuizCategory
-                        },
-                        Question = new Question
-                        {
-                            QuestionId = questionKey.QuestionId,
-                            QuestionText = questionKey.QuestionText,
-                            QuestionType = questionKey.QuestionType,
-                            QuestionMark = questionKey.QuestionMark,
-                            QuizId = questionKey.QuizId
-                        },
-                        Photos = new Photos
-                        {
-                            Photo_URL = questionKey.Photo_Url
-                        },
-                        Answer = nextQuestionGroup.Select(row => new Answer
-                        {
-                            AnswerId = row.Field<int?>("AnswerId") ?? 0,
-                            QuestionId = questionKey.QuestionId,
-                            AnswerText = row.Field<string>("AnswerText"),
-                            Is_Correct = row.Field<bool?>("Is_Correct") ?? false,
-                            Marks = row.Field<double?>("Marks") ?? 0
-                        }).ToList()
-                    };
-
-                    return View("TakeQuiz", quizViewModel);
-                }
-            }
-            else
-            {
-                TempData["Message"] = $"Error saving answered question (ID: {currentQuestionId}). Please try again.";
-                TempData["MsgType"] = "danger";
-                return RedirectToAction("HistoQuiz");
-            }
-        }
-        else
-        {
-            TempData["Message"] = "You have completed this quiz or no more questions are available.";
-            TempData["MsgType"] = "info";
-            return RedirectToAction("QuizSummary", new { quizCategory });
-        }
-
-        return View(); // Default view if no data
-    }
-    public IActionResult QuizSummary(string quizCategory)
-    {
-        int userid = 1;
-
-        // Fetch responses for the quiz
-        string summarySql = @"
-    SELECT q.Question_ID,q.QuestionText, a.AnswerText, CAST(r.Is_Correct AS BIT) AS'IsCorrect', Score
-    FROM Quiz_Responses r
-    INNER JOIN Question q ON r.Question_ID = q.Question_ID
-    INNER JOIN Answer a ON r.Answer_ID = a.Answer_ID
-    WHERE r.Quiz_Category = '{0}'";
-
-        var responses = DBUtl.GetList<QuizSummaryResponse>(summarySql, quizCategory);
-
-        if (responses.Count == 0)
-        {
-            TempData["Message"] = "No responses found for this quiz.";
-            TempData["MsgType"] = "danger";
-            return RedirectToAction("HistoQuiz");
-        }
-
-        double totalScore = responses.Sum(r => r.Score);
-        ViewBag.TotalScore = totalScore;
-
-        List<HistoQuiz> quizlist = DBUtl.GetList<HistoQuiz>("SELECT Quiz.Quiz_Category AS 'QuizCategory',  SUM(Q.QuestionMarks) AS 'TotalQuestionMarks' FROM Quiz INNER JOIN Question Q ON Quiz.Quiz_ID = Q.Quiz_ID  GROUP BY Quiz.Quiz_Category");
-
-        double totalQuestionMarks = 0;
-
-        for (int i = 0; i < quizlist.Count; i++)
-        {
-            if (quizlist[i].QuizCategory == quizCategory)
-            {
-                totalQuestionMarks = quizlist[i].TotalQuestionMarks;
-                break;
-            }
-        }
-        ViewBag.TotalQuestionMarks = totalQuestionMarks;
-
-        string checkAttemptsSql = @"SELECT COUNT(*) FROM Quiz_Statistics WHERE User_Id = {0} and Quiz_Category = '{1}'";
-        int checkAttempts = Convert.ToInt32(DBUtl.GetValue(checkAttemptsSql, userid, quizCategory));
-
-        checkAttempts = checkAttempts + 1;
-        string insertSql = @"
-        INSERT INTO Quiz_Statistics (User_ID, Quiz_Category, Date_Attempted, Score)
-        VALUES ({0}, '{1}', GETDATE(), {2})";
-        int result = DBUtl.ExecSQL(insertSql, userid, quizCategory, totalScore);
-
-        string correctAnswerSql = @"SELECT 
-                                        Quiz.Quiz_Category AS 'QuizCategory', 
-                                        Q.Question_Id AS 'QuestionId',
-                                        STRING_AGG(A.AnswerText, ',') AS 'GroupedAnswerText', 
-                                        MAX(CAST(A.Is_Correct AS INT)) AS 'IsCorrect'
-                                    FROM 
-                                        Question Q 
-                                    INNER JOIN 
-                                        Quiz Quiz ON Quiz.Quiz_ID = Q.Quiz_ID 
-                                    INNER JOIN 
-                                        Answer A ON A.Question_ID = Q.Question_ID 
-                                    WHERE 
-                                        A.Is_Correct = 1 
-                                        AND Quiz.Quiz_Category = '{0}'
-                                    GROUP BY 
-                                        Quiz.Quiz_Category, 
-                                        Q.Question_Id";
-        var correctAnswer = DBUtl.GetList<CorrectAnswers>(correctAnswerSql, quizCategory);
-        var model = new QuizSummaryViewModel
-        {
-            QuizSummaryResponse = responses,
-            CorrectAnswewrs = correctAnswer
-        };
-
-
-        return View(model);
-    }
-    public IActionResult Quit()
-    {
-        string deleteResponsesql = @"DELETE FROM Quiz_Responses";
-        int resultResponse = DBUtl.ExecSQL(deleteResponsesql);
-        string deleteSavedQuestionId = @"DELETE FROM UserAnsweredQuestions";
-        int resultDeleteSaved = DBUtl.ExecSQL(deleteSavedQuestionId);
-
-        return RedirectToAction("HistoQuiz");
-    }
 
     private string DoPhotoUpload(IFormFile photo, string category)
     {
@@ -1259,7 +1380,6 @@ ORDER BY S.Score DESC;
             return $"Error: {ex.Message}";
         }
     }
-
     private static SelectList GetListTissue()
     {
         //string tissueSql = @"SELECT LTRIM(CONVERT(Tissue_ID, CHAR)) as `Value`, Tissue_Name as `Text` FROM Tissue_Info;";
@@ -1267,4 +1387,11 @@ ORDER BY S.Score DESC;
         List<SelectListItem> lstTissue = DBUtl.GetList<SelectListItem>(tissueSql);
         return new SelectList(lstTissue, "Value", "Text");
     }
+
+
+
+
+
+
+
 }

@@ -54,7 +54,7 @@
                 <div class="col-md-6 d-flex justify-content-end align-items-center">
                     <div class="d-flex justify-content-between w-100 position-relative">
                         <!-- Back to quiz button -->
-                        <a class="btn btn-primary position-absolute top-0 end-0"  asp-controller="Quiz" asp-action="Quit">Back to HistoQuiz</a>
+                        <a class="btn btn-primary position-absolute top-0 end-0" asp-controller="Quiz" asp-action="Quit">Back to HistoQuiz</a>
                     </div>
                 </div>
             </div>
@@ -64,60 +64,60 @@
             </div>
 
 
-                    <div class="card mt-4">
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-striped">
-                                <thead class="table-header">
-                                    <tr>
-                                        <th scope ="col">Question</th>
-                                        <th scope="col">Answer</th>
-                                        <th scope="col">Correct</th>
-                                        <th scope="col">Score</th>
-                                        <th scope="col">Correct Answers</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var response in Model.QuizSummaryResponse)
+            <div class="card mt-4">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <thead class="table-header">
+                            <tr>
+                                <th scope="col">Question</th>
+                                <th scope="col">Answer</th>
+                                <th scope="col">Correct</th>
+                                <th scope="col">Score</th>
+                                <th scope="col">Correct Answers</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var response in Model.QuizSummaryResponse)
+                            {
+                                <tr>
+                                    <td>@response.QuestionText</td>
+                                    <td>@response.AnswerText</td>
+                                    <td>
+                                        @if (response.IsCorrect)
+                                        {
+                                            <span class="text-success">Yes</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-danger">No</span>
+                                        }
+                                    </td>
+                                    <td>@response.Score</td>
+                                    @foreach (var correctAnswer in Model.CorrectAnswewrs)
                                     {
-                                        <tr>
-                                            <td>@response.QuestionText</td>
-                                            <td>@response.AnswerText</td>
-                                            <td>
-                                                @if (response.IsCorrect)
-                                                {
-                                                    <span class="text-success">Yes</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="text-danger">No</span>
-                                                }
-                                            </td>
-                                            <td>@response.Score</td>
-                                            @foreach (var correctAnswer in Model.CorrectAnswewrs)
-                                            {
-                                                if (response.Question_ID == correctAnswer.QuestionId)
-                                                { 
-                                                    <td>@correctAnswer.GroupedAnswerText</td>
-                                                }
-                                            }
-                                        </tr>
+                                        if (response.Question_ID == correctAnswer.QuestionId)
+                                        {
+                                            <td>@correctAnswer.GroupedAnswerText</td>
+                                        }
                                     }
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
                 </div>
             </div>
-
-            
         </div>
     </div>
 
-<script>
-    // Close popup when user clicks the close button
-    function closePopup() {
-        document.querySelector('.tempdata-popup').style.display = 'none';
-    }
+
+    </div>
+    </div>
+
+    <script>
+        // Close popup when user clicks the close button
+        function closePopup() {
+            document.querySelector('.tempdata-popup').style.display = 'none';
+        }
 
         document.addEventListener("DOMContentLoaded", function () {
             var totalScore = @ViewBag.TotalScore;
@@ -161,5 +161,5 @@
             });
         });
 
-</script>
+    </script>
 </body>

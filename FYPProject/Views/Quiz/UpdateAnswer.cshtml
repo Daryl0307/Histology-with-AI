@@ -1,4 +1,5 @@
 ﻿@model FYPProject.Models.Answer
+
 <head>
     <meta charset="UTF-8">
     <link href="~/css/AddQuiz.css" rel="stylesheet" />
@@ -10,24 +11,28 @@
         <input type="hidden" asp-for="AnswerId" />
         <input type="hidden" asp-for="QuestionId" />
 
+        <!-- Answer Text -->
         <label asp-for="AnswerText">Answer:</label>
-        <input type="text" id="AnswerText" asp-for="AnswerText" name="AnswerText" value="@Model.AnswerText">
+        <input type="text" id="AnswerText" asp-for="AnswerText" name="AnswerText" value="@Model.AnswerText" required>
         <span asp-validation-for="AnswerText" class="text-danger"></span>
 
+        <!-- Correct Answer Checkbox -->
         <label asp-for="Is_Correct">
             <input type="checkbox" id="Is_Correct" asp-for="Is_Correct" name="Is_Correct" value="true">
             Correct Answer
         </label>
         <span asp-validation-for="Is_Correct" class="text-danger"></span>
 
+        <!-- Marks -->
         <label asp-for="Marks" class="marks-label" id="marks-label">Marks:</label>
         <input type="number" id="Marks" asp-for="Marks" name="Marks" min="0" step="0.5" value="@Model.Marks" class="marks-input">
         <span asp-validation-for="Marks" class="text-danger"></span>
 
-
+        <!-- Hidden Fields -->
         <input type="hidden" value="@Model.AnswerId" />
         <input type="hidden" value="@Model.QuestionId" />
 
+        <!-- Submit Button -->
         <button type="submit">Update</button>
     </form>
 
@@ -38,7 +43,7 @@
             const marksLabel = document.getElementById("marks-label");
 
             // Initialize the visibility based on the model value
-            const isCorrect = @Model.Is_Correct.ToString().ToLower(); // Convert the server-side value to a JS boolean
+            const isCorrect = '@Model.Is_Correct'.toLowerCase(); // Convert the server-side value to a JS boolean
             isCorrectCheckbox.checked = isCorrect === "true";
             toggleMarksInput(isCorrect === "true");
 
@@ -52,6 +57,7 @@
                                 <input type="hidden" name="Is_Correct" value="false">
                             `);
 
+            // Function to toggle Marks input visibility
             function toggleMarksInput(isCorrect) {
                 if (isCorrect) {
                     marksInput.style.display = "inline-block";

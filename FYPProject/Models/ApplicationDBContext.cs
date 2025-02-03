@@ -23,6 +23,7 @@ namespace FYPProject.Models
                 entity.Property(e => e.Photo_Description).HasColumnName("Photo_Description");
                 entity.Property(e => e.Photo_URL).HasColumnName("Photo_URL");
                 entity.Property(e => e.Tissue_ID).HasColumnName("Tissue_ID");
+                entity.Ignore(e => e.PhotoFile);
                 //entity.Property(e => e.Question_ID).HasColumnName("Question_ID");
             });
 
@@ -40,10 +41,10 @@ namespace FYPProject.Models
             // TissueInfo table configuration
             modelBuilder.Entity<TissueInfo>(entity =>
             {
-                entity.HasKey(e => e.Tissue_ID);
-                entity.Property(e => e.Tissue_ID).HasColumnName("Tissue_ID");
-                entity.Property(e => e.Tissue_Name).HasColumnName("Tissue_Name");
-                entity.Property(e => e.Tissue_Description).HasColumnName("Tissue_Description");
+                entity.HasKey(e => e.TissueId);
+                entity.Property(e => e.TissueId).HasColumnName("Tissue_ID");
+                entity.Property(e => e.TissueName).HasColumnName("Tissue_Name");
+                entity.Property(e => e.TissueDescription).HasColumnName("Tissue_Description");
             });
 
             base.OnModelCreating(modelBuilder);

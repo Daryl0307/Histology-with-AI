@@ -7,7 +7,6 @@ namespace FYPProject.Models
         public int Photo_ID { get; set; }
         public string Photo_Description { get; set; }
         public string Photo_URL { get; set; }
-        [NotMapped]
         public IFormFile? PhotoFile { get; set; }
         public int? Tissue_ID { get; set; }
         public int? UserId { get; set; }
