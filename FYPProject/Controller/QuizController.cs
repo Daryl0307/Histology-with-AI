@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using RP.SOI.DotNet.Utils;
 using System.Data;
+using System.Security.Claims;
 
 
 namespace FYPProject.Controllers;
@@ -210,10 +211,11 @@ ORDER BY S.Score DESC;
     {
         ViewBag.HideNavbar = false;
         ViewBag.ActivePage = "HistoQuiz";
-
+        string userIdstring = HttpContext.Session.GetString("UserId");
+        int userId = Convert.ToInt32(userIdstring);
         List<HistoQuiz> quizlist = DBUtl.GetList<HistoQuiz>("SELECT Quiz.Quiz_Category AS 'QuizCategory',  SUM(Q.QuestionMarks) AS 'TotalQuestionMarks' FROM Quiz INNER JOIN Question Q ON Quiz.Quiz_ID = Q.Quiz_ID  GROUP BY Quiz.Quiz_Category");
 
-        List<QuizStatistics> statisticslist = DBUtl.GetList<QuizStatistics>("SELECT User_Id AS 'UserId', Quiz_Category AS 'QuizCategory', Date_Attempted AS 'DateAttempted', Score FROM Quiz_Statistics WHERE User_Id = {0}", 1);
+        List<QuizStatistics> statisticslist = DBUtl.GetList<QuizStatistics>("SELECT User_Id AS 'UserId', Quiz_Category AS 'QuizCategory', Date_Attempted AS 'DateAttempted', Score FROM Quiz_Statistics WHERE User_Id = {0}", userId);
 
         string getPhotoUrl = @"SELECT Photo_URL FROM Photos WHERE Quiz_Id = {0}";
 
@@ -265,7 +267,10 @@ ORDER BY S.Score DESC;
     {
         ViewBag.HideNavbar = true;
 
-        int userId = 1; // Replace with the logged-in user's ID
+        string userIdstring = HttpContext.Session.GetString("UserId");
+        int userId = Convert.ToInt32(userIdstring);
+        ViewBag.userID = userId;
+        
         string questionWithAnswersSql = @"
     SELECT 
         q.Question_ID AS 'QuestionId', q.QuestionText, q.QuestionType, q.QuestionMarks AS 'QuestionMark', 
@@ -371,8 +376,10 @@ ORDER BY S.Score DESC;
     [HttpPost]
     public IActionResult SubmitAnswer(QuizResponse model, List<int> selectedAnswerIds)
     {
-        ViewBag.HideNavbar = true;
 
+        ViewBag.HideNavbar = true;
+        string userIdstring = HttpContext.Session.GetString("UserId");
+        int userId = Convert.ToInt32(userIdstring);
         if (!ModelState.IsValid)
         {
             TempData["Message"] = "Please correct the errors.";
@@ -402,7 +409,7 @@ ORDER BY S.Score DESC;
 
                 int result = DBUtl.ExecSQL(
                     insertResponseSql,
-                    1,
+                    userId,
                     model.QuizId,
                     model.QuestionId,
                     answerId,
@@ -443,8 +450,8 @@ ORDER BY S.Score DESC;
     {
         ViewBag.HideNavbar = true;
 
-        int userId = 1; // Replace with the logged-in user's ID
-
+        string userIdstring = HttpContext.Session.GetString("UserId");
+        int userId = Convert.ToInt32(userIdstring);
         string questionWithAnswersSql = @"
         SELECT 
             q.Question_ID AS 'QuestionId', q.QuestionText, q.QuestionType, q.QuestionMarks AS 'QuestionMark', 
@@ -550,8 +557,8 @@ ORDER BY S.Score DESC;
     {
         ViewBag.HideNavbar = false;
 
-        int userid = 1;
-
+        string userIdstring = HttpContext.Session.GetString("UserId");
+        int userId = Convert.ToInt32(userIdstring);
         // Fetch responses for the quiz
         string summarySql = @"
     SELECT q.Question_ID,q.QuestionText, a.AnswerText, CAST(r.Is_Correct AS BIT) AS'IsCorrect', Score
@@ -587,13 +594,13 @@ ORDER BY S.Score DESC;
         ViewBag.TotalQuestionMarks = totalQuestionMarks;
 
         string checkAttemptsSql = @"SELECT COUNT(*) FROM Quiz_Statistics WHERE User_Id = {0} and Quiz_Category = '{1}'";
-        int checkAttempts = Convert.ToInt32(DBUtl.GetValue(checkAttemptsSql, userid, quizCategory));
+        int checkAttempts = Convert.ToInt32(DBUtl.GetValue(checkAttemptsSql, userId, quizCategory));
 
         checkAttempts = checkAttempts + 1;
         string insertSql = @"
         INSERT INTO Quiz_Statistics (User_ID, Quiz_Category, Date_Attempted, Score)
         VALUES ({0}, '{1}', GETDATE(), {2})";
-        int result = DBUtl.ExecSQL(insertSql, userid, quizCategory, totalScore);
+        int result = DBUtl.ExecSQL(insertSql, userId, quizCategory, totalScore);
 
         string correctAnswerSql = @"SELECT 
                                         Quiz.Quiz_Category AS 'QuizCategory', 
