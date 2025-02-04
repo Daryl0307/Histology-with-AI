@@ -64,12 +64,24 @@
                     background-color: #c0392b;
                 }
 
-        #image-preview {
-            max-width: 200px;
-            max-height: 200px;
-            margin: 10px 0;
-            display: none;
+        .image-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #fafafa;
         }
+
+            .image-preview img {
+                max-width: 100px;
+                max-height: 100px;
+                object-fit: cover;
+                border-radius: 5px;
+            }
 
         .answers-container {
             margin-bottom: 20px;
@@ -121,11 +133,7 @@
             margin-right: 10px; /* Spacing between radio buttons */
         }
 
-        .image-preview img {
-            max-width: 200px;
-            max-height: 200px;
-            margin: 5px;
-        }
+        
 
         textarea {
             width: 100%;
