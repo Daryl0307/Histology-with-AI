@@ -349,7 +349,7 @@ public class TissueController : Controller
 
     public IActionResult DeleteTissue(int id)
     {
-        string getPhotosSql = @"SELECT Photo_Id AS 'PhotoId' FROM Photos WHERE Tissue_ID = {0}";
+        string getPhotosSql = @"SELECT Photo_ID AS 'Photo_ID' FROM Photos WHERE Tissue_ID = {0}";
         List<Photos> photos = DBUtl.GetList<Photos>(getPhotosSql, id);
 
         if(photos.Count == 0)
@@ -362,11 +362,13 @@ public class TissueController : Controller
         int result1 = 0;
         string getPhotoUrlSql = @"SELECT Photo_URL FROM Photos WHERE Photo_ID = {0}";
         string getCategorySql = @"SELECT Tissue_Name FROM Photos P INNER JOIN Tissue_Info TI ON TI.Photo_ID = P.Photo_ID WHERE P.Photo_ID = {0}";
-        
+
+        string category = "";
+        string photoUrl = "";
         for (int i = 0; i < photos.Count(); i++)
         {
-            string photoUrl = Convert.ToString(DBUtl.GetValue(getPhotoUrlSql, photos[i].Photo_ID));
-            string category = Convert.ToString(DBUtl.GetValue(getCategorySql, photos[i].Photo_ID));
+            photoUrl = Convert.ToString(DBUtl.GetValue(getPhotoUrlSql, photos[i].Photo_ID));
+            category = Convert.ToString(DBUtl.GetValue(getCategorySql, photos[i].Photo_ID));
 
             
             if(photoUrl != "No Picture Inserted")
