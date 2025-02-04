@@ -4,7 +4,7 @@
 @{
     ViewData["Title"] = "Histopedia";
 }
-    <style>
+<style>
     * {
         font-family: 'Raleway', sans-serif;
     }
@@ -72,24 +72,47 @@
         font-size: 14px;
         border-radius: 0 0 10px 10px;
     }
-    </style>
 
+    /* Additional styling for the card */
+    .card {
+        background-color: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
 
-<div class="grid-wrapper">
-    <div class="grid-container">
-        @if (Model != null && Model.Count > 0)
-        {
-            @foreach (var tissue in Model)
-            {
-                <a asp-controller="Tissue" asp-action="TissueView" asp-route-id="@tissue.TissueId" class="grid-item">
-                    <img src="@Url.Content("~/images/" + tissue.TissueName + "/" + tissue.PhotoURL)" alt="@tissue.TissueName">
-                    <div class="overlay">@tissue.TissueName</div>
-                </a>
-            }
-        }
-        else
-        {
-            <p>No tissue data available.</p>
-        }
+    .card-header {
+        font-size: 24px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .card-body {
+        padding: 20px;
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="card p-4 bg-white shadow-lg rounded">
+        
+        <div class="card-body">
+            <div class="grid-wrapper">
+                <div class="grid-container">
+                    @if (Model != null && Model.Count > 0)
+                    {
+                        @foreach (var tissue in Model)
+                        {
+                            <a asp-controller="Tissue" asp-action="TissueView" asp-route-id="@tissue.TissueId" class="grid-item">
+                                <img src="@Url.Content("~/images/" + tissue.TissueName + "/" + tissue.PhotoURL)" alt="@tissue.TissueName">
+                                <div class="overlay">@tissue.TissueName</div>
+                            </a>
+                        }
+                    }
+                    else
+                    {
+                        <p>No tissue data available.</p>
+                    }
+                </div>
+            </div>
+        </div>
     </div>
 </div>

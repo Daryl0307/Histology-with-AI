@@ -157,12 +157,10 @@
         const prevButton = document.getElementById('prevSlide');
         const nextButton = document.getElementById('nextSlide');
         const descriptionElement = document.getElementById('description');
-        const modelDescriptions = @Html.Raw(Json.Serialize(Model.Select(m => m.TissueDescription)));
 
         function updateSlide() {
             slides.forEach(slide => slide.classList.remove('active'));
             slides[currentSlide].classList.add('active');
-            descriptionElement.innerHTML = modelDescriptions[currentSlide];
         }
 
         prevButton.addEventListener('click', () => {
