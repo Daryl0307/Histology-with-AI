@@ -184,7 +184,18 @@
 
         <button type="submit">Update Tissue</button>
     </form>
-
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="validation-summary-errors">
+            @foreach (var state in ViewData.ModelState)
+            {
+                foreach (var error in state.Value.Errors)
+                {
+                    <p>@state.Key :: @error.ErrorMessage</p>
+                }
+            }
+        </div>
+    }
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const fileInput = document.getElementById('PhotoFiles');
