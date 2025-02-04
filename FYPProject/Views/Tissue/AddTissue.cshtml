@@ -1,5 +1,6 @@
-﻿﻿@using FYPProject.Models;
+﻿@using FYPProject.Models;
 @model TissueInfo
+
 <head>
     <meta charset="UTF-8">
     <link href="~/css/AddQuiz.css" rel="stylesheet" />
@@ -134,16 +135,23 @@
             margin-right: 10px; /* Spacing between radio buttons */
         }
 
+        /* Styling for CKEditor */
+        #editor {
+            border: 1px solid #ddd;
+            padding: 10px;
+            min-height: 150px;
+            border-radius: 5px;
+        }
 
-
-        textarea {
+        /* Make textarea focusable */
+        .ckeditor-textarea {
             width: 100%;
-            box-sizing: border-box;
-            resize: vertical; /* Allow only vertical resizing */
+            height: auto;
         }
 
     </style>
 </head>
+
 <body>
     <form id="quiz-form" asp-action="AddTissue" asp-controller="Tissue" method="post" enctype="multipart/form-data">
 
@@ -176,18 +184,12 @@
         </div>
 
         <label asp-for="TissueDescription">Tissue Description:</label>
-        <div id="format-buttons">
-            <button type="button" id="insert-paragraph" hidden>Insert Paragraph</button>
-            <button type="button" id="insert-ul">Insert Unordered List</button>
-            <button type="button" id="insert-li">Insert List Item</button>
-            <button type="button" id="insert-ol">Insert Number List</button>
 
-        </div>
-        <!-- Preview Area -->
-        <div id="preview" style="border: 1px solid #ccc; padding: 10px; margin-top: 20px; height: 300px; overflow-y: auto;">
-            <!-- The preview will be rendered here -->
-        </div>
-        <textarea asp-for="TissueDescription" name="TissueDescription" id="TissueDescription" rows="5" cols="72" required></textarea>
+        <!-- CKEditor: Using a div to initialize CKEditor -->
+        <div id="editor" contenteditable="true" class="ckeditor-textarea" required></div>
+        <input type="hidden" asp-for="TissueDescription" id="TissueDescription" name="TissueDescription">
+
+        <!-- Image preview and file input -->
         <label asp-for="PhotoFiles">Pictures:</label>
         <div class="image-preview" id="image-preview" style="display:none;"></div>
         <div class="file-input-container">
@@ -197,8 +199,10 @@
             </button>
         </div>
         <span asp-validation-for="PhotoFiles" class="text-danger"></span>
+
         <button type="submit">Submit</button>
     </form>
+
     @if (!ViewData.ModelState.IsValid)
     {
         <div class="validation-summary-errors">
@@ -211,8 +215,10 @@
             }
         </div>
     }
-    <script>
 
+    <!-- CKEditor Script -->
+    <script src="https://cdn.ckeditor.com/ckeditor5/36.0.1/classic/ckeditor.js"></script>
+    <script>
         document.addEventListener('DOMContentLoaded', function () {
             const photoInput = document.getElementById('PhotoFiles');
             const imagePreview = document.getElementById('image-preview');
@@ -221,13 +227,25 @@
             const newCategoryRadio = document.getElementById('new-category');
             const existingCategoryContainer = document.getElementById('existing-category-container');
             const newCategoryContainer = document.getElementById('new-category-container');
-            const tissueDescription = document.getElementById('TissueDescription');
-            const insertParagraphButton = document.getElementById('insert-paragraph');
-            const previewArea = document.getElementById('preview');
-            const insertUlButton = document.getElementById('insert-ul');
-            const insertLiButton = document.getElementById('insert-li');
-            const insertOlButton = document.getElementById('insert-ol'); // New button for ordered list
+            const tissueDescription = document.getElementById('editor');
             const form = document.getElementById('quiz-form');
+            const tissueNameInput = document.getElementById('TissueName');
+            const newTissueNameInput = document.getElementById('new-TissueName');
+
+            // CKEditor Initialization
+            let tissueEditor;
+
+            ClassicEditor.create(document.getElementById('editor'))
+                .then(editor => {
+                    tissueEditor = editor;
+                })
+                .catch(error => {
+                    console.error('Error initializing CKEditor:', error);
+                });
+
+            document.getElementById('quiz-form').addEventListener('submit', function () {
+                document.getElementById('TissueDescription').value = tissueEditor.getData();
+            });
 
             // Show the preview of the uploaded images
             photoInput.addEventListener('change', function () {
@@ -268,95 +286,22 @@
             existingCategoryRadio.addEventListener('change', toggleCategoryFields);
             newCategoryRadio.addEventListener('change', toggleCategoryFields);
 
-            function updatePreview() {
-                previewArea.innerHTML = tissueDescription.value;
-            }
-
-            // Function to insert text at the cursor position
-            function insertAtCursor(text) {
-                const startPos = tissueDescription.selectionStart;
-                const endPos = tissueDescription.selectionEnd;
-                const textBefore = tissueDescription.value.substring(0, startPos);
-                const textAfter = tissueDescription.value.substring(endPos, tissueDescription.value.length);
-                tissueDescription.value = textBefore + text + textAfter;
-                tissueDescription.setSelectionRange(startPos + text.length, startPos + text.length);
-                tissueDescription.focus();
-
-                updatePreview();  // Update preview after each insertion
-            }
-            tissueDescription.addEventListener('keydown', function (event) {
-                // Check if the Enter key is pressed
-                if (event.key === 'Enter') {
-                    const selectionStart = tissueDescription.selectionStart;
-                    const textBefore = tissueDescription.value.substring(0, selectionStart);
-                    const textAfter = tissueDescription.value.substring(tissueDescription.selectionEnd);
-
-                    // Check if the cursor is inside <ul> or <ol>
-                    const ulIndex = textBefore.lastIndexOf('<ul>');
-                    const olIndex = textBefore.lastIndexOf('<ol>');
-                    const ulEndIndex = textBefore.lastIndexOf('</ul>');
-                    const olEndIndex = textBefore.lastIndexOf('</ol>');
-
-                    // If cursor is inside a <ul> or <ol>, insert <li></li>
-                    if ((ulIndex > ulEndIndex) || (olIndex > olEndIndex)) {
-                        event.preventDefault();
-                        tissueDescription.value = textBefore + '\n<li></li>' + textAfter;
-                        tissueDescription.selectionStart = tissueDescription.selectionEnd = selectionStart + 5; // Set the cursor position inside the new <li> tag
-                    }
-                }
-            });
-
-            // Insert a paragraph
-            insertParagraphButton.addEventListener('click', function () {
-                insertAtCursor('<p></p>');
-            });
-
-            // Insert an unordered list
-            insertUlButton.addEventListener('click', function () {
-                insertAtCursor('<ul>\n\t<li></li>\n</ul>');
-            });
-
-            // Insert a list item (within an existing <ul>)
-            insertLiButton.addEventListener('click', function () {
-                insertAtCursor('<li></li>');
-            });
-
-            // Insert an ordered list (numbered list)
-            insertOlButton.addEventListener('click', function () {
-                insertAtCursor('<ol>\n\t<li></li>\n</ol>');
-            });
-
-
-            form.addEventListener('submit', function (event) {
-                // Wrap the entire content in <p> tags
-                if (tissueDescription.value.trim()) {
-                    // Wrap each line of text in <p> tags (if there are multiple lines)
-                    let wrappedContent = tissueDescription.value.split('\n').map(line => `<p>${line}</p>`).join('\n');
-                    tissueDescription.value = wrappedContent;
-                }
-            });
-
-            // Update the preview whenever the user types in the textarea
-            tissueDescription.addEventListener('input', updatePreview);
-            // Initial preview update
-            updatePreview();
             function toggleCategoryFields() {
                 if (existingCategoryRadio.checked) {
                     existingCategoryContainer.style.display = 'block';
                     newCategoryContainer.style.display = 'none';
-                    document.getElementById("TissueName").disabled = false;  // Enable dropdown
-                    document.getElementById("new-TissueName").disabled = true; // Disable text input
+                    tissueNameInput.removeAttribute('disabled');
+                    newTissueNameInput.setAttribute('disabled', 'true');
                 } else {
                     existingCategoryContainer.style.display = 'none';
                     newCategoryContainer.style.display = 'block';
-                    document.getElementById("TissueName").disabled = true;  // Disable dropdown
-                    document.getElementById("new-TissueName").disabled = false; // Enable text input
+                    tissueNameInput.setAttribute('disabled', 'true');
+                    newTissueNameInput.removeAttribute('disabled');
                 }
             }
+            toggleCategoryFields(); // Ensure the correct section is displayed on page load
 
-
-            // Initial category field state
-            toggleCategoryFields();
+            // Optional: Add additional form validation if needed.
         });
     </script>
 </body>
