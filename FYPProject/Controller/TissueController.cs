@@ -79,7 +79,7 @@ public class TissueController : Controller
         {
             TempData["Message"] = "No data found. Please check your query.";
             TempData["MsgType"] = "danger";
-            return View(new List<TissueInfo>()); // Return empty list instead of null
+            return View(new List<TissueViewModel>()); // Return empty list instead of null
         }
 
         
@@ -108,8 +108,8 @@ public class TissueController : Controller
                             TI.Tissue_ID AS 'TissueId', 
                             Tissue_Name AS 'TissueName', 
                             Tissue_Description AS 'TissueDescription', 
-                            P.Photo_ID AS 'PhotoId', 
-                            P.Photo_URL AS 'PhotoURL'
+                            P.Photo_ID AS 'Photo_ID', 
+                            P.Photo_URL AS 'Photo_URL'
                         FROM 
                             Tissue_Info TI
                         LEFT JOIN 
@@ -125,7 +125,7 @@ public class TissueController : Controller
             TissueUpdateModel tissue = tissueList[0];
 
             // Retrieve all photos related to the tissue ID
-            string getPhotos = @"SELECT Photo_ID AS 'PhotoId', Photo_URL AS 'PhotoURL'
+            string getPhotos = @"SELECT Photo_ID AS 'Photo_ID', Photo_URL AS 'Photo_URL'
                              FROM Photos WHERE Tissue_ID = {0};";
             List<Photos> photoList = DBUtl.GetList<Photos>(getPhotos, id);
             tissue.Photos = photoList;
