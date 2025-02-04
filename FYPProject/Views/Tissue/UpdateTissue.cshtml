@@ -135,8 +135,6 @@
             margin-right: 10px; /* Spacing between radio buttons */
         }
 
-
-
         textarea {
             width: 100%;
             box-sizing: border-box;
@@ -159,14 +157,13 @@
             <button type="button" id="insert-ul">Insert Unordered List</button>
             <button type="button" id="insert-li">Insert List Item</button>
             <button type="button" id="insert-ol">Insert Number List</button>
-
         </div>
         <!-- Preview Area -->
         <div id="preview" style="border: 1px solid #ccc; padding: 10px; margin-top: 20px; height: 300px; overflow-y: auto;">
             <!-- The preview will be rendered here -->
         </div>
         <textarea asp-for="TissueDescription" id="TissueDescription" name="TissueDescription" rows="5" cols="72" required>@Model.TissueDescription</textarea>
-        
+
         <!-- Display existing photos -->
         <label>Existing Photos:</label>
         <div id="existing-photos">
@@ -184,6 +181,7 @@
 
         <button type="submit">Update Tissue</button>
     </form>
+
     @if (!ViewData.ModelState.IsValid)
     {
         <div class="validation-summary-errors">
@@ -196,6 +194,7 @@
             }
         </div>
     }
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const fileInput = document.getElementById('PhotoFiles');
@@ -212,6 +211,7 @@
             function updatePreview() {
                 previewArea.innerHTML = tissueDescription.value;
             }
+
             // Function to insert text at the cursor position
             function insertAtCursor(text) {
                 const startPos = tissueDescription.selectionStart;
@@ -224,6 +224,7 @@
 
                 updatePreview();  // Update preview after each insertion
             }
+
             tissueDescription.addEventListener('keydown', function (event) {
                 // Check if the Enter key is pressed
                 if (event.key === 'Enter') {
@@ -266,20 +267,11 @@
                 insertAtCursor('<ol>\n\t<li></li>\n</ol>');
             });
 
-
-            form.addEventListener('submit', function (event) {
-                // Wrap the entire content in <p> tags
-                if (tissueDescription.value.trim()) {
-                    // Wrap each line of text in <p> tags (if there are multiple lines)
-                    let wrappedContent = tissueDescription.value.split('\n').map(line => `<p>${line}</p>`).join('\n');
-                    tissueDescription.value = wrappedContent;
-                }
-            });
-
             // Update the preview whenever the user types in the textarea
             tissueDescription.addEventListener('input', updatePreview);
             // Initial preview update
             updatePreview();
+
             fileInput.addEventListener('change', function () {
                 const file = this.files[0];
                 const reader = new FileReader();

@@ -1,4 +1,4 @@
-﻿@using FYPProject.Models;
+﻿﻿@using FYPProject.Models;
 @model TissueInfo
 <head>
     <meta charset="UTF-8">
@@ -128,12 +128,13 @@
         .text-danger {
             color: red;
         }
+
         label {
             display: inline-block;
             margin-right: 10px; /* Spacing between radio buttons */
         }
 
-        
+
 
         textarea {
             width: 100%;
@@ -211,7 +212,7 @@
         </div>
     }
     <script>
-        
+
         document.addEventListener('DOMContentLoaded', function () {
             const photoInput = document.getElementById('PhotoFiles');
             const imagePreview = document.getElementById('image-preview');

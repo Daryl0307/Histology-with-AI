@@ -9,8 +9,8 @@ namespace FYPProject.Models
         public string TissueDescription { get; set; }
         public int PhotoId { get; set; }
         public string? Photo_URL { get; set; }
-        public IEnumerable<Photos> Photos { get; set; } = new List<Photos>();
-        public IEnumerable<IFormFile> PhotoFiles { get; set; }
+        public IEnumerable<Photos>?Photos { get; set; } = new List<Photos>();
+        public IEnumerable<IFormFile>? PhotoFiles { get; set; }
         
 
 

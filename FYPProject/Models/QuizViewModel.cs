@@ -8,6 +8,6 @@ namespace FYPProject.Models
         public Question Question { get; set; }
         public List<Answer> Answer { get; set; } = new List<Answer>();
         public string Photo_URL { get; set; }
-        public IEnumerable<IFormFile> PhotoFiles { get; set; }
+        public IEnumerable<IFormFile>? PhotoFiles { get; set; }
     }
 }
