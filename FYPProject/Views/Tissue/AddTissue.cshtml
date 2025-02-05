@@ -134,7 +134,6 @@
             display: inline-block;
             margin-right: 10px; /* Spacing between radio buttons */
         }
-
         /* Styling for CKEditor */
         #editor {
             border: 1px solid #ddd;
@@ -142,19 +141,16 @@
             min-height: 150px;
             border-radius: 5px;
         }
-
         /* Make textarea focusable */
         .ckeditor-textarea {
             width: 100%;
             height: auto;
         }
-
     </style>
 </head>
 
 <body>
     <form id="quiz-form" asp-action="AddTissue" asp-controller="Tissue" method="post" enctype="multipart/form-data">
-
         <!-- Radio buttons for selecting existing category or new category -->
         <label>Use Existing Category?</label>
         <label>
@@ -235,14 +231,61 @@
             // CKEditor Initialization
             let tissueEditor;
 
-            ClassicEditor.create(document.getElementById('editor'))
-                .then(editor => {
-                    tissueEditor = editor;
-                })
-                .catch(error => {
-                    console.error('Error initializing CKEditor:', error);
-                });
+            ClassicEditor.create(document.getElementById('editor'), {
+                toolbar: [
+                    'undo', 'redo', '|',
+                    'heading', '|',
+                    'bold', 'italic', 'link', 'blockQuote', '|',
+                    'numberedList', 'bulletedList', '|',
+                    'insertTable', 'tableColumn', 'tableRow', 'mergeTableCells', '|',
+                    'fontFamily', 'fontSize', 'alignment', '|', // Ensure fontFamily is here
+                    'insertImage', 'mediaEmbed', '|',
+                    'outdent', 'indent'
+                ],
+                fontFamily: {
+                    options: [
+                        'default',
+                        'Arial, Helvetica, sans-serif',
+                        'Courier New, Courier, monospace',
+                        'Georgia, serif',
+                        'Lucida Sans Unicode, Lucida Grande, sans-serif',
+                        'Tahoma, Geneva, sans-serif',
+                        'Times New Roman, Times, serif',
+                        'Verdana, Geneva, sans-serif'
+                    ],
+                    supportAllValues: true
+                },
+                mediaEmbed: {
+                    previewsInData: true,
+                    providers: [
+                        {
+                            name: 'youtube',
+                            url: /(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/,
+                            html: match => {
+                                const videoId = match[1];
+                                return `<iframe width="560" height="315"
+                                            src="https://www.youtube.com/embed/${videoId}"
+                                            frameborder="0" allowfullscreen></iframe>`;
+                            }
+                        },
+                        {
+                            name: 'default',
+                            url: /^.+$/,
+                            html: match => {
+                                const url = match[0];
+                                return `<iframe src="${url}" width="auto" height="315" frameborder="0" allowfullscreen></iframe>`;
+                            }
+                        }
+                    ]
+                }
+            }).then(editor => {
+                tissueEditor = editor;
+            }).catch(error => {
+                console.error('Error initializing CKEditor:', error);
+            });
 
+
+            // Add editor data to hidden field on form submit
             document.getElementById('quiz-form').addEventListener('submit', function () {
                 document.getElementById('TissueDescription').value = tissueEditor.getData();
             });
@@ -299,9 +342,9 @@
                     newTissueNameInput.removeAttribute('disabled');
                 }
             }
-            toggleCategoryFields(); // Ensure the correct section is displayed on page load
 
-            // Optional: Add additional form validation if needed.
+            toggleCategoryFields(); // Initialize the fields based on the default selection
+
         });
     </script>
 </body>
