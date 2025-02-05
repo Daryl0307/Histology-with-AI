@@ -63,32 +63,13 @@ namespace FYPProject.Controllers
                     using (SqlConnection conn = new SqlConnection(_connectionString))
                     {
                         conn.Open();
-                        // Get User_Id
-                        string userIdQuery = @"
-                        SELECT User_Id 
-                        FROM User_Info 
-                        WHERE (Username = @UsernameOrEmail OR Email = @UsernameOrEmail)";
-
-                        using (SqlCommand cmd = new SqlCommand(userIdQuery, conn))
-                        {
-                            cmd.Parameters.Add("@UsernameOrEmail", SqlDbType.NVarChar).Value = usernameOrEmail;
-
-                            object userIdObj = cmd.ExecuteScalar();
-                            if (userIdObj == null)
-                            {
-                                ViewBag.ErrorMessage = "Wrong credentials. Please try again. ";
-                                return View("Login");
-                            }
-
-                            HttpContext.Session.SetString("UserId", userIdObj.ToString());
-                        }
 
                         // Get Role_Status
                         string roleQuery = @"
-                SELECT Role_Status 
-                FROM User_Info 
-                WHERE (Username = @UsernameOrEmail OR Email = @UsernameOrEmail) 
-                AND Password = @Password";
+        SELECT Role_Status 
+        FROM User_Info 
+        WHERE (Username = @UsernameOrEmail OR Email = @UsernameOrEmail) 
+        AND Password = @Password";
 
                         using (SqlCommand cmd = new SqlCommand(roleQuery, conn))
                         {
@@ -108,10 +89,10 @@ namespace FYPProject.Controllers
 
                         // Get Username
                         string usernameQuery = @"
-                SELECT Username 
-                FROM User_Info 
-                WHERE (Username = @UsernameOrEmail OR Email = @UsernameOrEmail) 
-                AND Password = @Password";
+        SELECT Username 
+        FROM User_Info 
+        WHERE (Username = @UsernameOrEmail OR Email = @UsernameOrEmail) 
+        AND Password = @Password";
 
                         using (SqlCommand cmd = new SqlCommand(usernameQuery, conn))
                         {
@@ -127,10 +108,10 @@ namespace FYPProject.Controllers
 
                         // Get Email
                         string emailQuery = @"
-                SELECT Email 
-                FROM User_Info 
-                WHERE (Username = @UsernameOrEmail OR Email = @UsernameOrEmail) 
-                AND Password = @Password";
+        SELECT Email 
+        FROM User_Info 
+        WHERE (Username = @UsernameOrEmail OR Email = @UsernameOrEmail) 
+        AND Password = @Password";
 
                         using (SqlCommand cmd = new SqlCommand(emailQuery, conn))
                         {
@@ -157,7 +138,6 @@ namespace FYPProject.Controllers
 
             return View("Login");
         }
-
 
         public IActionResult Logout()
         {
@@ -441,17 +421,20 @@ namespace FYPProject.Controllers
         public IActionResult ResetPassword(string newPassword, string confirmPassword)
         {
             ViewBag.HideNavbar = true;
+
+            // Check if passwords match
             if (newPassword != confirmPassword)
             {
-                ViewBag.ErrorMessage = "Password does not match";
+                ViewBag.ErrorMessage = "Passwords do not match.";
                 ViewBag.IsPasswordReset = true;
                 SetLogoUrl();
                 return View("ResetPW");
             }
 
+            // Validate password using regex
             if (!IsValidPassword(newPassword))
             {
-                ViewBag.ErrorMessage = "Password must be 8-16 characters long, contain at least one uppercase letter, one number, and no symbols.";
+                ViewBag.ErrorMessage = "Password must be 8-24 characters long, contain at least one uppercase letter, one number, and no symbols.";
                 ViewBag.IsPasswordReset = true;
                 SetLogoUrl();
                 return View("ResetPW");
@@ -466,15 +449,17 @@ namespace FYPProject.Controllers
                     return RedirectToAction("ResetPW");
                 }
 
+                // Hash the new password using SHA256
+                string hashedPassword = DBUtl.HashPassword(newPassword);
+
+                // Update the password in the database
                 using (SqlConnection conn = new SqlConnection(_connectionString))
                 {
                     conn.Open();
-
                     string query = "UPDATE User_Info SET Password = @Password WHERE Email = @Email";
-
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@Password", newPassword);
+                        cmd.Parameters.AddWithValue("@Password", hashedPassword);
                         cmd.Parameters.AddWithValue("@Email", userEmail);
 
                         int rowsAffected = cmd.ExecuteNonQuery();
@@ -489,6 +474,7 @@ namespace FYPProject.Controllers
                     }
                 }
 
+                // Clear TempData and show success message
                 TempData.Clear();
                 ViewBag.ShowSuccessModal = true;
                 SetLogoUrl();
@@ -502,6 +488,9 @@ namespace FYPProject.Controllers
                 return View("ResetPW");
             }
         }
+
+
+
         private bool IsValidPassword(string password)
         {
             var passwordPattern = "^(?=.[A-Z])(?=.[0-9])[A-Za-z0-9]{8,24}$";
@@ -551,9 +540,9 @@ namespace FYPProject.Controllers
             if (IsAccountExists(account.Username, account.Email))
             {
                 TempData["Errors"] = new Dictionary<string, string>
-        {
-            { "Username", "An account with this username or email already exists." }
-        };
+{
+    { "Username", "An account with this username or email already exists." }
+};
                 TempData["Username"] = account.Username;
                 TempData["Email"] = account.Email;
                 return RedirectToAction("Signup");
@@ -566,9 +555,9 @@ namespace FYPProject.Controllers
             if (!SendVerificationEmail(account.Email, verificationCode))
             {
                 TempData["Errors"] = new Dictionary<string, string>
-        {
-            { "General", "Failed to send verification email. Please try again." }
-        };
+{
+    { "General", "Failed to send verification email. Please try again." }
+};
                 return RedirectToAction("Signup");
             }
 
@@ -609,7 +598,7 @@ namespace FYPProject.Controllers
             }
 
             if (!string.IsNullOrEmpty(account.Password) &&
-                !System.Text.RegularExpressions.Regex.IsMatch(account.Password, @"^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,24}$"))
+                !System.Text.RegularExpressions.Regex.IsMatch(account.Password, @"^(?=.[A-Z])(?=.\d)[A-Za-z\d]{8,24}$"))
             {
                 errorMessages["Password"] = "Password must be 8-24 characters, include an uppercase letter, a number, and contain no symbols.";
             }

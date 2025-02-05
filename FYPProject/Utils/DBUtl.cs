@@ -210,13 +210,12 @@ public static class DBUtl
 
     public static string HashPassword(string password)
     {
-        using (var sha1 = SHA1.Create())
+        using (var sha256 = SHA256.Create())
         {
             byte[] data = System.Text.Encoding.UTF8.GetBytes(password);
-            byte[] hash = sha1.ComputeHash(data);
+            byte[] hash = sha256.ComputeHash(data);
             return Convert.ToBase64String(hash);
         }
     }
-
 
 }

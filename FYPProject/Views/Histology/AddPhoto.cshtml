@@ -1,0 +1,182 @@
+﻿@model FYPProject.Models.HomeContent
+
+@{
+    ViewData["Title"] = "Add New Content";
+}
+
+<style>
+    body {
+        background-color: #80cbc4 !important;
+        font-family: 'Poppins', sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
+        max-width: 500px;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        backdrop-filter: blur(10px);
+        margin: 80px auto;
+    }
+
+    .preview-box {
+        background: #f9f9f9; /* Retains previous background */
+        padding: 15px;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center; 
+        text-align: center;
+    }
+
+        .preview-box img {
+            max-width: 100%;
+            max-height: 200px;
+            object-fit: contain;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: none; 
+        }
+
+    .empty-preview {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        background: #f0f0f0; 
+        color: #777;
+        font-size: 16px;
+        border: 1px dashed #bbb;
+        border-radius: 5px;
+    }
+
+    input, textarea {
+        width: 100%;
+        padding: 12px;
+        margin-top: 8px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        font-size: 16px;
+        box-sizing: border-box;
+    }
+
+    textarea {
+        height: 100px;
+        resize: none;
+    }
+
+    .char-counter {
+        font-size: 14px;
+        color: #555;
+        text-align: right;
+        margin-top: 5px;
+    }
+
+        .char-counter.warning {
+            color: red;
+            font-weight: bold;
+        }
+
+    button {
+        width: 100%;
+        padding: 12px;
+        background: #00796b;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background 0.3s ease;
+        margin-top: 15px;
+    }
+
+        button:hover {
+            background: #004d40;
+        }
+
+    .back-btn {
+        display: inline-block;
+        margin-top: 15px;
+        color: #555;
+        text-decoration: none;
+        padding: 10px 15px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        transition: background 0.3s ease, color 0.3s ease;
+    }
+
+        .back-btn:hover {
+            background: #ccc;
+            color: black;
+        }
+</style>
+
+<div class="container">
+    <h2>📷 Add New Content</h2>
+
+    <form method="post" enctype="multipart/form-data" asp-action="AddPhoto" asp-controller="Admin">
+
+
+        <!-- Image Preview Section -->
+        <div class="preview-box">
+            <div id="imagePreviewContainer" class="empty-preview">Image Preview Here</div>
+            <img id="imagePreview" src="#" alt="Image Preview">
+        </div>
+
+        <label>Upload Image:</label>
+        <input type="file" name="file" accept="image/*" id="fileInput" required />
+
+        <label>Content Description:</label>
+        <textarea name="description" id="descInput" maxlength="225" placeholder="Enter content description (max 225 chars)" required></textarea>
+        <div id="charCount" class="char-counter">0 / 225</div>
+
+        <button type="submit">Upload Content</button>
+    </form>
+
+    <a href="/Histology/Home" class="back-btn">⬅ Back to Home</a>
+</div>
+
+<!-- JavaScript for Live Preview & Character Count -->
+<script>
+    // Image Preview
+    document.getElementById('fileInput').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        const previewImage = document.getElementById('imagePreview');
+        const previewContainer = document.getElementById('imagePreviewContainer');
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImage.src = e.target.result;
+                previewImage.style.display = "block";
+                previewContainer.style.display = "none";
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Character Counter
+    document.getElementById('descInput').addEventListener('input', function () {
+        let charCount = this.value.length;
+        let charCounter = document.getElementById('charCount');
+
+        charCounter.textContent = charCount + " / 225";
+        charCounter.classList.toggle('warning', charCount >= 225);
+    });
+
+    // Initialize character count on page load
+    document.addEventListener("DOMContentLoaded", function () {
+        let charCounter = document.getElementById('charCount');
+        let descInput = document.getElementById('descInput');
+        charCounter.textContent = descInput.value.length + " / 225";
+    });
+</script>

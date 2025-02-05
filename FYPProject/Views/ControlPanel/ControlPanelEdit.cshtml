@@ -43,8 +43,15 @@
 
             .form-actions .save-cancel {
                 display: flex;
-                gap: 10px;
+                gap: 6px;
             }
+
+        @@media (min-width:1px) and (max-width: 399px) {
+            .mobilesmallsize {
+                font-size: 9px;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -67,10 +74,10 @@
                 <input type="email" id="email" class="form-control">
             </div>
             <div class="form-actions word">
-                <button type="button" class="btn btn-danger reset-password">Reset Password</button>
+                <button type="button" class="btn btn-danger reset-password mobilesmallsize">Reset Password</button>
                 <div class="save-cancel word">
-                    <button type="submit" class="btn btn-primary">Save</button>
-                    <a href="/ControlPanel/ControlPanel" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary mobilesmallsize">Save</button>
+                    <a href="/ControlPanel/ControlPanel" class="btn btn-secondary mobilesmallsize">Cancel</a>
                 </div>
             </div>
         </form>
@@ -136,7 +143,6 @@
                 alert("Failed to save changes!"); // Display system error message
             });
         });
-
 
 
 

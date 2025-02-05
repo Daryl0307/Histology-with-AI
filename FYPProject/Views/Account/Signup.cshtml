@@ -33,6 +33,7 @@
             width: 400px;
             padding: 30px;
             text-align: center;
+            margin: auto; /* Ensure the card is centered */
         }
 
             .login-card img {
@@ -64,7 +65,7 @@
         }
 
         .btn-primary {
-            background-color: #005792; 
+            background-color: #005792;
             border: none;
             padding: 12px 20px;
             border-radius: 4px;
@@ -74,16 +75,42 @@
         }
 
             .btn-primary:hover {
-                background-color: #005792; 
-                color: #fff; /
-                border: none; 
-                cursor: default; 
-                box-shadow: none; 
+                background-color: #005792;
+                color: #fff;
+                border: none;
+                cursor: default;
+                box-shadow: none;
             }
-
 
         .alert {
             margin-bottom: 20px;
+        }
+
+        /* Media Query for Mobile Devices */
+        @@media only screen and (max-width: 600px) {
+            .login-card {
+                width: 90%; /* Adjust width for smaller screens */
+                padding: 20px; /* Reduce padding for smaller screens */
+            }
+
+                .login-card img {
+                    height: 100px; /* Reduce logo size for smaller screens */
+                }
+
+            h1 {
+                font-size: 24px; /* Reduce heading size for smaller screens */
+            }
+
+            .form-control {
+                padding: 8px; /* Adjust input padding for smaller screens */
+            }
+
+            .btn-primary {
+                padding: 10px 15px; /* Adjust button padding for smaller screens */
+                font-size: 16px; /* Reduce button font size for smaller screens */
+            }
+        }
+
         }
     </style>
 </head>
@@ -92,7 +119,6 @@
         <div class="login-card">
             <img src="@ViewBag.imageUrl" alt="Logo" class="logo" />
             <h1>Create a New Account</h1>
-
 
             @if (TempData["Errors"] != null)
             {
@@ -114,7 +140,6 @@
                     @TempData["Success"]
                 </div>
             }
-
 
             <form method="post" action="/Account/Signup">
                 @Html.AntiForgeryToken()

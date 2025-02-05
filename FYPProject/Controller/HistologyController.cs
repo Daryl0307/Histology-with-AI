@@ -8,13 +8,7 @@ using System.Collections.Generic;
 
 public class HistologyController : Controller
 {
-    public IActionResult Home()
-    {
-        ViewBag.Role = HttpContext.Session.GetInt32("Role");
-        ViewBag.HideNavbar = false;
-        return View();
-    }
-
+    
     public IActionResult Histopedia()
     {
         ViewBag.Role = HttpContext.Session.GetInt32("Role");

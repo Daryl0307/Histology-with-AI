@@ -12,22 +12,38 @@ namespace FYPProject.Models
         public DbSet<TissueInfo> TissueInfo { get; set; }
         public DbSet<Photos> Photos { get; set; }
         public DbSet<Question> Question { get; set; }
-
+        public DbSet<HomeContent> HomeContent { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Photo table configuration
+            // ✅ Fix for Photos table
             modelBuilder.Entity<Photos>(entity =>
             {
                 entity.HasKey(e => e.Photo_ID);
                 entity.Property(e => e.Photo_ID).HasColumnName("Photo_ID");
                 entity.Property(e => e.Photo_Description).HasColumnName("Photo_Description");
                 entity.Property(e => e.Photo_URL).HasColumnName("Photo_URL");
-                entity.Property(e => e.Tissue_ID).HasColumnName("Tissue_ID");
-                entity.Ignore(e => e.PhotoFile);
-                //entity.Property(e => e.Question_ID).HasColumnName("Question_ID");
+                entity.Property(p => p.Photo_Data).HasColumnType("VARBINARY(MAX)");
+
+                entity.Ignore(p => p.PhotoFile); 
+
+                // ✅ Ensure EF Core does NOT create unexpected relationships
+                entity.HasOne<TissueInfo>()
+                    .WithMany()
+                    .HasForeignKey(p => p.Tissue_ID)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne<Question>()
+                    .WithMany()
+                    .HasForeignKey(p => p.Question_ID)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne<Quiz>()
+                    .WithMany()
+                    .HasForeignKey(p => p.Quiz_ID)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
-            // Question table configuration
+
             modelBuilder.Entity<Question>(entity =>
             {
                 entity.HasKey(e => e.QuestionId);
@@ -38,7 +54,7 @@ namespace FYPProject.Models
                 entity.Property(e => e.QuestionType).HasColumnName("Question_Type");
             });
 
-            // TissueInfo table configuration
+
             modelBuilder.Entity<TissueInfo>(entity =>
             {
                 entity.HasKey(e => e.TissueId);
@@ -46,8 +62,16 @@ namespace FYPProject.Models
                 entity.Property(e => e.TissueName).HasColumnName("Tissue_Name");
                 entity.Property(e => e.TissueDescription).HasColumnName("Tissue_Description");
                 entity.Ignore(e => e.PhotoFiles);
-
             });
+
+            modelBuilder.Entity<HomeContent>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Url).HasColumnName("Url").HasMaxLength(255).IsRequired();
+                entity.Property(e => e.Description).HasColumnName("Description").HasMaxLength(500).IsRequired();
+                entity.Property(e => e.Photo_Data).HasColumnType("VARBINARY(MAX)"); // ✅ Store Image as BLOB
+            });
+
 
             base.OnModelCreating(modelBuilder);
         }

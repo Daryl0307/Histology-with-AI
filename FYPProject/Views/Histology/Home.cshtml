@@ -1,228 +1,185 @@
-﻿<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home - Histology</title>
-    <style>
-        * {
-            box-sizing: border-box;
+﻿@model List<FYPProject.Models.HomeContent>
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@{
+    ViewData["Title"] = "Home";
+    var userRole = HttpContextAccessor.HttpContext.Session.GetString("UserRole");
+}
+
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #80cbc4;
+    }
+
+    .container {
+        max-width: 1000px;
+        margin: 50px auto;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        text-align: center;
+    }
+
+    /* Welcome Card Styling */
+    .welcome-card {
+        background: linear-gradient(to bottom, #e0e0e0, #f5f5f5); /* Slightly darker gradient */
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        margin-bottom: 25px;
+        text-align: center;
+        border: 1px solid #d0d0d0;
+    }
+
+        .welcome-card h2 {
+            color: #00695c;
+            margin-bottom: 10px;
+            font-weight: bold;
         }
 
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #80cbc4;
+        .welcome-card p {
+            font-size: 16px;
             color: #333;
+            line-height: 1.6;
         }
 
-        .content {
-            padding: 30px; /* Increased from 25px */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+        padding: 20px;
+    }
+
+    .grid-item {
+        position: relative;
+        border-radius: 10px;
+        overflow: hidden;
+        background: white;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease-in-out;
+    }
+
+        .grid-item:hover {
+            transform: scale(1.03);
         }
 
-        /* ========== Content Cards ========== */
-        .welcome-section,
-        .explanation-section {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 18px; /* Slightly rounder corners */
-            box-shadow: 0 4px 20px rgba(0,0,0,0.12); /* Deeper shadow */
-            max-width: 1100px; /* Increased from 1000px */
-            width: 100%; /* Full available width */
-            margin-bottom: 35px; /* More spacing between sections */
-            padding: 35px; /* Increased from 30px */
-        }
-
-        .welcome-section {
-            display: flex;
-            gap: 35px; /* Increased from 30px */
-        }
-
-        .welcome-thumbnail {
-            flex-shrink: 0;
-            width: 300px; /* Increased from 280px */
-            height: auto;
-            border-radius: 15px; /* More rounded */
+        .grid-item img {
+            width: 100%;
+            height: 200px;
             object-fit: cover;
         }
 
-        .welcome-text h2 {
-            color: #00796b;
-            font-size: 34px; /* Increased from 32px */
-            margin: 0 0 28px 0; /* Slightly more margin */
-        }
+    .overlay {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center; 
+        font-size: 16px;
+        font-weight: bold;
+        padding: 10px;
+        background: rgba(0, 0, 0, 0.7); 
+        color: white; 
+    }
 
-        .welcome-text p {
-            font-size: 18px; /* Increased from 17px */
-            line-height: 1.75; /* Better breathing room */
-            margin: 0 0 22px 0;
-        }
 
-        /* ========== Images Grid ========== */
-        .images-section {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* Wider cards */
-            gap: 35px; /* Increased from 30px */
-            width: 100%;
-            max-width: 1400px; /* Wider container */
-        }
+    .admin-buttons {
+        position: absolute;
+        bottom: 40px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 10px;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        z-index: 2;
+    }
 
-        .image-card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 18px; /* Matches other cards */
-            box-shadow: 0 4px 20px rgba(0,0,0,0.12); /* Consistent shadow */
-            overflow: hidden;
-        }
+    .grid-item:hover .admin-buttons {
+        opacity: 1;
+        visibility: visible;
+    }
 
-            .image-card img {
-                width: 100%;
-                height: 240px; /* Taller images */
-                object-fit: cover;
-                border-bottom: 1px solid #eee;
-            }
+    .grid-item:hover img {
+        opacity: 0.8;
+    }
 
-        .image-description {
-            padding: 22px; /* More padding */
-            color: #00796b;
-            font-size: 19px; /* Slightly larger */
-            font-weight: bold;
-            text-align: center;
-        }
+    .admin-button {
+        padding: 8px 14px;
+        background: #1976d2;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: background 0.3s ease;
+    }
 
-        /* ========== Mobile Optimization ========== */
-        @@media (max-width: 768px) {
-            .content
+    .delete-btn {
+        background: #d32f2f;
+    }
 
-        {
-            padding: 25px; /* Reduced from 30px */
-        }
+    .admin-button:hover {
+        background: #0d47a1;
+    }
 
-        .welcome-section {
-            flex-direction: column;
-            padding: 28px; /* Fine-tuned padding */
-            gap: 28px;
-        }
+    .delete-btn:hover {
+        background: #b71c1c;
+    }
+</style>
 
-        .welcome-thumbnail {
-            max-width: 380px; /* Larger mobile thumbnail */
-            margin: 0 auto 28px auto;
-        }
-
-        .welcome-text h2 {
-            font-size: 30px; /* Balance for mobile */
-        }
-
-        .images-section {
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Wider mobile cards */
-            gap: 28px;
-        }
-
-        .image-card img {
-            height: 220px; /* Taller mobile images */
-        }
-
-        }
-
-        @@media (max-width: 480px) {
-            .welcome-section, .explanation-section
-
-        {
-            padding: 22px;
-        }
-
-        .welcome-text h2 {
-            font-size: 26px; /* Perfect mobile size */
-        }
-
-        .images-section {
-            grid-template-columns: 1fr; /* Single column */
-            gap: 22px;
-        }
-
-        .image-card img {
-            height: 200px; /* Optimized height */
-        }
-
-        }
-    </style>
-</head>
-<body>
-    <div class="content">
-        <!-- Welcome Section -->
-        <div class="welcome-section">
-            <img src="/images/WelcomeThumbnail.jpg" alt="Welcome Thumbnail" class="welcome-thumbnail">
-            <div class="welcome-text">
-                <h2>Welcome to Histology!</h2>
-                <p>Explore the fascinating world of tissues with our cutting-edge AI-powered platform. Designed for students and lecturers, this tool leverages artificial intelligence to accurately identify and classify tissue types using histology images.</p>
-                <p>By analyzing key features—such as staining intensity, texture, and structural patterns—our platform ensures precise and reliable results.</p>
-                <p>Whether you're learning or teaching, this platform offers a fast and intuitive way to explore and understand complex tissue structures. Dive into the future of histology and experience the power of AI-driven insights today!</p>
-            </div>
-        </div>
-
-        <!-- Explanatory Section -->
-        <div class="explanation-section">
-            <p>
-                Below are the tissue types you will encounter on this site, shown at different magnifications.
-                Visit <a href="/Histology/Histopedia" style="color: #00796b; font-weight: bold;">Histopedia</a>
-                to learn more about these tissues in detail.
-            </p>
-        </div>
-
-        <!-- Images Section -->
-        <div class="images-section" id="images-section">
-            <!-- Images populated dynamically -->
-        </div>
+<div class="container">
+    <!-- Welcome Card -->
+    <div class="welcome-card">
+        <h2>Welcome to Histology!</h2>
+        <p>
+            Explore the fascinating world of tissues with our cutting-edge AI-powered platform. Designed for students and lecturers,
+            this tool leverages artificial intelligence to accurately identify and classify tissue types using histology images.
+        </p>
+        <p>
+            By analyzing key features—such as staining intensity, texture, and structural patterns—our platform ensures precise and reliable results.
+        </p>
+        <p>
+            Whether you're learning or teaching, this platform offers a fast and intuitive way to explore and understand complex tissue structures.
+            Dive into the future of histology and experience the power of AI-driven insights today!
+        </p>
     </div>
 
-    <script>
-        // JavaScript remains unchanged
-        const apiEndpoint = "/api/Histology/Thumbnail";
-        const imageDescriptions = [
-            "Kidney Thumbnail 100x",
-            "Kidney Thumbnail 400x",
-            "Lung Thumbnail 100x",
-            "Lung Thumbnail 400x"
-        ];
+    <h2>Tissue Details</h2>
 
-        function formatDescription(photoDescription) {
-            const parts = photoDescription.split(" ");
-            const tissue = parts[0];
-            const magnification = parts.slice(2).join(" ");
-            return `${tissue} Tissue ${magnification} Magnification`;
-        }
 
-        const imagesSection = document.getElementById("images-section");
+    @if (userRole == "1")
+    {
+        <div class="admin-panel">
+            <h3>Admin Panel - Manage Content</h3>
+            <a href="/Histology/AddPhoto" class="admin-button">+ Add New Content</a>
+        </div>
+    }
 
-        async function fetchAndDisplayImages() {
-            for (const description of imageDescriptions) {
-                try {
-                    const response = await fetch(`${apiEndpoint}?photoDescription=${encodeURIComponent(description)}`);
-                    if (!response.ok) continue;
-                    const image = await response.json();
+    <div class="grid-container">
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var content in Model)
+            {
+                <div class="grid-item">
+                    <img src="@content.Url" alt="@content.Description" />
 
-                    const imageCard = document.createElement("div");
-                    imageCard.className = "image-card";
+                    @if (userRole == "1")
+                    {
+                        <div class="admin-buttons">
+                            <a asp-controller="Admin" asp-action="UpdatePhoto" asp-route-id="@content.Id" class="admin-button">Edit</a>
+                            <a asp-controller="Admin" asp-action="DeletePhoto" asp-route-id="@content.Id" class="admin-button delete-btn">Delete</a>
+                        </div>
+                    }
 
-                    const img = document.createElement("img");
-                    img.src = image.photo_URL;
-                    img.alt = image.photo_Description;
-
-                    const descriptionElement = document.createElement("div");
-                    descriptionElement.className = "image-description";
-                    descriptionElement.textContent = formatDescription(image.photo_Description);
-
-                    imageCard.appendChild(img);
-                    imageCard.appendChild(descriptionElement);
-                    imagesSection.appendChild(imageCard);
-                } catch (error) {
-                    console.error(`Error fetching image: ${error.message}`);
-                }
+                    <div class="overlay">@content.Description</div>
+                </div>
             }
         }
-
-        fetchAndDisplayImages();
-    </script>
-</body>
-</html>
+        else
+        {
+            <p style="text-align:center; font-size:18px; color:gray;">No content available.</p>
+        }
+    </div>
+</div>
