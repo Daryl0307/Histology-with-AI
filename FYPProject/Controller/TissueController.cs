@@ -170,6 +170,28 @@ public class TissueController : Controller
             return View("UpdateTissue", model);
         }
 
+        if(model.PhotoFiles != null && model.PhotoFiles.Any())
+        {
+            List<Photos> photoids = DBUtl.GetList<Photos>("SELECT Photo_ID FROM Photos WHERE Tissue_ID = {0}", model.TissueId);
+            List<string> photoUrls = new List<string>();
+            for(int i = 0; i < photoids.Count(); i++)
+            {
+                string photoUrl = Convert.ToString(DBUtl.GetValue("SELECT Photo_URL FROM Photos WHERE Photo_ID = {0}", photoids[i].Photo_ID));
+                photoUrls.Add(photoUrl);
+            }
+            for(int j = 0; j < photoUrls.Count(); j++)
+            {
+                string deleteExistingPhotoSql = @"DELETE FROM Photos WHERE Photo_URL = '{0}'";
+                int sqlResult = DBUtl.ExecSQL(deleteExistingPhotoSql, photoUrls[j]);
+                if (sqlResult > 0)
+                {
+                    string fullpath = Path.Combine(_env.WebRootPath, "images", model.TissueName, photoUrls[j]).Replace("\\", "/");
+                    System.IO.File.Delete(fullpath);
+                }
+            }
+            
+        }
+
         // Get Quiz ID based on category
         string getQuizIdsQuery = "SELECT Quiz_ID FROM Quiz WHERE Quiz_Category = '{0}'";
         List<int> quizIds = DBUtl.GetList<int>(getQuizIdsQuery, model.TissueName);

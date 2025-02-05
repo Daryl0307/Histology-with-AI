@@ -333,26 +333,23 @@
                 imagePreview.style.display = 'none';
                 removePhotoButton.style.display = 'none';
             });
+            existingCategoryRadio.addEventListener('change', toggleCategoryFields);
+            newCategoryRadio.addEventListener('change', toggleCategoryFields);
 
-            // Show and hide category containers based on radio selection
-            existingCategoryRadio.addEventListener('change', function () {
-                existingCategoryContainer.style.display = 'block';
-                newCategoryContainer.style.display = 'none';
-            });
-
-            newCategoryRadio.addEventListener('change', function () {
-                existingCategoryContainer.style.display = 'none';
-                newCategoryContainer.style.display = 'block';
-            });
-
-            // Initialize form with selected radio option
-            if (existingCategoryRadio.checked) {
-                existingCategoryContainer.style.display = 'block';
-                newCategoryContainer.style.display = 'none';
-            } else {
-                existingCategoryContainer.style.display = 'none';
-                newCategoryContainer.style.display = 'block';
+            function toggleCategoryFields() {
+                if (existingCategoryRadio.checked) {
+                    existingCategoryContainer.style.display = 'block';
+                    newCategoryContainer.style.display = 'none';
+                    tissueNameInput.removeAttribute('disabled');
+                    newTissueNameInput.setAttribute('disabled', 'true');
+                } else {
+                    existingCategoryContainer.style.display = 'none';
+                    newCategoryContainer.style.display = 'block';
+                    tissueNameInput.setAttribute('disabled', 'true');
+                    newTissueNameInput.removeAttribute('disabled');
+                }
             }
+            toggleCategoryFields();
         });
     </script>
 </body>
