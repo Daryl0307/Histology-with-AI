@@ -189,7 +189,7 @@
         <label asp-for="PhotoFiles">Pictures:</label>
         <div class="image-preview" id="image-preview" style="display:none;"></div>
         <div class="file-input-container">
-            <input asp-for="PhotoFiles" type="file" id="PhotoFiles" name="PhotoFiles" multiple>
+            <input asp-for="PhotoFiles" type="file" id="PhotoFiles" name="PhotoFiles" accept="image/*" multiple>
             <button type="button" id="remove-photo" style="display:none;">
                 <i class="fas fa-trash"></i>
             </button>

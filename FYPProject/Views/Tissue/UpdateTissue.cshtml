@@ -171,7 +171,7 @@
 
         <!-- File input for uploading new photos -->
         <label asp-for="PhotoFiles">Upload New Photos:</label>
-        <input asp-for="PhotoFiles" type="file" id="PhotoFiles" name="PhotoFiles" multiple />
+        <input asp-for="PhotoFiles" type="file" id="PhotoFiles" name="PhotoFiles" accept="image/*" multiple />
 
         <button type="submit">Update Tissue</button>
     </form>

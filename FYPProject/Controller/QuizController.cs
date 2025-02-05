@@ -1368,7 +1368,7 @@ ORDER BY S.Score DESC;
 
 
         }
-        return RedirectToAction("Management", new { quizCategory = quizcategory });
+        return RedirectToAction("QuizView");
     }
 
 

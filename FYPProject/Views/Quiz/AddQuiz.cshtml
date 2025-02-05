@@ -177,7 +177,7 @@
         <label asp-for="PhotoFiles">Picture:</label>
         <img id="image-preview" alt="Image Preview" style="display:none; max-width:200px; max-height:200px;">
         <div class="file-input-container">
-            <input asp-for="PhotoFiles" type="file" id="PhotoFiles" name="PhotoFiles">
+            <input asp-for="PhotoFiles" type="file" id="PhotoFiles" name="PhotoFiles" accept="image/*">
             <button type="button" id="remove-photo" style="display:none;">
                 <i class="fas fa-trash"></i>
             </button>
