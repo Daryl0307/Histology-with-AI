@@ -233,14 +233,24 @@
 
             ClassicEditor.create(document.getElementById('editor'), {
                 toolbar: [
-                    'undo', 'redo', '|',
                     'heading', '|',
-                    'bold', 'italic', 'link', 'blockQuote', '|',
-                    'numberedList', 'bulletedList', '|',
-                    'insertTable', 'tableColumn', 'tableRow', 'mergeTableCells', '|',
-                    'fontFamily', 'fontSize', 'alignment', '|', // Ensure fontFamily is here
+                    'bold', 'italic', 'link', 'blockQuote', 
+                    '-', // break point
+                    '|', 'alignment','|',
+                    {
+                        // This dropdown has the icon disabled and a text label instead.
+                        label: 'Lists',
+                        icon: false,
+                        items: ['bulletedList', 'numberedList', 'todoList']
+                    }, '|',
+                    {
+                        // This dropdown uses a default icon because none was specified.
+                        label: 'Fonts',
+                        items: ['fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor']
+                    }, '|',
+                    'insertTable', '|',
                     'insertImage', 'mediaEmbed', '|',
-                    'outdent', 'indent'
+                    'outdent', 'indent', 'undo', 'redo', '|'
                 ],
                 fontFamily: {
                     options: [
@@ -255,6 +265,10 @@
                     ],
                     supportAllValues: true
                 },
+                fontSize: {
+                    options: [10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72],
+                    supportAllValues: true
+                },
                 mediaEmbed: {
                     previewsInData: true,
                     providers: [
@@ -264,8 +278,8 @@
                             html: match => {
                                 const videoId = match[1];
                                 return `<iframe width="560" height="315"
-                                            src="https://www.youtube.com/embed/${videoId}"
-                                            frameborder="0" allowfullscreen></iframe>`;
+                                                    src="https://www.youtube.com/embed/${videoId}"
+                                                    frameborder="0" allowfullscreen></iframe>`;
                             }
                         },
                         {
@@ -283,7 +297,6 @@
             }).catch(error => {
                 console.error('Error initializing CKEditor:', error);
             });
-
 
             // Add editor data to hidden field on form submit
             document.getElementById('quiz-form').addEventListener('submit', function () {
@@ -308,43 +321,38 @@
                         reader.readAsDataURL(file);
                     });
                 } else {
-                    resetImagePreview();
+                    imagePreview.style.display = 'none'; // Hide the preview container if no files selected
+                    removePhotoButton.style.display = 'none'; // Hide remove button
                 }
             });
 
-            // Remove the uploaded images
+            // Remove images when "remove photo" button is clicked
             removePhotoButton.addEventListener('click', function () {
-                resetImagePreview();
+                photoInput.value = '';
+                imagePreview.innerHTML = '';
+                imagePreview.style.display = 'none';
+                removePhotoButton.style.display = 'none';
             });
 
-            // Function to reset the image preview and file input
-            function resetImagePreview() {
-                photoInput.value = ''; // Clear the file input
-                imagePreview.innerHTML = ''; // Clear all image previews
-                imagePreview.style.display = 'none'; // Hide the preview container
-                removePhotoButton.style.display = 'none'; // Hide the remove button
+            // Show and hide category containers based on radio selection
+            existingCategoryRadio.addEventListener('change', function () {
+                existingCategoryContainer.style.display = 'block';
+                newCategoryContainer.style.display = 'none';
+            });
+
+            newCategoryRadio.addEventListener('change', function () {
+                existingCategoryContainer.style.display = 'none';
+                newCategoryContainer.style.display = 'block';
+            });
+
+            // Initialize form with selected radio option
+            if (existingCategoryRadio.checked) {
+                existingCategoryContainer.style.display = 'block';
+                newCategoryContainer.style.display = 'none';
+            } else {
+                existingCategoryContainer.style.display = 'none';
+                newCategoryContainer.style.display = 'block';
             }
-
-            // Toggle visibility of the category selection fields based on radio button selection
-            existingCategoryRadio.addEventListener('change', toggleCategoryFields);
-            newCategoryRadio.addEventListener('change', toggleCategoryFields);
-
-            function toggleCategoryFields() {
-                if (existingCategoryRadio.checked) {
-                    existingCategoryContainer.style.display = 'block';
-                    newCategoryContainer.style.display = 'none';
-                    tissueNameInput.removeAttribute('disabled');
-                    newTissueNameInput.setAttribute('disabled', 'true');
-                } else {
-                    existingCategoryContainer.style.display = 'none';
-                    newCategoryContainer.style.display = 'block';
-                    tissueNameInput.setAttribute('disabled', 'true');
-                    newTissueNameInput.removeAttribute('disabled');
-                }
-            }
-
-            toggleCategoryFields(); // Initialize the fields based on the default selection
-
         });
     </script>
 </body>

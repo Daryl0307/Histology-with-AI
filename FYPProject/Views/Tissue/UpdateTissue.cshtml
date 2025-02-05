@@ -205,20 +205,80 @@
             const editorElement = document.getElementById('editor');
             const tissueDescriptionInput = document.getElementById('TissueDescription');
 
-            // Initialize CKEditor
-            ClassicEditor.create(editorElement)
-                .then(editor => {
-                    // Bind the CKEditor content to the hidden input field
-                    editor.model.document.on('change:data', () => {
-                        tissueDescriptionInput.value = editor.getData(); // Update the hidden input value whenever the CKEditor content changes
-                    });
-
-                    // Preload CKEditor with the existing content of TissueDescription
-                    editor.setData(tissueDescriptionInput.value);
-                })
-                .catch(error => {
-                    console.error('Error initializing CKEditor:', error);
+            ClassicEditor.create(document.getElementById('editor'), {
+                toolbar: [
+                    'heading', '|',
+                    'bold', 'italic', 'link', 'blockQuote',
+                    '-', // break point
+                    '|', 'alignment', '|',
+                    {
+                        // This dropdown has the icon disabled and a text label instead.
+                        label: 'Lists',
+                        icon: false,
+                        items: ['bulletedList', 'numberedList', 'todoList']
+                    }, 
+                    {
+                        // This dropdown uses a default icon because none was specified.
+                        label: 'Fonts',
+                        items: ['fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor']
+                    }, '|',
+                    'insertTable', '|',
+                    'insertImage', 'mediaEmbed', '|',
+                    'outdent', 'indent', 'undo', 'redo', '|'
+                ],
+                fontFamily: {
+                    options: [
+                        'default',
+                        'Arial, Helvetica, sans-serif',
+                        'Courier New, Courier, monospace',
+                        'Georgia, serif',
+                        'Lucida Sans Unicode, Lucida Grande, sans-serif',
+                        'Tahoma, Geneva, sans-serif',
+                        'Times New Roman, Times, serif',
+                        'Verdana, Geneva, sans-serif'
+                    ],
+                    supportAllValues: true
+                },
+                fontSize: {
+                    options: [10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72],
+                    supportAllValues: true
+                },
+                mediaEmbed: {
+                    previewsInData: true,
+                    providers: [
+                        {
+                            name: 'youtube',
+                            url: /(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/,
+                            html: match => {
+                                const videoId = match[1];
+                                return `<iframe width="560" height="315"
+                                                            src="https://www.youtube.com/embed/${videoId}"
+                                                            frameborder="0" allowfullscreen></iframe>`;
+                            }
+                        },
+                        {
+                            name: 'default',
+                            url: /^.+$/,
+                            html: match => {
+                                const url = match[0];
+                                return `<iframe src="${url}" width="auto" height="315" frameborder="0" allowfullscreen></iframe>`;
+                            }
+                        }
+                    ]
+                }
+            }).then(editor => {
+                // Bind the CKEditor content to the hidden input field
+                editor.model.document.on('change:data', () => {
+                    tissueDescriptionInput.value = editor.getData(); // Update the hidden input value whenever the CKEditor content changes
                 });
+
+                // Preload CKEditor with the existing content of TissueDescription
+                editor.setData(tissueDescriptionInput.value);
+            }).catch(error => {
+                console.error('Error initializing CKEditor:', error);
+            });
+
+            
 
             function updatePreview() {
                 previewArea.innerHTML = tissueDescription.value;
