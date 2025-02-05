@@ -129,11 +129,15 @@
         <div class="slider-container">
             @foreach (var tissue in Model)
             {
-                <div class="slider-item @(Model.IndexOf(tissue) == 0 ? "active" : "")">
-                    <a href="#" class="image-link">
-                        <img src="@Url.Content("~/images/" + tissue.TissueName + "/" + tissue.PhotoURL)" alt="@tissue.TissueName" class="zoomable">
-                    </a>
-                </div>
+                if (tissue.PhotoURL != "No Picture Inserted")
+                {
+                    <div class="slider-item @(Model.IndexOf(tissue) == 0 ? "active" : "")">
+                        <a href="#" class="image-link">
+                            <img src="@Url.Content("~/images/" + tissue.TissueName + "/" + tissue.PhotoURL)" alt="@tissue.TissueName" class="zoomable">
+                        </a>
+                    </div>
+                }
+                
             }
         </div>
         <button class="prev-button" id="prevSlide">&#10094;</button>

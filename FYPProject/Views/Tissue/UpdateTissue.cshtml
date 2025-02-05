@@ -152,12 +152,7 @@
         <input asp-for="TissueName" type="text" id="TissueName" name="TissueName" value="@Model.TissueName" hidden />
 
         <label asp-for="TissueDescription">Description:</label>
-        <div id="format-buttons">
-            <button type="button" id="insert-paragraph" hidden>Insert Paragraph</button>
-            <button type="button" id="insert-ul">Insert Unordered List</button>
-            <button type="button" id="insert-li">Insert List Item</button>
-            <button type="button" id="insert-ol">Insert Number List</button>
-        </div>
+       
         <!-- Preview Area -->
         <div id="editor" contenteditable="true" class="ckeditor-textarea" required></div>
 

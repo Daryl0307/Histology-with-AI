@@ -81,7 +81,8 @@ ORDER BY S.Score DESC;
             }
 
         }
-        double userAttemptPercent = (usersAttempted / noofusers) * 100;
+        double userAttemptPercent = (((double)usersAttempted) / ((double)noofusers)) * 100;
+        userAttemptPercent = Math.Round(userAttemptPercent, 2);
         double avgScore = (totalScore / totalMarks) * 100;
         double highScore = (HighScore / totalMarks) * 100;
         ViewBag.QuizCategory = quizCategory;
