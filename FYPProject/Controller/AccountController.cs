@@ -748,7 +748,6 @@ namespace FYPProject.Controllers
 
                 if (DBUtl.ExecSQL(insertSql) == 1)
                 {
-                    TempData["Success"] = "Your email has been successfully verified! You can now log in.";
                     return RedirectToAction("Login");
                 }
                 else
