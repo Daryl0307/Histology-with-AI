@@ -7,7 +7,7 @@
 
 form {
     max-width: 900px;
-    margin: 20px auto;
+    margin: 0 auto;
     background-color: #ffffff;
     padding: 20px;
     border-radius: 10px;
@@ -15,12 +15,12 @@ form {
 }
 
 label {
-    display: block;
+    display: inline-block;
     margin-bottom: 10px;
     font-weight: bold;
 }
 
-input[type="text"], select, input[type="file"], input[type="number"] {
+input[type="text"], select, input[type="file"] {
     width: 100%;
     padding: 8px;
     margin-bottom: 15px;

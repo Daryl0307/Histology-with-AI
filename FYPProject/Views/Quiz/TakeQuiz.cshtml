@@ -3,148 +3,9 @@
 @{
     ViewData["Title"] = "Take Quiz";
 }
-<link rel="stylesheet" href="~/css/TakeQuiz.css" />
-<style>
-    /* General Styles */
-body {
-    font-family: 'Raleway', sans-serif;
-    background: linear-gradient(to bottom right, #f7f7f7, #e8f6f3);
-    color: #2C3E50;
-    margin: 0;
-    padding: 0;
-}
+<head><link rel="stylesheet" href="~/css/TakeQuiz.css" /></head>
 
-/* Quiz Container */
-.quiz-container {
-    max-width: 800px;
-    margin: 40px auto;
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-    padding: 30px;
-    overflow: hidden;
-}
 
-/* Quiz Title */
-h2 {
-    text-align: center;
-    color: #1ABC9C;
-    font-size: 2em;
-    font-weight: 700;
-    letter-spacing: 1px;
-}
-
-/* Image Container */
-.quiz-image {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.quiz-image img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 10px;
-    border: 2px solid #e8f6f3;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-}
-
-.quiz-image p {
-    font-size: 0.95em;
-    color: #7f8c8d;
-}
-
-/* Question Section */
-.quiz-question {
-    margin-bottom: 25px;
-    padding: 20px;
-    background: #eafaf1;
-    border-radius: 10px;
-    border-left: 6px solid #1ABC9C;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-}
-
-.quiz-question h3 {
-    color: #1ABC9C;
-    font-size: 1.4em;
-    font-weight: 600;
-}
-
-.quiz-question p {
-    font-size: 1em;
-    color: #34495e;
-}
-
-/* Answer Options */
-.quiz-answers {
-    margin-top: 20px;
-}
-
-.quiz-answers h3 {
-    font-size: 1.2em;
-    margin-bottom: 15px;
-    color: #1ABC9C;
-    font-weight: 600;
-}
-
-.form-check {
-    margin-bottom: 15px;
-    display: flex;
-    align-items: center;
-}
-
-.form-check-input {
-    margin-right: 12px;
-    transform: scale(1.2);
-    cursor: pointer;
-}
-
-.form-check-label {
-    font-size: 1em;
-    color: #2C3E50;
-}
-
-/* Dropdown Styling */
-.form-control {
-    padding: 12px;
-    font-size: 1em;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-    width: 100%;
-    margin-top: 10px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-}
-
-/* Submit Button */
-button[type="submit"] {
-    background-color: #1ABC9C;
-    color: #ffffff;
-    border: none;
-    padding: 12px 25px;
-    font-size: 1.1em;
-    font-weight: 600;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-}
-
-button[type="submit"]:hover {
-    background-color: #16A085;
-    transform: translateY(-3px);
-}
-
-/* Responsive Design */
-@@media (max-width: 768px) {
-    .quiz-container {
-        padding: 20px;
-    }
-
-    h2 {
-        font-size: 1.6em;
-    }
-}
-
-</style>
 
 <h2>Quiz: @Model.Quiz.QuizCategory</h2>
 @if (Model != null && Model.Question != null)
@@ -180,12 +41,22 @@ button[type="submit"]:hover {
                     case "Multiple Choice (Checkbox)":
                         @foreach (var answer in Model.Answer)
                         {
+                            <div class= "worm-container">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="selectedAnswerIds" id="answer-@answer.AnswerId" value="@answer.AnswerId" />
+                                    <div class="worm">
+                                        <div class="worm__segment"></div>
+                                        <div class="worm__segment"></div>
+                                        <div class="worm__segment"></div>
+                                        <div class="worm__segment"></div>
+                                        <div class="worm__segment"></div>
+                                        <!-- You can add more worm segments if needed -->
+                                    </div>
                                 <label class="form-check-label" for="answer-@answer.AnswerId">
                                     @answer.AnswerText
                                 </label>
                                 <input type="hidden" name="Marks" value="@answer.Marks" />
+                                </div>
                             </div>
                         }
                         break;

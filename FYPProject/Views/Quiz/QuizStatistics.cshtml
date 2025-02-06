@@ -189,15 +189,17 @@
                 }
             });
 
-            // Top Scorer chart (updated)
+            /// Top Scorer chart
             var topScorerScore = parseFloat('@ViewBag.HighScore') || 0;  // Get the top scorer's score, fallback to 0 if undefined or NaN
+            var scoreData = (topScorerScore > 0) ? [100, 0] : [0, 100]; // If top scorer score is more than 0, set chart to 100%. Else, 0%
+
             var ctxTopScorer = document.getElementById('scoreChartTopScorer').getContext('2d');
             var scoreChartTopScorer = new Chart(ctxTopScorer, {
                 type: 'doughnut',
                 data: {
                     labels: ['Top Score', 'Remaining'],
                     datasets: [{
-                        data: [topScorerScore, (100 - topScorerScore)],
+                        data: scoreData,
                         backgroundColor: ['#ffc107', '#dc3545'],
                         hoverBackgroundColor: ['#e0a800', '#c82333']
                     }]

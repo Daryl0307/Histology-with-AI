@@ -63,7 +63,22 @@ namespace FYPProject.Controllers
                     using (SqlConnection conn = new SqlConnection(_connectionString))
                     {
                         conn.Open();
-
+                        // Get User_Id
+                        string userIdQuery = @"
+                        SELECT User_Id 
+                        FROM User_Info 
+                        WHERE (Username = @UsernameOrEmail OR Email = @UsernameOrEmail)";
+                        using (SqlCommand cmd = new SqlCommand(userIdQuery, conn))
+                        {
+                            cmd.Parameters.Add("@UsernameOrEmail", SqlDbType.NVarChar).Value = usernameOrEmail;
+                            object userIdObj = cmd.ExecuteScalar();
+                            if (userIdObj == null)
+                            {
+                                ViewBag.ErrorMessage = "Wrong credentials. Please try again. ";
+                                return View("Login");
+                            }
+                            HttpContext.Session.SetString("UserId", userIdObj.ToString());
+                        }
                         // Get Role_Status
                         string roleQuery = @"
         SELECT Role_Status 
