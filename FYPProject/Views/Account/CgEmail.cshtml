@@ -1,0 +1,288 @@
+﻿@{
+    bool isVerificationCodeSent = true;
+    string maskedEmail = ViewBag.MaskedEmail ?? string.Empty;
+    bool isEmailUpdated = TempData["SuccessMessage"] != null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify New Email</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #90B2B8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .reset-card {
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            padding: 30px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            right: 27px;
+        }
+
+        .form-control {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            width: 90%;
+            margin-bottom: 15px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        @@media (min-width:1px) and (max-width:399px) {
+            .form-control {
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                padding: 7px;
+                width: 90%;
+                margin-bottom: 15px;
+                font-size: 14px;
+                text-align: center;
+            }
+        }
+
+
+        .btn-primary {
+            background-color: #005792;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 16px;
+            width: 90%;
+        }
+
+            .btn-primary:hover {
+                background-color: #00406b;
+            }
+
+        .footer-link {
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+            .footer-link a {
+                color: #007bff;
+                text-decoration: none;
+            }
+
+                .footer-link a:hover {
+                    text-decoration: underline;
+                }
+
+        .error-message {
+            color: red;
+            margin-bottom: 15px;
+        }
+
+        .success-message {
+            color: green;
+            font-size: 18px;
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .success-checkmark {
+            font-size: 50px;
+            color: green;
+            margin-bottom: 15px;
+        }
+
+        .logo {
+            width: 150px;
+            margin-bottom: 20px;
+        }
+
+        .verification-code-input {
+            width: 15%;
+            text-align: center;
+            font-size: 18px;
+            margin: 0 5px;
+        }
+
+        .form-container {
+            margin-bottom: 20px;
+        }
+
+        .error-message {
+            color: red;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
+            font-size: 15px;
+        }
+
+        @@media(min-width:1px) and (max-width:399px) {
+            .error-message {
+                color: red;
+                font-weight: bold;
+                text-align: center;
+                margin-top: 10px;
+                font-size: 11px;
+            }
+        }
+
+        @@media(min-width:400px) and (max-width:799px) {
+            .error-message {
+                color: red;
+                font-weight: bold;
+                text-align: center;
+                margin-top: 10px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="reset-card">
+
+
+        @if (isEmailUpdated)
+        {
+
+            <div class="success-message">
+                <div class="success-checkmark">✔</div>
+                <p>Your email has been successfully updated!</p>
+                <a href="/Account/Profile" class="btn-primary">Return to Profile</a>
+            </div>
+        }
+        else
+        {
+
+            <img src="@ViewBag.ImageUrl" alt="Logo" class="logo" />
+            <p>Verify your new email</p>
+            <p>We have sent a code to your email <b>@maskedEmail</b></p>
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="error-message">@TempData["ErrorMessage"]</div>
+            }
+
+            <form method="post" asp-action="VerifyCgEmail" asp-controller="Account">
+                @Html.AntiForgeryToken()
+                <div class="form-container">
+                    <input id="code1" type="text" maxlength="1" class="form-control verification-code-input" required />
+                    <input id="code2" type="text" maxlength="1" class="form-control verification-code-input" required />
+                    <input id="code3" type="text" maxlength="1" class="form-control verification-code-input" required />
+                    <input id="code4" type="text" maxlength="1" class="form-control verification-code-input" required />
+                    <input type="hidden" id="hiddenCode" name="code" />
+                </div>
+                <button type="submit" class="btn-primary">Verify</button>
+            </form>
+
+            <div class="footer-link">
+                <span>Didn’t receive a code?</span>
+                <div class="footer-link">
+                    <span>Didn’t receive a code?</span>
+                    <button id="resendCode" data-email="@TempData["NewEmail"]" style="background: none; border: none; color: #007bff; text-decoration: underline; cursor: pointer;">
+                        Resend
+                    </button>
+                    <p id="resendMessage" style="font-size: 14px; margin-top: 5px;"></p>
+                </div>
+            </div>
+
+            <p class="footer-link">Go back? <a href="/Account/Profile">Return to Profile</a></p>
+        }
+
+    </div>
+
+    <script>
+                 document.addEventListener("DOMContentLoaded", () => {
+            const inputs = document.querySelectorAll(".verification-code-input");
+            const hiddenCode = document.getElementById("hiddenCode");
+            const errorMessage = document.querySelector(".error-message");
+            const resendButton = document.getElementById("resendCode");
+            const resendMessage = document.getElementById("resendMessage");
+
+
+            inputs.forEach((input, index) => {
+                input.addEventListener("input", () => {
+                    hiddenCode.value = Array.from(inputs).map(i => i.value).join("");
+
+                    if (input.value.length === 1 && index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    }
+
+
+                    if (errorMessage) {
+                        errorMessage.style.display = "none";
+                    }
+                });
+
+                input.addEventListener("keydown", (e) => {
+                    if (e.key === "Backspace" && !input.value && index > 0) {
+                        inputs[index - 1].focus();
+                    }
+                });
+            });
+
+
+            if (resendButton) {
+                resendButton.addEventListener("click", function (event) {
+                    event.preventDefault();
+
+                    let newEmail = this.getAttribute("data-email");
+
+
+                    resendButton.innerHTML = "Sending...";
+                    resendButton.disabled = true;
+
+
+                    fetch("/Account/RequestEmailChange", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                        body: new URLSearchParams({ newEmail: newEmail }),
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            resendMessage.textContent = "A new code has been sent to your email.";
+                            resendMessage.style.color = "green";
+                        } else {
+                            resendMessage.textContent = "Failed to resend code. Try again later.";
+                            resendMessage.style.color = "red";
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Resend Error:", error);
+                        resendMessage.textContent = "An error occurred. Please try again.";
+                        resendMessage.style.color = "red";
+                    })
+                    .finally(() => {
+
+                        setTimeout(() => {
+                            resendButton.innerHTML = "Resend";
+                            resendButton.disabled = false;
+                        }, 3000);
+                    });
+                });
+            }
+        });
+
+
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,95 @@
+﻿@{
+    ViewData["Title"] = "Logout Confirmation";
+}
+
+<!-- Import Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+<style>
+    /* Full-page background */
+    body {
+        background-color: #80cbc4;
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* White content card */
+    .logout-card {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        width: 400px;
+    }
+
+    /* Success icon */
+    .success-icon {
+        font-size: 50px;
+        color: #28a745; /* Green tick */
+        margin-bottom: 15px;
+    }
+
+    /* Logout message */
+    .logout-card h2 {
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    .logout-card p {
+        color: #666;
+        font-size: 16px;
+    }
+
+    /* Countdown message */
+    .countdown {
+        color: #dc3545;
+        font-weight: bold;
+        margin-top: 10px;
+    }
+
+    /* Button styling */
+    .logout-button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        border-radius: 5px;
+        margin-top: 15px;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+        .logout-button:hover {
+            background-color: #0056b3;
+        }
+</style>
+
+<script>
+    // Countdown timer for auto-redirection
+    let seconds = 5; // 5 second timer
+    function countdown() {
+        if (seconds > 0) {
+            document.getElementById("countdown").innerText = seconds;
+            seconds--;
+            setTimeout(countdown, 1000);
+        } else {
+            window.location.href = '@Url.Action("Home", "Histology")';
+        }
+    }
+    window.onload = countdown;
+</script>
+
+<!-- Centered content card -->
+<div class="logout-card">
+    <i class="fas fa-check-circle success-icon"></i> <!-- Font Awesome Tick Icon -->
+    <h2>You have successfully logged out!</h2>
+    <p>Thank you for visiting. You will be redirected to the homepage in <span class="countdown" id="countdown">5</span> seconds.</p>
+
+    <a href="@Url.Action("Home", "Histology")" class="logout-button">Return to Home Now</a>
+</div>

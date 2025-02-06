@@ -24,18 +24,21 @@
 
     .preview-container {
         display: flex;
-        justify-content: space-between;
+        flex-wrap: wrap;
+        justify-content: center;
         align-items: flex-start;
         gap: 15px;
         margin-bottom: 20px;
     }
 
     .preview-box {
-        width: 48%;
+        width: 100%;
+        max-width: 280px;
         text-align: center;
         display: flex;
         flex-direction: column;
         align-items: center;
+        overflow: hidden;
     }
 
         .preview-box img {
@@ -47,35 +50,24 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
-    .empty-preview {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        height: 200px;
-        background: #f0f0f0;
-        color: #777;
-        font-size: 16px;
-        border: 1px dashed #bbb;
-        border-radius: 5px;
-    }
-
     .desc-box {
         width: 100%;
-        border: 1px solid #ccc; 
         padding: 10px;
         border-radius: 5px;
-        background: #f5f5f5; 
+        background: #f5f5f5;
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
-        text-align: center; 
+        text-align: center;
         font-size: 16px;
         font-weight: bold;
-        min-height: 60px; 
-        color: #333; 
+        min-height: 60px;
+        color: #333;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        white-space: pre-wrap;
     }
-
 
     input, textarea {
         width: 100%;
@@ -85,11 +77,6 @@
         border: 1px solid #ccc;
         font-size: 16px;
         box-sizing: border-box;
-    }
-
-    textarea {
-        height: 100px;
-        resize: none;
     }
 
     .char-counter {
@@ -129,9 +116,8 @@
 
     .cancel-btn {
         margin-top: 15px;
-        display: inline-block;
-        padding: 10px 15px;
-        border-radius: 8px;
+        padding: 10px;
+        border-radius: 5px;
         text-decoration: none;
         border: 1px solid #ccc;
         transition: background 0.3s ease, color 0.3s ease;
@@ -145,6 +131,16 @@
             background: #ccc;
             color: black;
         }
+
+    @@media (max-width: 768px) {
+        .container
+
+    {
+        max-width: 90%;
+        padding: 15px;
+    }
+
+    }
 </style>
 
 @if (Model != null)
@@ -152,36 +148,26 @@
     <div class="container">
         <h2>Update Content</h2>
 
-        <form method="post" enctype="multipart/form-data" asp-action="UpdatePhoto" asp-controller="Admin" onsubmit="return showMessage();">
-            @Html.AntiForgeryToken()
+        <form method="post" enctype="multipart/form-data" asp-action="UpdatePhoto" asp-controller="Admin">
             <input type="hidden" name="Id" value="@Model.Id" />
 
-            <!-- Preview Section -->
             <div class="preview-container">
-                <!-- Before Image -->
                 <div class="preview-box">
                     <h4>Before</h4>
                     <img src="@Model.Url" id="beforeImage" alt="@Model.Description">
-                    <div class="desc-box">
-                        <strong>Current Description:</strong> <br> <span id="beforeDescription">@Model.Description</span>
-                    </div>
+                    <div class="desc-box" id="beforeDescription">@Model.Description</div>
                 </div>
 
-                <!-- After Image -->
                 <div class="preview-box">
                     <h4>After</h4>
-                    <div id="afterImageContainer" class="empty-preview">Preview here</div>
-                    <div class="desc-box">
-                        <strong>New Description:</strong> <br> <span id="afterDescription">Preview here</span>
-                    </div>
+                    <img id="afterImage" class="desc-box" style="display: none;">
+                    <div class="desc-box" id="afterDescription">Preview here</div>
                 </div>
             </div>
 
-            <!-- Image Upload -->
             <label>Change Image:</label>
             <input type="file" name="file" accept="image/*" id="fileInput" />
 
-            <!-- Description -->
             <label>Update Description:</label>
             <textarea name="description" id="descInput" maxlength="225" required>@Model.Description</textarea>
             <div id="charCount" class="char-counter">0 / 225</div>
@@ -193,52 +179,28 @@
         </form>
     </div>
 
-    <!-- JavaScript for Live Preview & Character Count -->
     <script>
-        // Image Preview
         document.getElementById('fileInput').addEventListener('change', function(event) {
             const file = event.target.files[0];
-            const afterImageContainer = document.getElementById('afterImageContainer');
-
+            const afterImage = document.getElementById('afterImage');
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    afterImageContainer.innerHTML = `
-                        <img src="${e.target.result}" style="width: 100%; max-height: 200px; object-fit: contain; border-radius: 5px; border: 1px solid #ccc; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
-                    `;
+                    afterImage.src = e.target.result;
+                    afterImage.style.display = "block";
                 };
                 reader.readAsDataURL(file);
             }
         });
 
-        // Character Counter
+
         document.getElementById('descInput').addEventListener('input', function () {
             let charCount = this.value.length;
             let charCounter = document.getElementById('charCount');
             document.getElementById('afterDescription').textContent = this.value || "Preview here";
-
             charCounter.textContent = charCount + " / 225";
             charCounter.classList.toggle('warning', charCount >= 225);
         });
-
-        // Initialize character count on page load
-        document.addEventListener("DOMContentLoaded", function () {
-            let charCounter = document.getElementById('charCount');
-            let descInput = document.getElementById('descInput');
-            charCounter.textContent = descInput.value.length + " / 225";
-        });
-
-        // Show success or failure message in a prompt
-        function showMessage() {
-            setTimeout(() => {
-                let message = "@TempData["UpdateMessage"]";
-                if (message) {
-                    alert(message);
-                    window.location.href = "/Histology/Home";
-                }
-            }, 500);
-            return true;
-        }
     </script>
 }
 else

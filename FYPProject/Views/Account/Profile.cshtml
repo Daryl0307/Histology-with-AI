@@ -4,6 +4,16 @@
     ViewData["Title"] = "User Profile";
 }
 
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert success">@TempData["SuccessMessage"]</div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert error">@TempData["ErrorMessage"]</div>
+}
+
 <!-- Main Profile Section -->
 <div class="profile-page">
     <!-- Updated Profile Header Section -->
@@ -11,7 +21,9 @@
         <h1 class="profile-title">Account Settings</h1>
         <div class="title-decoration"></div>
     </div>
-
+    <div id="loadingSpinner">
+        <span class="spinner"></span> Processing...
+    </div>
     <div class="profile-container">
         <div class="profile-section">
             <div class="profile-item">
@@ -57,26 +69,32 @@
     </div>
 </div>
 
-<!-- Edit Modals -->
 <div id="usernameModal" class="custom-modal">
     <div class="modal-container">
         <div class="modal-header">
             <h3>Update Username</h3>
             <span class="close-modal" onclick="closeModal('usernameModal')">&times;</span>
         </div>
-        <div class="modal-body">
-            <div class="input-group">
-                <label>New Username</label>
-                <input type="text" id="newUsername" class="form-input">
-                <div class="input-error" id="usernameError"></div>
+        <form id="usernameForm" onsubmit="return validateUsernameForm(event);">
+            <div class="modal-body">
+                <div class="input-group">
+                    <label>New Username</label>
+                    <input type="text" id="newUsername" name="newUsername" class="form-input" required>
+                    <div class="input-error" id="usernameError"></div> <!-- Error will display here -->
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="action-btn secondary" onclick="closeModal('usernameModal')">Cancel</button>
+                    <button type="submit" class="action-btn primary">Save Changes</button>
+                </div>
             </div>
-            <div class="modal-actions">
-                <button class="action-btn secondary" onclick="closeModal('usernameModal')">Cancel</button>
-                <button class="action-btn primary" onclick="updateProfile('username')">Save Changes</button>
-            </div>
-        </div>
+        </form>
+
     </div>
 </div>
+
+
+
+
 
 <div id="emailModal" class="custom-modal">
     <div class="modal-container">
@@ -84,61 +102,94 @@
             <h3>Update Email Address</h3>
             <span class="close-modal" onclick="closeModal('emailModal')">&times;</span>
         </div>
-        <div class="modal-body">
-            <div class="input-group">
-                <label>New Email</label>
-                <input type="email" id="newEmail" class="form-input">
-                <div class="input-error" id="emailError"></div>
+        <form id="emailForm" onsubmit="return validateEmailForm(event);">
+            <div class="modal-body">
+                <div class="input-group">
+                    <label>New Email</label>
+                    <input type="email" id="newEmail" name="newEmail" class="form-input" required>
+                    <div class="input-error" id="emailError"></div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="action-btn secondary" onclick="closeModal('emailModal')">Cancel</button>
+                    <button type="submit" class="action-btn primary">Change Email</button>
+                </div>
             </div>
-            <div class="modal-actions">
-                <button class="action-btn secondary" onclick="closeModal('emailModal')">Cancel</button>
-                <button class="action-btn primary" onclick="updateProfile('email')">Save Changes</button>
-            </div>
-        </div>
+        </form>
+
     </div>
 </div>
 
-<!-- Updated Password Modal -->
+
 <div id="passwordModal" class="custom-modal">
     <div class="modal-container">
         <div class="modal-header">
             <h3>Change Password</h3>
             <span class="close-modal" onclick="closeModal('passwordModal')">&times;</span>
         </div>
-        <div class="modal-body">
-            <div class="input-group">
-                <label>Current Password</label>
-                <input type="password" id="currentPassword" class="form-input">
+
+        <form id="passwordForm" onsubmit="return validatePasswordForm(event);">
+            <div class="modal-body">
+                <div class="input-group">
+                    <label>Current Password</label>
+                    <input type="password" id="currentPassword" name="currentPassword" class="form-input" required>
+                    <div class="input-error" id="currentPasswordError"></div> <!-- Error shows here -->
+                </div>
+                <div class="input-group">
+                    <label>New Password</label>
+                    <input type="password" id="newPassword" name="newPassword" class="form-input" required>
+                    <div class="input-error" id="newPasswordError"></div> <!-- Error shows here -->
+                </div>
+                <div class="input-group">
+                    <label>Confirm New Password</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" class="form-input" required>
+                    <div class="input-error" id="passwordMatchError"></div> <!-- Error shows here -->
+                </div>
+                <div class="password-rules">
+                    <span>Password Requirements:</span>
+                    <ul>
+                        <li>8-24 characters</li>
+                        <li>At least one number</li>
+                        <li>Mix of uppercase and lowercase</li>
+                        <li><span id="matchRule" style="color: red;">Passwords must match</span></li>
+                    </ul>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="action-btn secondary" onclick="closeModal('passwordModal')">Cancel</button>
+                    <button type="submit" class="action-btn primary">Save Password</button>
+                </div>
             </div>
-            <div class="input-group">
-                <label>New Password</label>
-                <input type="password" id="newPassword" class="form-input">
-            </div>
-            <div class="input-group">
-                <label>Confirm New Password</label>
-                <input type="password" id="confirmPassword" class="form-input">
-                <div class="input-error" id="passwordMatchError"></div>
-            </div>
-            <div class="password-rules">
-                <span>Password Requirements:</span>
-                <ul>
-                    <li id="lengthRule">8-24 characters</li>
-                    <li id="numberRule">At least one number</li>
-                    <li id="caseRule">Mix of uppercase and lowercase</li>
-                    <li id="matchRule">Passwords must match</li>
-                </ul>
-            </div>
-            <div class="modal-actions">
-                <button class="action-btn secondary" onclick="closeModal('passwordModal')">Cancel</button>
-                <button class="action-btn primary" onclick="updateProfile('password')">Save Password</button>
-            </div>
-        </div>
+        </form>
+
     </div>
 </div>
 
-<!-- Updated CSS -->
+
+
 <style>
     /* Base Styles */
+
+    .alert {
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+        font-size: 14px;
+        text-align: center;
+        font-weight: bold;
+    }
+
+        .alert.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+
     body {
         background-color: #80cbc4;
         font-family: 'Segoe UI', system-ui, sans-serif;
@@ -294,6 +345,36 @@
         }
     }
 
+
+    /* Center loading text and spinner */
+    .loading-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px; /* Adjust spacing between spinner and text */
+        width: 130px; /* Ensures button doesn't shrink */
+    }
+
+    .spinner {
+        width: 16px;
+        height: 16px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 1s linear infinite;
+    }
+
+    @@keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+
     .modal-header {
         padding: 18px 24px;
         border-bottom: 1px solid #eaecef;
@@ -346,6 +427,44 @@
         gap: 12px;
         margin-top: 24px;
     }
+
+
+    /* Spinner Animation */
+    .spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 1s linear infinite;
+    }
+
+    @@keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Centered Loading Animation */
+    #loadingSpinner {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.6);
+        padding: 15px;
+        border-radius: 8px;
+        color: white;
+        font-weight: bold;
+        font-size: 16px;
+    }
+
 
     .action-btn {
         padding: 10px 20px;
@@ -444,126 +563,211 @@
     }
 </style>
 
-<!-- Updated JavaScript -->
 <script>
-    // Modal Management
+
     function openModal(modalId) {
-        document.getElementById(modalId).style.display = "flex";
+        let modal = document.getElementById(modalId);
+        modal.style.display = "flex";
+
+
+        if (modalId === "usernameModal") {
+            document.getElementById("usernameError").textContent = "";
+        }
+        if (modalId === "emailModal") {
+            document.getElementById("emailError").textContent = "";
+        }
+        if (modalId === "passwordModal") {
+            document.getElementById("passwordMatchError").textContent = "";
+        }
     }
 
     function closeModal(modalId) {
         document.getElementById(modalId).style.display = "none";
-        clearValidationErrors();
     }
 
-    function clearValidationErrors() {
-        document.querySelectorAll('.input-error').forEach(el => el.textContent = '');
-    }
 
-    // Validation Functions
-    function isValidUsername(username) {
-        const regex = /^[\w]{6,24}$/;
-        return regex.test(username);
-    }
-
-    // Modified Validation Function
-    function validatePasswordStrength(password, confirmPassword) {
-        const hasNumber = /\d/.test(password);
-        const hasUpper = /[A-Z]/.test(password);
-        const hasLower = /[a-z]/.test(password);
-        const isValidLength = password.length >= 8 && password.length <= 24;
-        const passwordsMatch = password === confirmPassword;
-
-        // Update visual indicators
-        document.getElementById('lengthRule').style.color = isValidLength ? '#28a745' : '#dc3545';
-        document.getElementById('numberRule').style.color = hasNumber ? '#28a745' : '#dc3545';
-        document.getElementById('caseRule').style.color = (hasUpper && hasLower) ? '#28a745' : '#dc3545';
-        document.getElementById('matchRule').style.color = passwordsMatch ? '#28a745' : '#dc3545';
-
-        return isValidLength && hasNumber && hasUpper && hasLower && passwordsMatch;
-    }
-
-    // Modified Update Profile Function
-    async function updateProfile(fieldType) {
-        let value, isValid = true;
-        const errorElement = document.getElementById(`${fieldType}Error`);
-
-        switch(fieldType) {
-            case 'username':
-                value = document.getElementById('newUsername').value;
-                if (!isValidUsername(value)) {
-                    errorElement.textContent = 'Username must be 6-24 alphanumeric characters';
-                    isValid = false;
-                }
-                break;
-
-            case 'email':
-                value = document.getElementById('newEmail').value;
-                if (!/^\w+([\.-]?\w+)*@@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(value)) {
-                    errorElement.textContent = 'Please enter a valid email address';
-                    isValid = false;
-                }
-                break;
-
-            case 'password':
-                const newPassword = document.getElementById('newPassword').value;
-                const confirmPassword = document.getElementById('confirmPassword').value;
-                const currentPassword = document.getElementById('currentPassword').value;
-
-                if (!currentPassword) {
-                    document.getElementById('passwordError').textContent = 'Current password is required';
-                    isValid = false;
-                }
-
-                if (!validatePasswordStrength(newPassword, confirmPassword)) {
-                    if (newPassword !== confirmPassword) {
-                        document.getElementById('passwordMatchError').textContent = 'Passwords do not match';
-                    }
-                    isValid = false;
-                }
-                value = { currentPassword, newPassword };
-                break;
-        }
-
-        if (!isValid) return;
-
-        try {
-            const response = await fetch('/Profile/Update', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('input[name="__RequestVerificationToken"]').value
-                },
-                body: JSON.stringify({ fieldType, value })
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                location.reload();
-            } else {
-                errorElement.textContent = result.message || 'Update failed. Please try again.';
+    window.onclick = function (event) {
+        let modals = document.querySelectorAll(".custom-modal");
+        modals.forEach(modal => {
+            if (event.target === modal) {
+                modal.style.display = "none";
             }
-        } catch (error) {
-            console.error('Update error:', error);
-            errorElement.textContent = 'An unexpected error occurred';
+        });
+    };
+
+
+    function validateUsernameForm(event) {
+        event.preventDefault();
+
+        let newUsername = document.getElementById("newUsername").value.trim();
+        let errorElement = document.getElementById("usernameError");
+
+        console.log("Submitting Change Username Request...");
+
+
+        if (newUsername.length < 6 || newUsername.length > 24 || !/^[a-zA-Z]+$/.test(newUsername)) {
+            errorElement.textContent = "Must be 6-24 characters and contain only letters.";
+            return false;
         }
+
+
+        fetch("/Account/UpdateUsername", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({ newUsername: newUsername }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("Username Update Response:", data);
+
+            if (!data.success) {
+                errorElement.textContent = data.message;
+            } else {
+                errorElement.textContent = "";
+
+                closeModal("usernameModal");
+                location.reload();
+            }
+        })
+        .catch(error => console.error("Error:", error));
+
+        return false;
     }
 
-    // Add real-time password validation
-    document.getElementById('newPassword')?.addEventListener('input', validatePasswords);
-    document.getElementById('confirmPassword')?.addEventListener('input', validatePasswords);
 
-    function validatePasswords() {
-        const newPassword = document.getElementById('newPassword').value;
-        const confirmPassword = document.getElementById('confirmPassword').value;
-        validatePasswordStrength(newPassword, confirmPassword);
-    }
+    function validateEmailForm(event) {
+        event.preventDefault();
 
-    // Close modal when clicking outside
-    window.onclick = function(event) {
-        if (event.target.classList.contains('custom-modal')) {
-            event.target.style.display = 'none';
+        let newEmail = document.getElementById("newEmail").value.trim();
+        let errorElement = document.getElementById("emailError");
+        let submitButton = document.querySelector("#emailForm button[type='submit']");
+        let loadingSpinner = document.getElementById("loadingSpinner");
+
+        console.log("Submitting Change Email Request...");
+
+
+           if (!/^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/.test(newEmail)) {
+
+            errorElement.textContent = "Invalid email format.";
+            return false;
         }
+
+        submitButton.disabled = true;
+        submitButton.innerHTML = `<span class="spinner"></span> Processing...`;
+        loadingSpinner.style.display = "block";
+
+
+        fetch("/Account/RequestEmailChange", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({ newEmail: newEmail }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("Email Change Response:", data);
+
+            if (!data.success) {
+                errorElement.textContent = data.message;
+                submitButton.disabled = false;
+                submitButton.innerHTML = "Change Email";
+            } else {
+                errorElement.textContent = "";
+
+                window.location.href = "/Account/CgEmail";
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            errorElement.textContent = "An error occurred. Please try again.";
+            submitButton.disabled = false;
+            submitButton.innerHTML = "Change Email";
+        })
+        .finally(() => {
+            loadingSpinner.style.display = "none";
+        });
+
+        return false;
     }
+
+
+    function validatePasswordForm(event) {
+        event.preventDefault();
+
+        let currentPassword = document.getElementById("currentPassword").value.trim();
+        let newPassword = document.getElementById("newPassword").value.trim();
+        let confirmPassword = document.getElementById("confirmPassword").value.trim();
+
+        let currentPasswordError = document.getElementById("currentPasswordError");
+        let newPasswordError = document.getElementById("newPasswordError");
+        let confirmPasswordError = document.getElementById("passwordMatchError");
+
+        console.log("Submitting Change Password Request...");
+
+
+        currentPasswordError.textContent = "";
+        newPasswordError.textContent = "";
+        confirmPasswordError.textContent = "";
+
+
+        if (!currentPassword || !newPassword || !confirmPassword) {
+            currentPasswordError.textContent = "All fields are required.";
+            return false;
+        }
+
+
+        if (newPassword !== confirmPassword) {
+            confirmPasswordError.textContent = "Passwords must match.";
+            return false;
+        }
+
+
+        if (newPassword.length < 8 || newPassword.length > 24 || !/[A-Z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
+            newPasswordError.textContent = "Password must be 8-24 characters, include at least one number, and mix uppercase & lowercase letters.";
+            return false;
+        }
+
+        fetch("/Account/ChangePassword", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({
+                currentPassword: currentPassword,
+                newPassword: newPassword,
+                confirmPassword: confirmPassword
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("Change Password Response:", data);
+
+            if (!data.success) {
+
+                if (data.field === "currentPassword") {
+                    currentPasswordError.textContent = data.message;
+                } else if (data.field === "newPassword") {
+                    newPasswordError.textContent = data.message;
+                } else if (data.field === "confirmPassword") {
+                    confirmPasswordError.textContent = data.message;
+                }
+            } else {
+
+                currentPasswordError.textContent = "";
+                newPasswordError.textContent = "";
+                confirmPasswordError.textContent = "";
+
+
+
+
+                closeModal("passwordModal");
+
+
+                document.getElementById("currentPassword").value = "";
+                document.getElementById("newPassword").value = "";
+                document.getElementById("confirmPassword").value = "";
+            }
+        })
+        .catch(error => console.error("Error:", error));
+
+        return false;
+    }
+
 </script>

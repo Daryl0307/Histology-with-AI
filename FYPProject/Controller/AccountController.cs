@@ -163,12 +163,13 @@ namespace FYPProject.Controllers
 
         public IActionResult Logout()
         {
+            ViewBag.HideNavbar = true;
             // Clear the session
             HttpContext.Session.Clear();
 
-            // Redirect to the homepage
-            return RedirectToAction("Home", "Histology");
+            return View();
         }
+
 
 
 
@@ -814,30 +815,486 @@ namespace FYPProject.Controllers
         {
             ViewBag.HideNavbar = false;
 
-            // Retrieve user details from session (following the same storage pattern as Login)
-            string username = HttpContext.Session.GetString("Username");
-            string email = HttpContext.Session.GetString("Email");
-            string roleStatusString = HttpContext.Session.GetString("UserRole");
 
-            // Redirect to login if session data is missing
-            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(roleStatusString))
+            string userId = HttpContext.Session.GetString("UserId");
+
+
+            if (string.IsNullOrEmpty(userId))
             {
                 return RedirectToAction("Login");
             }
 
-            // Convert Role_Status to byte since it's stored as a string
-            byte roleStatus = Convert.ToByte(roleStatusString);
+            User_Info userAccount = new User_Info();
 
-            // Create the user model
-            User_Info userAccount = new User_Info
+            try
             {
-                Username = username,
-                Email = email,
-                Role_Status = roleStatus
-            };
+                using (SqlConnection conn = new SqlConnection(_connectionString))
+                {
+                    conn.Open();
+                    string query = "SELECT Username, Password, Email, Role_Status FROM User_Info WHERE User_Id = @UserId";
+
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@UserId", userId);
+
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                userAccount.Username = reader["Username"].ToString();
+                                userAccount.Password = reader["Password"].ToString();
+                                userAccount.Email = reader["Email"].ToString();
+                                userAccount.Role_Status = Convert.ToByte(reader["Role_Status"]);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error retrieving profile: {ex.Message}");
+                ViewBag.ErrorMessage = "An error occurred while loading your profile. Please try again.";
+                return View();
+            }
 
             return View(userAccount);
         }
+        [HttpPost]
+        public IActionResult UpdateUsername(string newUsername)
+        {
+            string userId = HttpContext.Session.GetString("UserId");
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Json(new { success = false, message = "Session expired. Please log in again." });
+            }
+
+            string currentUsername = "";
+            bool usernameExists = false;
+
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+                string getCurrentUsernameQuery = "SELECT Username FROM User_Info WHERE User_Id = @UserId";
+                using (SqlCommand cmd = new SqlCommand(getCurrentUsernameQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@UserId", userId);
+                    object result = cmd.ExecuteScalar();
+                    if (result != null)
+                    {
+                        currentUsername = result.ToString();
+                    }
+                }
+
+
+                string checkUsernameQuery = "SELECT COUNT(*) FROM User_Info WHERE Username = @Username";
+                using (SqlCommand cmd = new SqlCommand(checkUsernameQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@Username", newUsername);
+                    usernameExists = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                }
+            }
+
+            if (newUsername == currentUsername)
+            {
+                return Json(new { success = false, message = "You are already using this username. Try a different one." });
+            }
+
+            if (usernameExists)
+            {
+                return Json(new { success = false, message = "Username is already taken, please try another." });
+            }
+
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(_connectionString))
+                {
+                    conn.Open();
+                    string updateQuery = "UPDATE User_Info SET Username = @Username WHERE User_Id = @UserId";
+                    using (SqlCommand cmd = new SqlCommand(updateQuery, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@Username", newUsername);
+                        cmd.Parameters.AddWithValue("@UserId", userId);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                HttpContext.Session.SetString("Username", newUsername);
+                TempData["SuccessMessage"] = "Your username has been successfully updated!";
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating username: {ex.Message}");
+                return Json(new { success = false, message = "An error occurred. Please try again." });
+            }
+        }
+
+
+
+        [HttpPost]
+        public IActionResult RequestEmailChange(string newEmail)
+        {
+            string userId = HttpContext.Session.GetString("UserId");
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Json(new { success = false, message = "Session expired. Please log in again." });
+            }
+
+            if (string.IsNullOrWhiteSpace(newEmail) || !IsValidEmail(newEmail))
+            {
+                return Json(new { success = false, message = "Invalid email format." });
+            }
+
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(_connectionString))
+                {
+                    conn.Open();
+
+
+                    string currentEmail = "";
+                    using (SqlCommand cmd = new SqlCommand("SELECT Email FROM User_Info WHERE User_Id = @UserId", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@UserId", userId);
+                        object result = cmd.ExecuteScalar();
+                        if (result != null)
+                        {
+                            currentEmail = result.ToString();
+                        }
+                    }
+
+                    if (newEmail == currentEmail)
+                    {
+                        return Json(new { success = false, message = "You are already using this email. Try a different one." });
+                    }
+
+                    using (SqlCommand cmd = new SqlCommand("SELECT COUNT(*) FROM User_Info WHERE Email = @NewEmail", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@NewEmail", newEmail);
+                        int emailCount = Convert.ToInt32(cmd.ExecuteScalar());
+
+                        if (emailCount > 0)
+                        {
+                            return Json(new { success = false, message = "Email already used, please try again." });
+                        }
+                    }
+                }
+
+
+                Random random = new Random();
+                int verificationCode = random.Next(1000, 9999);
+
+                TempData["NewEmail"] = newEmail;
+                TempData["EmailVerificationCode"] = verificationCode.ToString();
+                TempData.Keep("NewEmail");
+                TempData.Keep("EmailVerificationCode");
+
+                SendEmailVerificationCode(newEmail, verificationCode);
+
+                return Json(new { success = true, message = "Verification code sent successfully!" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error sending email verification: {ex.Message}");
+                return Json(new { success = false, message = "An error occurred while sending the verification code. Please try again." });
+            }
+        }
+
+
+
+
+
+
+        [HttpGet]
+        public IActionResult VerifyNewEmail()
+        {
+            ViewBag.HideNavbar = true;
+
+
+            string newEmail = TempData["NewEmail"]?.ToString();
+            ViewBag.MaskedEmail = newEmail != null ? MaskEmail(newEmail) : "";
+
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult VerifyNewEmail(string code)
+        {
+            string storedCode = TempData["EmailVerificationCode"]?.ToString();
+            string newEmail = TempData["NewEmail"]?.ToString();
+            string userId = HttpContext.Session.GetString("UserId");
+
+
+            TempData.Keep("NewEmail");
+            TempData.Keep("EmailVerificationCode");
+
+            if (string.IsNullOrEmpty(storedCode) || string.IsNullOrEmpty(newEmail) || string.IsNullOrEmpty(userId))
+            {
+                TempData["ErrorMessage"] = "Verification session expired. Please try again.";
+                return RedirectToAction("Profile");
+            }
+
+            if (code != storedCode)
+            {
+                TempData["ErrorMessage"] = "Invalid verification code. Please try again.";
+                return RedirectToAction("VerifyNewEmail");
+            }
+
+
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(_connectionString))
+                {
+                    conn.Open();
+                    string updateQuery = "UPDATE User_Info SET Email = @Email WHERE User_Id = @UserId";
+                    using (SqlCommand cmd = new SqlCommand(updateQuery, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@Email", newEmail);
+                        cmd.Parameters.AddWithValue("@UserId", userId);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                HttpContext.Session.SetString("Email", newEmail);
+                TempData["SuccessMessage"] = "Your email has been successfully updated!";
+                return RedirectToAction("EmailUpdateSuccess");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating email: {ex.Message}");
+                TempData["ErrorMessage"] = "An error occurred. Please try again.";
+                return RedirectToAction("Profile");
+            }
+        }
+
+
+
+        [HttpGet]
+        public IActionResult EmailUpdateSuccess()
+        {
+            ViewBag.HideNavbar = true;
+            return View();
+        }
+
+        private void SendEmailVerificationCode(string toEmail, int verificationCode)
+        {
+            string fromEmail = "aihistoemail@gmail.com";
+            string fromPassword = "fmxa frop szee ahnr";
+            string subject = "Confirm Your Email Change - Verification Code";
+
+            string body = $@"
+                <html>
+                    <body style='font-family: Arial, sans-serif; text-align: center;'>
+                        <h2 style='color: #005792;'>Welcome to Histology</h2>
+                        <p>We received a request to change the email associated with your account.</p>
+                        <p>Please use the verification code below to confirm your new email address. This code will expire in <strong>10 minutes</strong>:</p>
+                        <h3 style='color: #FF5722;'>{verificationCode}</h3>
+                        <p>If you did not request this change, please ignore this email. Your account is safe.</p>
+                        <p>Thank you for using Histology. If you have any questions, feel free to contact our support team.</p>
+                        <img src='cid:LogoImage' style='margin-top: 20px; width: 150px;' alt='Histology Logo' />
+                        <p style='margin-top: 10px;'>Best regards,<br><strong>Histology Team</strong></p>
+                    </body>
+                </html>";
+
+            using (MailMessage mail = new MailMessage())
+            {
+                mail.From = new MailAddress(fromEmail);
+                mail.To.Add(toEmail);
+                mail.Subject = subject;
+                mail.IsBodyHtml = true;
+
+                AlternateView htmlView = AlternateView.CreateAlternateViewFromString(body, null, "text/html");
+
+                LinkedResource logo = new LinkedResource("wwwroot/images/logo.png", "image/png");
+                logo.ContentId = "LogoImage";
+                htmlView.LinkedResources.Add(logo);
+
+                mail.AlternateViews.Add(htmlView);
+
+                using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
+                {
+                    smtp.Credentials = new NetworkCredential(fromEmail, fromPassword);
+                    smtp.EnableSsl = true;
+                    smtp.Send(mail);
+                }
+            }
+        }
+
+        [HttpGet]
+        public IActionResult CgEmail()
+        {
+            ViewBag.HideNavbar = true;
+            ViewBag.IsVerificationCodeSent = TempData["EmailVerificationCode"] != null;
+            ViewBag.SuccessMessage = TempData["SuccessMessage"] ?? "";
+
+
+            string newEmail = TempData["NewEmail"]?.ToString();
+            ViewBag.MaskedEmail = newEmail != null ? MaskEmail(newEmail) : "";
+
+            TempData.Keep("NewEmail");
+            TempData.Keep("EmailVerificationCode");
+
+
+            string imageUrl = "/images/logo.png";
+            try
+            {
+                string query = "SELECT TOP 1 Photo_URL FROM Photos WHERE Photo_Description = 'Logo'";
+                using (SqlConnection conn = new SqlConnection(_connectionString))
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        object result = cmd.ExecuteScalar();
+                        if (result != null)
+                        {
+                            imageUrl = result.ToString();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching logo image: {ex.Message}");
+            }
+
+            ViewBag.ImageUrl = imageUrl;
+
+            return View();
+        }
+
+
+
+
+        [HttpPost]
+        public IActionResult VerifyCgEmail(string code)
+        {
+            string storedCode = TempData["EmailVerificationCode"]?.ToString();
+            string newEmail = TempData["NewEmail"]?.ToString();
+            string userId = HttpContext.Session.GetString("UserId");
+
+            TempData.Keep("NewEmail");
+            TempData.Keep("EmailVerificationCode");
+
+            if (string.IsNullOrEmpty(storedCode) || string.IsNullOrEmpty(newEmail) || string.IsNullOrEmpty(userId))
+            {
+                TempData["ErrorMessage"] = "Verification session expired. Please try again.";
+                return RedirectToAction("Profile");
+            }
+
+            if (code != storedCode)
+            {
+                TempData["ErrorMessage"] = "The verification code is not correct . Please try again.";
+                return RedirectToAction("CgEmail");
+            }
+
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(_connectionString))
+                {
+                    conn.Open();
+                    string updateQuery = "UPDATE User_Info SET Email = @Email WHERE User_Id = @UserId";
+                    using (SqlCommand cmd = new SqlCommand(updateQuery, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@Email", newEmail);
+                        cmd.Parameters.AddWithValue("@UserId", userId);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                HttpContext.Session.SetString("Email", newEmail);
+                TempData["SuccessMessage"] = "Your email has been successfully updated!";
+                return RedirectToAction("CgEmail");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating email: {ex.Message}");
+                TempData["ErrorMessage"] = "An error occurred. Please try again.";
+                return RedirectToAction("CgEmail");
+            }
+        }
+
+
+        private bool IsCurrentPasswordCorrect(string userId, string currentPassword)
+        {
+            string storedPassword = null;
+
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                conn.Open();
+                string query = "SELECT Password FROM User_Info WHERE User_Id = @UserId";
+
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@UserId", userId);
+                    storedPassword = cmd.ExecuteScalar()?.ToString();
+                }
+            }
+
+            return storedPassword != null && storedPassword == currentPassword;
+        }
+
+        [HttpPost]
+        public IActionResult ChangePassword(string currentPassword, string newPassword, string confirmPassword)
+        {
+            string userId = HttpContext.Session.GetString("UserId");
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Json(new { success = false, message = "Session expired. Please log in again." });
+            }
+
+            if (!IsCurrentPasswordCorrect(userId, currentPassword))
+            {
+                return Json(new { success = false, field = "currentPassword", message = "Current password is incorrect." });
+            }
+
+            if (newPassword != confirmPassword)
+            {
+                return Json(new { success = false, field = "confirmPassword", message = "Passwords do not match." });
+            }
+
+            if (!UserIsValidPassword(newPassword))
+            {
+                return Json(new { success = false, field = "newPassword", message = "Password must be 8-24 characters, include at least one number, and mix uppercase & lowercase letters." });
+            }
+
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(_connectionString))
+                {
+                    conn.Open();
+                    string updateQuery = "UPDATE User_Info SET Password = @Password WHERE User_Id = @UserId";
+                    using (SqlCommand cmd = new SqlCommand(updateQuery, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@Password", newPassword);
+                        cmd.Parameters.AddWithValue("@UserId", userId);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                TempData["SuccessMessage"] = "Your password has been successfully updated!";
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating password: {ex.Message}");
+                return Json(new { success = false, message = "An error occurred. Please try again." });
+            }
+        }
+
+
+
+
+        private bool UserIsValidPassword(string password)
+        {
+            var passwordPattern = "^(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d]{8,24}$";
+            bool isValid = System.Text.RegularExpressions.Regex.IsMatch(password, passwordPattern);
+            Console.WriteLine($"User password validation result: {isValid}");
+            return isValid;
+        }
+
 
     }
 }
+
+
+

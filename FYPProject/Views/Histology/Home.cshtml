@@ -22,9 +22,8 @@
         text-align: center;
     }
 
-    /* Welcome Card Styling */
     .welcome-card {
-        background: linear-gradient(to bottom, #e0e0e0, #f5f5f5); /* Slightly darker gradient */
+        background: linear-gradient(to bottom, #e0e0e0, #f5f5f5);
         padding: 25px;
         border-radius: 12px;
         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
@@ -44,7 +43,6 @@
             color: #333;
             line-height: 1.6;
         }
-
 
     .grid-container {
         display: grid;
@@ -76,14 +74,13 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        text-align: center; 
+        text-align: center;
         font-size: 16px;
         font-weight: bold;
         padding: 10px;
-        background: rgba(0, 0, 0, 0.7); 
-        color: white; 
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
     }
-
 
     .admin-buttons {
         position: absolute;
@@ -127,27 +124,55 @@
     .delete-btn:hover {
         background: #b71c1c;
     }
+
+    @@media (max-width: 768px) {
+        .container
+
+    {
+        padding: 15px;
+        margin: 30px auto;
+    }
+
+    .welcome-card {
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .grid-container {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+    }
+
+    .grid-item {
+        height: auto;
+    }
+
+    }
+
+    @@media (max-width: 480px) {
+        .grid-container
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-buttons {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    }
 </style>
 
 <div class="container">
-    <!-- Welcome Card -->
     <div class="welcome-card">
         <h2>Welcome to Histology!</h2>
         <p>
-            Explore the fascinating world of tissues with our cutting-edge AI-powered platform. Designed for students and lecturers,
-            this tool leverages artificial intelligence to accurately identify and classify tissue types using histology images.
-        </p>
-        <p>
-            By analyzing key features—such as staining intensity, texture, and structural patterns—our platform ensures precise and reliable results.
-        </p>
-        <p>
-            Whether you're learning or teaching, this platform offers a fast and intuitive way to explore and understand complex tissue structures.
-            Dive into the future of histology and experience the power of AI-driven insights today!
+            Explore the fascinating world of tissues with our cutting-edge AI-powered platform.
         </p>
     </div>
 
     <h2>Tissue Details</h2>
-
 
     @if (userRole == "1")
     {
@@ -164,7 +189,6 @@
             {
                 <div class="grid-item">
                     <img src="@content.Url" alt="@content.Description" />
-
                     @if (userRole == "1")
                     {
                         <div class="admin-buttons">
@@ -172,7 +196,6 @@
                             <a asp-controller="Admin" asp-action="DeletePhoto" asp-route-id="@content.Id" class="admin-button delete-btn">Delete</a>
                         </div>
                     }
-
                     <div class="overlay">@content.Description</div>
                 </div>
             }
