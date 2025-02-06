@@ -1064,14 +1064,14 @@ ORDER BY S.Score DESC;
             return RedirectToAction("Management", new { quizCategory = category });
         }
 
-        bool hasOnlyOneIncorrect = incorrectAnswersCount == 1;
+        //bool hasOnlyOneIncorrect = incorrectAnswersCount == 1;
 
-        if (hasOnlyOneIncorrect && model.Is_Correct == true)
-        {
-            TempData["Message"] = "Too much correct answers";
-            TempData["MsgType"] = "danger";
-            return RedirectToAction("Management", new { quizCategory = category });
-        }
+        //if (hasOnlyOneIncorrect && model.Is_Correct == true)
+        //{
+        //    TempData["Message"] = "Too much correct answers";
+        //    TempData["MsgType"] = "danger";
+        //    return RedirectToAction("Management", new { quizCategory = category });
+        //}
 
         double answerMarks = Convert.ToDouble(DBUtl.GetValue(answerMarksSql, model.AnswerId));
         if (answerMarks == null)

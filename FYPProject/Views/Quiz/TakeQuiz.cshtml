@@ -7,10 +7,11 @@
 
 
 
-<h2>Quiz: @Model.Quiz.QuizCategory</h2>
+
 @if (Model != null && Model.Question != null)
 {
     <div class="quiz-container">
+        <div class="title">@Model.Quiz.QuizCategory Quiz</div>
         <!-- Display question image or a placeholder -->
         <div class="quiz-image">
             @if (Model.Photo_URL == "No Picture Inserted")
@@ -20,58 +21,81 @@
             else
             {
                 <img src="@Url.Content("~/images/" + Model.Quiz.QuizCategory + "/" + Model.Photo_URL)"
-                     width="150" height="150" alt="Quiz image"
+                     width=300"" height="300" alt="Quiz image"
                      style="padding-right: 5px;" />
             }
         </div>
 
         <!-- Display question text -->
-        <div class="quiz-question">
-            <h3>Question:</h3>
-            <p>@Model.Question.QuestionText</p>
+        <div class="title">
+            Question: <br>
+            <span>@Model.Question.QuestionText</span>
+            
         </div>
 
         <!-- Display answers according to question type -->
         <div class="quiz-answers">
-            <h3>Choose your answers:</h3>
+            <div class="title">Choose your answers:</div>
 
             <form method="post" asp-controller="Quiz" asp-action="SubmitAnswer" id="quizForm">
                 @switch (Model.Question.QuestionType)
                 {
                     case "Multiple Choice (Checkbox)":
+                     <div class="radio-input">
+                            <div class="glass">
+                                <div class="glass-inner"></div>
+                            </div>
+                            
+                        <div class="selector">
                         @foreach (var answer in Model.Answer)
                         {
-                            <div class= "worm-container">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="selectedAnswerIds" id="answer-@answer.AnswerId" value="@answer.AnswerId" />
-                                    <div class="worm">
-                                        <div class="worm__segment"></div>
-                                        <div class="worm__segment"></div>
-                                        <div class="worm__segment"></div>
-                                        <div class="worm__segment"></div>
-                                        <div class="worm__segment"></div>
-                                        <!-- You can add more worm segments if needed -->
+                                    <div class="choice">
+                                        <div>
+                                            <input class="choice-square" type="checkbox" name="selectedAnswerIds" id="answer-@answer.AnswerId" value="@answer.AnswerId" />
+                                            <div class="ball-square"></div>
+                                        </div>
+                                        <label class="choice-name" for="answer-@answer.AnswerId">
+                                            @answer.AnswerText
+                                        </label>
                                     </div>
-                                <label class="form-check-label" for="answer-@answer.AnswerId">
-                                    @answer.AnswerText
-                                </label>
+
+                            <div class="form-check">
+                                    
+                                
                                 <input type="hidden" name="Marks" value="@answer.Marks" />
-                                </div>
-                            </div>
+                               </div>
+                            
                         }
+                            </div>
+                        </div>
                         break;
                     case "Multiple Choice (Radio)":
+                    <div class="radio-input">
+                            <div class="glass">
+                                <div class="glass-inner"></div>
+                            </div>
+                            
+                        <div class="selector">
                         @foreach (var answer in Model.Answer)
                         {
+                            <div class="choice">
+                                <div>
+                                     <input class="choice-circle" type="radio" name="selectedAnswerIds" id="answer-@answer.AnswerId" value="@answer.AnswerId" />
+                                     <div class="ball"></div>
+                                </div>
+                                        <label class="choice-name" for="answer-@answer.AnswerId">
+                                            @answer.AnswerText
+                                        </label>
+                                </div>
+
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="selectedAnswerIds" id="answer-@answer.AnswerId" value="@answer.AnswerId" />
-                                <label class="form-check-label" for="answer-@answer.AnswerId">
-                                    @answer.AnswerText
-                                </label>
+                                
                                 <input type="hidden" name="Marks" value="@answer.Marks" />
 
                             </div>
                         }
+                        </div>
+                        </div>
                         break;
                     case "Multiple Choice (Dropdown)":
                         <div class="form-group">
@@ -98,7 +122,7 @@
                 <input type="hidden" name="QuizId" value="@Model.Question.QuizId" />
 
 
-                <button type="submit" class="btn btn-primary mt-3">Submit</button>
+                <button type="submit" class="button-confirm">Submit</button>
             </form>
         </div>
     </div>
