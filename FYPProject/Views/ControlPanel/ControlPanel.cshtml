@@ -20,77 +20,68 @@
         }
 
         @@media (max-width: 768px) {
-        mobile_table{
-            position:relative;
-            bottom:90px;
-            right:42px;
-
-        }
+            mobile_table {
+                position: relative;
+                bottom: 90px;
+                right: 42px;
+            }
         }
 
 
         @@media (max-width: 768px) {
-            /* Adjust font size for DataTable content */
             .dataTables_info {
                 position: relative;
                 bottom: 100px;
                 right: 115px;
-                font-size:12px;
+                font-size: 12px;
             }
-         }
-
-        @@media (max-width: 768px) {
-            /* Adjust font size for DataTable content */
-           .mobile_dataTable {
-                position:relative;
-                bottom:100px;
-                right:30px;
-            }
-
-        /* MOBILE VERSION ONLY */
-        @@media (max-width: 768px) {
-            /* Adjust font size for DataTable content */
-            table .dataTable
-
-        {
-            font-size: 11px !important; /* Adjust the size as needed */
         }
 
-            .dataTables_filter label {
-               
-                flex-direction: column;
-                align-items: center;
-                position:relative;
-                right:4px;
+        @@media (max-width: 768px) {
+            .mobile_dataTable {
+                position: relative;
+                bottom: 100px;
+                right: 40px;
             }
+            /* MOBILE VERSION ONLY */
+            @@media (max-width: 768px) {
+                table .dataTable {
+                    font-size: 11px !important;
+                }
+
+                .dataTables_filter label {
+                    flex-direction: column;
+                    align-items: center;
+                    position: relative;
+                    right: 4px;
+                }
 
                 @@media (min-width:1px) and (max-width: 399px) {
                     .dataTables_filter label {
                         flex-direction: column;
                         align-items: center;
                         position: relative;
-                        right: 43px;
-                        font-size:16px;
-                        top:5px;
+                        right: 50px;
+                        font-size: 16px;
+                        top: 5px;
                     }
                 }
 
-   
-        table.dataTable thead th {
-            font-size: 11px !important;
-        }
 
-       
-        table.dataTable tbody td {
-            font-size: 11px !important;
-        }
+                table.dataTable thead th {
+                    font-size: 11px !important;
+                }
 
-        }
+
+                table.dataTable tbody td {
+                    font-size: 11px !important;
+                }
+            }
 
 
             @@media (min-width:1px) and (max-width: 399px) {
                 table.dataTable thead th {
-                    font-size: 10px !important; /* Adjust the size as needed */
+                    font-size: 10px !important;
                 }
 
 
@@ -98,33 +89,33 @@
                     font-size: 10px !important;
                 }
             }
-            }
+        }
 
         @@media (max-width: 768px) {
-          .header{
-             width:60%;
-              right:41px;
-          }
+            .header {
+                width: 60%;
+                right: 41px;
+            }
         }
 
         @@media (max-width: 768px) {
             .label {
-              position:relative;
-              bottom:90px;
-              left:95px;
+                position: relative;
+                bottom: 90px;
+                left: 95px;
             }
         }
 
         @@media (max-width: 768px) {
             .showrows {
-               bottom:59px;
-               position:relative;
-               right:126px;
+                bottom: 59px;
+                position: relative;
+                right: 126px;
             }
         }
 
         /* MOBILE VERSION ONLY */
-       @@media (max-width: 768px) {
+        @@media (max-width: 768px) {
             th:nth-child(5), td:nth-child(5), /* Edit Column */
             th:nth-child(6), td:nth-child(6) { /* Delete Column */
                 display: none !important;
@@ -133,122 +124,105 @@
 
         @@media (max-width: 768px) {
             /* Style the search bar */
-            .dataTables_filter input
+            .dataTables_filter input {
+                width: 100% !important;
+                max-width: 250px;
+                padding: 8px;
+                font-size: 12px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                position: relative;
+                left: 36px;
+                margin-left: -30% !important;
+            }
 
-        {
-            width: 100%!important;
-            max-width: 250px;
-            padding: 8px;
-            font-size: 12px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            position:relative;
-            left:36px;
-            margin-left:-30%!important;
-        }
 
-       
-        .dataTables_filter {
-            text-align: center;
-            margin-bottom: 10px;
-            position:relative;
-            bottom:120px;
-            left:210px;
-            width:26%
-        }
+            .dataTables_filter {
+                text-align: center;
+                margin-bottom: 10px;
+                position: relative;
+                bottom: 120px;
+                left: 210px;
+                width: 26%
+            }
 
-        /* Style the 'Show Entries' dropdown */
-        .dataTables_length select {
-         
-            padding: 5px;
-            font-size: 14px;
-            border-radius: 5px;
-            background-color: #f8f9fa; /* Light background */
-            border: 1px solid #ccc;
-            width:40%!important;
-        }
-
-            @@media (min-width:1px) and (max-width: 399px) {
             .dataTables_length select {
                 padding: 5px;
-                font-size: 10px;
+                font-size: 14px;
                 border-radius: 5px;
-                background-color: #f8f9fa; /* Light background */
+                background-color: #f8f9fa;
                 border: 1px solid #ccc;
-                width: 55% !important;
+                width: 40% !important;
             }
-            }
-
-        /* Adjust 'Show Entries' text alignment */
-        .dataTables_length {
-            text-align: center;
-            margin-bottom: 10px;
-            position:relative;
-            bottom:77px;
-            right:130px;
-        }
-
-         
-               
 
             @@media (min-width:1px) and (max-width: 399px) {
-            .smallmobilebutton{
-                position:relative;
-                left:192px!important;
-                width:42%!important;
+                .dataTables_length select {
+                    padding: 5px;
+                    font-size: 10px;
+                    border-radius: 5px;
+                    background-color: #f8f9fa;
+                    border: 1px solid #ccc;
+                    width: 55% !important;
+                }
             }
 
-     
+            .dataTables_length {
+                text-align: center;
+                margin-bottom: 10px;
+                position: relative;
+                bottom: 77px;
+                right: 130px;
+            }
 
- 
+
+
+
+            @@media (min-width:1px) and (max-width: 399px) {
+                .smallmobilebutton {
+                    position: relative;
+                    left: 182px !important;
+                    width: 42% !important;
+                }
+            }
         }
-        }
 
-           
-
-        /* Ensure text alignment is centered */
         table.dataTable tbody tr {
             text-align: center;
         }
 
-       
-            /* Floating Edit/Delete buttons for mobile */
-            .mobile-actions {
-                position: fixed;
-                top: 10px;
-                right: 15px;
-                z-index: 1000;
-                display: flex;
-               
-                gap: 10px;
-            }
+        .mobile-actions {
+            position: fixed;
+            top: 10px;
+            right: 15px;
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+        }
 
-                .mobile-actions button {
+            .mobile-actions button {
                 background-color: #e9ecef !important;
-                    color:black !important;
+                color: black !important;
                 left: 40px;
-                    padding: 8px 7px;
-                    font-size: 12px;
-                    border-radius: 5px;
-                    position:relative;
-                   bottom:100px;
-                   
+                padding: 8px 7px;
+                font-size: 12px;
+                border-radius: 5px;
+                position: relative;
+                bottom: 100px;
                 transition: background-color 0.3s ease-in-out;
-
-                }
+            }
 
                 .mobile-actions button.edit-active {
-                    background-color: #007bff !important; /* Blue */
+                    background-color: #007bff !important;
                 }
 
-                /* Red when Delete is active */
                 .mobile-actions button.delete-active {
-                    background-color: #dc3545 !important; /* Red */
+                    background-color: #dc3545 !important;
                 }
-            /* Highlight selected row */
-            .selected {
-                background-color: #ffc107 !important;
-            }
+
+        .selected {
+            background-color: #ffc107 !important;
+        }
+
         }
 
         @@media (min-width:1px) and (max-width: 399px) {
@@ -287,19 +261,16 @@
             }
         }
 
-        @@media(min-width:1px) and (max-width: 399px){
-            /* Adjust font size for DataTable content */
+        @@media(min-width:1px) and (max-width: 399px) {
             .mobile_dataTable {
                 position: relative;
                 bottom: 100px;
                 right: 40px;
-           
             }
-
         }
 
         @@media(min-width:1px) and (max-width: 399px) {
-           
+
             .dataTables_info {
                 position: relative;
                 bottom: 100px;
@@ -322,17 +293,16 @@
             }
         }
 
-     
     </style>
 </head>
 <body>
 
-   
+
 
     <div class="container mt-4">
         <h2 class="header" style="font-weight:bold; position:relative; bottom:50px;">Control Panel</h2>
 
-       
+
         <div class="d-md-none mobile-actions smallmobilebutton" style="position:relative; bottom:90px; left:220px; width:45%;">
             <button id="editButton" class="btn btn-primary mobilesmallsize">
                 Edit
@@ -367,7 +337,6 @@
 
     <script>
                $(document).ready(function () {
-            // Initialize DataTable
             const table = $('#userTable').DataTable({
                 destroy: true,
                 columnDefs: [{ targets: 0, searchable: false, orderable: false }],
@@ -379,7 +348,6 @@
                 }
             });
 
-            // Fetch user data from backend
             fetch('/ControlPanel/GetUserInfo')
                 .then(response => response.json())
                 .then(data => {
@@ -396,7 +364,6 @@
                 })
                 .catch(error => console.error("Error fetching user data:", error));
 
-            // Desktop Edit Button Click
             $('#userTable tbody').on('click', '.edit-btn', function () {
                 const userId = $(this).data('user-id');
                 if (userId) {
@@ -406,7 +373,6 @@
                 }
             });
 
-            // Desktop Delete Button Click
             $('#userTable tbody').on('click', '.delete-btn', function () {
                 const row = $(this).closest('tr');
                 const userId = $(this).data('user-id');
@@ -427,7 +393,7 @@
                 }
             });
 
-     
+
             let editMode = false;
             let deleteMode = false;
             let editTapTimeout, deleteTapTimeout;
@@ -435,11 +401,11 @@
             const editBtn = $('#editButton');
             const deleteBtn = $('#deleteButton');
 
-         
+
             const cancelEditBtn = $('<span class="text-danger" id="cancelEdit" style="display: none; margin-right:-33px; cursor: pointer; position:relative; bottom:95px;">❌</span>');
             $('.mobile-actions').prepend(cancelEditBtn);
 
-       
+
             editBtn.on('click', function () {
                 editMode = true;
                 deleteMode = false;
@@ -450,18 +416,16 @@
                 deleteBtn.removeClass("delete-active").addClass("default-btn");
             });
 
-            // When Delete button is clicked
             deleteBtn.on('click', function () {
                 deleteMode = true;
                 editMode = false;
-                cancelEditBtn.show(); // Show cancel button even when pressing delete
+                cancelEditBtn.show();
 
                 // Change button colors
                 deleteBtn.addClass("delete-active").removeClass("default-btn");
                 editBtn.removeClass("edit-active").addClass("default-btn");
             });
 
-            // Handle Clicking the Cancel (❌) for Edit/Delete
             cancelEditBtn.on('click', function () {
                 editMode = false;
                 deleteMode = false;
@@ -470,21 +434,18 @@
                 deleteBtn.removeClass("delete-active").addClass("default-btn");
             });
 
-            // Handle Double Tap to Cancel Edit
             editBtn.on("dblclick", function () {
                 editMode = false;
                 cancelEditBtn.hide();
                 editBtn.removeClass("edit-active").addClass("default-btn");
             });
 
-            // Handle Double Tap to Cancel Delete
             deleteBtn.on("dblclick", function () {
                 deleteMode = false;
                 cancelEditBtn.hide();
                 deleteBtn.removeClass("delete-active").addClass("default-btn");
             });
 
-            // Handle Table Row Click in Mobile Mode
             $('#userTable tbody').on('click', 'tr', function () {
                 const row = $(this);
                 const userId = row.find('.edit-btn').data('user-id');

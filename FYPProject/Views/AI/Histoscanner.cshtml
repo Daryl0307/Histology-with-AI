@@ -115,7 +115,6 @@
                 transform: scale(0.98);
             }
 
-        /* Lightbox Styles */
         .lightbox {
             display: none;
             position: fixed;
@@ -153,104 +152,95 @@
         }
 
         @@keyframes zoomIn {
-            from
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
 
-        {
-            transform: scale(0.8);
-            opacity: 0;
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
 
-        to {
-            transform: scale(1);
-            opacity: 1;
-        }
-
-        }
-
-        /* Mobile Optimization */
+        /* Mobile Layout */
         @@media (max-width: 768px) {
-            .content
+            .content {
+                padding: 15px;
+            }
 
-        {
-            padding: 15px;
-        }
+            .description {
+                padding: 20px;
+                margin-bottom: 15px;
+            }
 
-        .description {
-            padding: 20px;
-            margin-bottom: 15px;
-        }
+            .upload-container {
+                padding: 20px;
+                margin: 15px 0;
+                max-width: 100%;
+            }
 
-        .upload-container {
-            padding: 20px;
-            margin: 15px 0;
-            max-width: 100%;
-        }
+            .upload-btn {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
 
-        .upload-btn {
-            padding: 10px 20px;
-            font-size: 0.9em;
-        }
+            #imagePreview {
+                max-width: 100%;
+                margin: 15px 0;
+            }
 
-        #imagePreview {
-            max-width: 100%;
-            margin: 15px 0;
-        }
+            #label-container {
+                padding: 20px;
+                margin-top: 15px;
+                border-radius: 12px;
+            }
 
-        #label-container {
-            padding: 20px;
-            margin-top: 15px;
-            border-radius: 12px;
-        }
+            .success-message {
+                font-size: 1.1em;
+            }
 
-        .success-message {
-            font-size: 1.1em;
-        }
+            .insights-link {
+                padding: 10px 20px;
+                font-size: 0.9em;
+                margin: 15px 0;
+            }
 
-        .insights-link {
-            padding: 10px 20px;
-            font-size: 0.9em;
-            margin: 15px 0;
-        }
+            .close-btn {
+                top: 15px;
+                right: 15px;
+                font-size: 24px;
+            }
 
-        .close-btn {
-            top: 15px;
-            right: 15px;
-            font-size: 24px;
-        }
-
-        .lightbox img {
-            max-width: 95%;
-        }
-
+            .lightbox img {
+                max-width: 95%;
+            }
         }
 
         @@media (max-width: 480px) {
-            .description h2
+            .description h2 {
+                font-size: 1.5em;
+            }
 
-        {
-            font-size: 1.5em;
-        }
+            .description p {
+                font-size: 0.9em;
+            }
 
-        .description p {
-            font-size: 0.9em;
-        }
+            .upload-container h3 {
+                font-size: 1.2em;
+            }
 
-        .upload-container h3 {
-            font-size: 1.2em;
-        }
+            .upload-container p {
+                font-size: 0.9em;
+            }
 
-        .upload-container p {
-            font-size: 0.9em;
-        }
+            #label-container {
+                padding: 15px;
+            }
 
-        #label-container {
-            padding: 15px;
-        }
-
-        .success-message {
-            font-size: 1em;
-        }
-
+            .success-message {
+                font-size: 1em;
+            }
         }
     </style>
 </head>
@@ -259,7 +249,7 @@
         <div class="description">
             <h2>Welcome to the Histoscanner</h2>
             <p>The Histoscanner leverages AI to analyze tissue samples with precision and speed.</p>
-            <p>Please allow the model up to 5 seconds to load before inputting an image.</p>
+            <p>Please allow the model up to 5 seconds to initilize before inputting an image.</p>
         </div>
 
         <div class="upload-container" id="upload-container">
@@ -301,7 +291,7 @@
         const uploadContainer = document.getElementById("upload-container");
         const imageUpload = document.getElementById("imageUpload");
 
-        // Drag and drop handlers
+        // Drag and drop files
         uploadContainer.addEventListener("dragover", (e) => {
             e.preventDefault();
             uploadContainer.classList.add("dragging");
@@ -349,7 +339,7 @@
                         <div class="success-message">
                             ${tissueName}: ${(p.probability * 100).toFixed(2)}% accuracy
                         </div>
-                        <a href="/Histology/${tissueName}" class="insights-link">
+                        <a href="/Tissue/${tissueName}" class="insights-link">
                             View Detailed Insights for ${tissueName} Tissue
                         </a>
                     `;
