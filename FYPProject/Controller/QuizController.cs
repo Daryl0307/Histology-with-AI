@@ -217,7 +217,11 @@ ORDER BY S.Score DESC;
         List<HistoQuiz> quizlist = DBUtl.GetList<HistoQuiz>("SELECT Quiz.Quiz_Category AS 'QuizCategory',  SUM(Q.QuestionMarks) AS 'TotalQuestionMarks' FROM Quiz INNER JOIN Question Q ON Quiz.Quiz_ID = Q.Quiz_ID  GROUP BY Quiz.Quiz_Category");
 
         List<QuizStatistics> statisticslist = DBUtl.GetList<QuizStatistics>("SELECT User_Id AS 'UserId', Quiz_Category AS 'QuizCategory', Date_Attempted AS 'DateAttempted', Score FROM Quiz_Statistics WHERE User_Id = {0}", userId);
-
+        if (statisticslist.Count() > 20)
+        {
+            string deleteEarliestStatsSql = @"DELETE FROM Quiz_Statistics WHERE User_Id = {0} AND Date_Attempted = (SELECT MIN(Date_Attempted) FROM Quiz_Statistics WHERE User_Id = {0}) AND Statistic_ID = (SELECT MIN(Statistic_ID) FROM Quiz_Statistics WHERE User_Id = {0} AND Date_Attempted = (SELECT MIN(Date_Attempted) FROM Quiz_Statistics WHERE User_Id = {0}))";
+            DBUtl.ExecSQL(deleteEarliestStatsSql, userId);
+        }
         string getPhotoUrl = @"SELECT Photo_URL FROM Photos WHERE Quiz_Id = {0}";
 
         string deleteResponsesql = @"DELETE FROM Quiz_Responses";
