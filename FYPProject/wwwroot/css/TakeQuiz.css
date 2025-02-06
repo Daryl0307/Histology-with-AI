@@ -31,7 +31,7 @@ body {
     color: var(--font-color);
     font-weight: 900;
     font-size: 20px;
-    margin-bottom: 25px;
+    margin-bottom: 30px;
 }
 
     .title span {
@@ -135,18 +135,8 @@ body {
     cursor: pointer;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-    .quiz-container {
-        padding: 20px;
-    }
 
-    h2 {
-        font-size: 1.6em;
-    }
-}
 
-/* From Uiverse.io by LilaRest */
 .radio-input {
     display: flex;
     height: 210px;
@@ -154,9 +144,11 @@ body {
 }
 
 .glass {
+    margin-top:45px;
+    margin-bottom:35px;
     z-index: 2;
-    position: relative; /* Ensure the ball positions relative to glass */
-    height: 110%;
+    position: relative; 
+    height: 135%;
     width: 95px;
     margin-right: 20px;
     padding: 5px;
@@ -181,7 +173,7 @@ body {
 }
 
 .choice {
-    margin: 10px 0 10px 0;
+    margin-top: 10px;
     display: flex;
     align-items: center;
 }
@@ -232,8 +224,8 @@ body {
 
 .choice-square {
     appearance: none;
-    height: 45px;
-    width: 45px;
+    height: 100%;
+    width: 100%;
     border-radius: 10px; /* Optional: Adjust for rounded corners */
     border-width: 5px;
     border-style: solid;
@@ -266,3 +258,264 @@ body {
         transform: translateX(0px) translateY(0px);
     }
 
+@media (max-width: 768px) {
+    body {
+        font-family: 'Raleway', sans-serif;
+        background: #e8e8e8;
+        color: #2C3E50;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Quiz Container */
+    .quiz-container {
+        --input-focus: #2d8cf0;
+        --font-color: #323232;
+        --font-color-sub: #666;
+        --bg-color: beige;
+        --main-color: black;
+        padding: 20px;
+        background: lightblue;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 20px;
+        border-radius: 5px;
+        border: 2px solid var(--main-color);
+        box-shadow: 4px 4px var(--main-color);
+    }
+
+    /* Quiz Title */
+    .title {
+        color: var(--font-color);
+        font-weight: 900;
+        font-size: 20px;
+        margin-bottom: 30px;
+    }
+
+        .title span {
+            color: var(--font-color-sub);
+            font-weight: 600;
+            font-size: 17px;
+        }
+
+
+    /* Image Container */
+    .quiz-image {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+        .quiz-image img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            border: 2px solid #e8f6f3;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .quiz-image p {
+            font-size: 0.95em;
+            color: #7f8c8d;
+        }
+
+    /* Question Section */
+    .quiz-question {
+        margin-bottom: 25px;
+        padding: 20px;
+        background: #eafaf1;
+        border-radius: 10px;
+        border-left: 6px solid #1ABC9C;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    }
+
+        .quiz-question h3 {
+            color: #1ABC9C;
+            font-size: 1.4em;
+            font-weight: 600;
+        }
+
+        .quiz-question p {
+            font-size: 1em;
+            color: #34495e;
+        }
+
+    /* Answer Options */
+    .quiz-answers {
+        margin-top: 20px;
+    }
+
+        .quiz-answers h3 {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            color: #1ABC9C;
+            font-weight: 600;
+        }
+
+    .form-check {
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+    }
+
+    .form-check-input {
+        margin-right: 12px;
+        transform: scale(1.2);
+        cursor: pointer;
+    }
+
+    .form-check-label {
+        font-size: 1em;
+        color: #2C3E50;
+    }
+
+    /* Dropdown Styling */
+    .form-control {
+        padding: 12px;
+        font-size: 1em;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        width: 100%;
+        margin-top: 10px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .button-confirm {
+        margin: 50px auto 0 auto;
+        width: 120px;
+        height: 40px;
+        border-radius: 5px;
+        border: 2px solid var(--main-color);
+        background-color: var(--bg-color);
+        box-shadow: 4px 4px var(--main-color);
+        font-size: 17px;
+        font-weight: 600;
+        color: var(--font-color);
+        cursor: pointer;
+    }
+
+    .radio-input {
+        display: flex;
+        height: 210px;
+        align-items: center;
+    }
+
+    .glass {
+        margin-bottom: 65px;
+        z-index: 2;
+        position: relative;
+        height: 115%;
+        width: 60px;
+        margin-right: 20px;
+        padding: 5px;
+        background-color: rgba(190, 189, 189, 0.5);
+        border-radius: 35px;
+        box-shadow: rgba(50, 50, 93, 0.2) 0px 25px 50px -10px, rgba(0, 0, 0, 0.25) 0px 10px 30px -15px, rgba(10, 37, 64, 0.26) 0px -2px 6px 0px inset;
+        backdrop-filter: blur(8px);
+    }
+
+    .glass-inner {
+        width: 80%;
+        height: 96%;
+        border-color: rgba(245, 245, 245, 0.45);
+        border-width: 4px;
+        border-style: solid;
+        border-radius: 30px;
+    }
+
+    .selector {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .choice {
+        margin-top: 1px;
+        display: flex;
+        align-items: center;
+    }
+
+        .choice > div {
+            position: relative;
+            width: 41px;
+            height: 41px;
+            margin-right: 15px;
+            z-index: 0;
+        }
+
+    .choice-circle {
+        margin-right: 25px;
+        appearance: none;
+        height: 75%;
+        width: 75%;
+        border-radius: 100%;
+        border-width: 9px;
+        border-style: solid;
+        border-color: rgba(245, 245, 245, 0.45);
+        cursor: pointer;
+        box-shadow: 0px 0px 20px -13px gray, 0px 0px 20px -14px gray inset;
+    }
+
+    .ball {
+        margin-left: 40px;
+        z-index: 1;
+        position: absolute;
+        inset: 0px;
+        width: 75%;
+        height: 75%;
+        transform: translateX(-95px);
+        box-shadow: rgba(0, 0, 0, 0.17) 0px -10px 10px 0px inset, rgba(0, 0, 0, 0.15) 0px -15px 15px 0px inset, rgba(0, 0, 0, 0.1) 0px -40px 20px 0px inset, rgba(0, 0, 0, 0.06) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px, rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px, rgba(0, 0, 0, 0.09) 0px 32px 16px, 0px -1px 15px -8px rgba(0, 0, 0, 0.09);
+        border-radius: 100%;
+        transition: transform 800ms cubic-bezier(1, -0.4, 0, 1.4);
+        background-color: rgb(232, 232, 232, 1);
+    }
+
+    .choice-circle:checked + .ball {
+        transform: translateX(-35px);
+    }
+
+    .choice-name {
+        font-size: 15px;
+        font-weight: 900;
+        font-family: monospace;
+        cursor: pointer;
+        color: var(--font-color);
+    }
+
+    .choice-square {
+        margin-right: 28px;
+        appearance: none;
+        height: 75%;
+        width: 75%;
+        border-radius: 10px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: rgba(245, 245, 245, 0.45);
+        cursor: pointer;
+        box-shadow: 0px 0px 20px -13px gray, 0px 0px 20px -14px gray inset;
+        background-color: #ffffff;
+        transition: background-color 0.3s, transform 0.2s;
+    }
+
+    .ball-square {
+        margin-left: 35px;
+        z-index: 1;
+        position: absolute;
+        inset: 0px;
+        border-radius: 10px;
+        transform: translateX(-90px) translateY(-5px);
+        box-shadow: rgba(0, 0, 0, 0.17) 0px -10px 10px 0px inset, rgba(0, 0, 0, 0.15) 0px -15px 15px 0px inset, rgba(0, 0, 0, 0.1) 0px -40px 20px 0px inset, rgba(0, 0, 0, 0.06) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px, rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px, rgba(0, 0, 0, 0.09) 0px 32px 16px, 0px -1px 15px -8px rgba(0, 0, 0, 0.09);
+        width: 75%;
+        height: 75%;
+        transition: transform 800ms cubic-bezier(1, -0.4, 0, 1.4);
+        background-color: rgb(232, 232, 232, 1);
+    }
+
+    .choice-square:checked {
+        background-color: #1ABC9C;
+        border-color: #16A085;
+    }
+        .choice-square:checked + .ball-square {
+            transform: translateX(-35px) translateY(0px);
+        }
+}
