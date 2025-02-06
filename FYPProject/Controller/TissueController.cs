@@ -224,12 +224,6 @@ public class TissueController : Controller
                         photoIds.Add(insertedPhotoId);
                     }
                 }
-            } else
-            {
-                string picfilename = "No Picture Inserted";
-                string updateTissueSql = @"UPDATE Photos SET Photo_URL = '{1}' WHERE Tissue_ID = {0}";
-                DBUtl.ExecSQL(updateTissueSql, model.TissueId, picfilename);
-
             }
 
             // Update existing photos with the new Tissue_ID
