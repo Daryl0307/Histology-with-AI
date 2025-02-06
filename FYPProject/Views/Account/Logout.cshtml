@@ -8,11 +8,10 @@
     body {
         background-color: #80cbc4;
         margin: 0;
+        padding: 0;
+        width: 100vw;
         height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 15px;
+        position: relative; /* Required for absolute positioning */
     }
 
     .logout-card {
@@ -22,12 +21,16 @@
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         text-align: center;
         width: 100%;
-        max-width: 380px; 
+        max-width: 380px;
         box-sizing: border-box;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%); /* Ensures perfect centering */
     }
 
     .success-icon {
-        font-size: 45px; 
+        font-size: 45px;
         color: #28a745;
         margin-bottom: 10px;
     }
@@ -46,7 +49,7 @@
         font-size: 15px;
         text-align: center;
         margin: 5px 0 10px;
-        line-height: 1.4; 
+        line-height: 1.4;
     }
 
     .countdown {
@@ -54,7 +57,7 @@
         font-weight: bold;
         font-size: 15px;
         display: inline-block;
-        margin-left: 4px; 
+        margin-left: 4px;
     }
 
     .logout-button {
@@ -68,11 +71,11 @@
         margin-top: 15px;
         text-decoration: none;
         display: block;
-        width: 90%; 
+        width: 90%;
         max-width: 220px;
         margin-left: auto;
         margin-right: auto;
-        box-sizing: border-box; 
+        box-sizing: border-box;
     }
 
         .logout-button:hover {
@@ -81,25 +84,21 @@
 
     /* Mobile Optimization */
     @@media (max-width: 480px) {
-        body
+        .logout-card
 
     {
-        padding: 10px;
-    }
-
-    .logout-card {
         padding: 20px;
         width: 90%;
         max-width: 100%;
     }
 
-        .logout-card h2 {
-            font-size: 18px;
-        }
+    .logout-card h2 {
+        font-size: 18px;
+    }
 
-        .logout-card p {
-            font-size: 14px;
-        }
+    .logout-card p {
+        font-size: 14px;
+    }
 
     .success-icon {
         font-size: 38px;
