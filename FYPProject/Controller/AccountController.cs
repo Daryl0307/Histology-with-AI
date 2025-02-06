@@ -60,36 +60,43 @@ namespace FYPProject.Controllers
             {
                 try
                 {
+                    // Hash the password using SHA256 from DBUtl
+                    string hashedPassword = DBUtl.HashPassword(password);
+
                     using (SqlConnection conn = new SqlConnection(_connectionString))
                     {
                         conn.Open();
                         // Get User_Id
                         string userIdQuery = @"
-                        SELECT User_Id 
-                        FROM User_Info 
-                        WHERE (Username = @UsernameOrEmail OR Email = @UsernameOrEmail)";
+                SELECT User_Id 
+                FROM User_Info 
+                WHERE (Username = @UsernameOrEmail OR Email = @UsernameOrEmail)";
+
                         using (SqlCommand cmd = new SqlCommand(userIdQuery, conn))
                         {
                             cmd.Parameters.Add("@UsernameOrEmail", SqlDbType.NVarChar).Value = usernameOrEmail;
+
                             object userIdObj = cmd.ExecuteScalar();
                             if (userIdObj == null)
                             {
                                 ViewBag.ErrorMessage = "Wrong credentials. Please try again. ";
                                 return View("Login");
                             }
+
                             HttpContext.Session.SetString("UserId", userIdObj.ToString());
                         }
+
                         // Get Role_Status
                         string roleQuery = @"
-        SELECT Role_Status 
-        FROM User_Info 
-        WHERE (Username = @UsernameOrEmail OR Email = @UsernameOrEmail) 
-        AND Password = @Password";
+                SELECT Role_Status 
+                FROM User_Info 
+                WHERE (Username = @UsernameOrEmail OR Email = @UsernameOrEmail) 
+                AND Password = @Password";
 
                         using (SqlCommand cmd = new SqlCommand(roleQuery, conn))
                         {
                             cmd.Parameters.Add("@UsernameOrEmail", SqlDbType.NVarChar).Value = usernameOrEmail;
-                            cmd.Parameters.Add("@Password", SqlDbType.NVarChar).Value = password;
+                            cmd.Parameters.Add("@Password", SqlDbType.NVarChar).Value = hashedPassword;
 
                             object roleStatusObj = cmd.ExecuteScalar();
                             if (roleStatusObj == null)
@@ -104,15 +111,15 @@ namespace FYPProject.Controllers
 
                         // Get Username
                         string usernameQuery = @"
-        SELECT Username 
-        FROM User_Info 
-        WHERE (Username = @UsernameOrEmail OR Email = @UsernameOrEmail) 
-        AND Password = @Password";
+                SELECT Username 
+                FROM User_Info 
+                WHERE (Username = @UsernameOrEmail OR Email = @UsernameOrEmail) 
+                AND Password = @Password";
 
                         using (SqlCommand cmd = new SqlCommand(usernameQuery, conn))
                         {
                             cmd.Parameters.Add("@UsernameOrEmail", SqlDbType.NVarChar).Value = usernameOrEmail;
-                            cmd.Parameters.Add("@Password", SqlDbType.NVarChar).Value = password;
+                            cmd.Parameters.Add("@Password", SqlDbType.NVarChar).Value = hashedPassword;
 
                             object usernameObj = cmd.ExecuteScalar();
                             if (usernameObj != null)
@@ -123,15 +130,15 @@ namespace FYPProject.Controllers
 
                         // Get Email
                         string emailQuery = @"
-        SELECT Email 
-        FROM User_Info 
-        WHERE (Username = @UsernameOrEmail OR Email = @UsernameOrEmail) 
-        AND Password = @Password";
+                SELECT Email 
+                FROM User_Info 
+                WHERE (Username = @UsernameOrEmail OR Email = @UsernameOrEmail) 
+                AND Password = @Password";
 
                         using (SqlCommand cmd = new SqlCommand(emailQuery, conn))
                         {
                             cmd.Parameters.Add("@UsernameOrEmail", SqlDbType.NVarChar).Value = usernameOrEmail;
-                            cmd.Parameters.Add("@Password", SqlDbType.NVarChar).Value = password;
+                            cmd.Parameters.Add("@Password", SqlDbType.NVarChar).Value = hashedPassword;
 
                             object emailObj = cmd.ExecuteScalar();
                             if (emailObj != null)
@@ -508,7 +515,7 @@ namespace FYPProject.Controllers
 
         private bool IsValidPassword(string password)
         {
-            var passwordPattern = "^(?=.[A-Z])(?=.[0-9])[A-Za-z0-9]{8,24}$";
+            var passwordPattern = "^(?=.*[A-Z])(?=.*[0-9])[A-Za-z0-9]{8,24}$";
             return System.Text.RegularExpressions.Regex.IsMatch(password, passwordPattern);
         }
 
@@ -595,8 +602,7 @@ namespace FYPProject.Controllers
             if (string.IsNullOrEmpty(account.Password))
                 errorMessages["Password"] = "Password is required.";
 
-            if (!string.IsNullOrEmpty(account.Email) &&
-                !System.Text.RegularExpressions.Regex.IsMatch(account.Email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+            if (!string.IsNullOrEmpty(account.Email) && !IsValidEmail(account.Email))
             {
                 errorMessages["Email"] = "Invalid email format.";
             }
@@ -607,17 +613,16 @@ namespace FYPProject.Controllers
             }
 
             if (!string.IsNullOrEmpty(account.Username) &&
-                !System.Text.RegularExpressions.Regex.IsMatch(account.Username, @"^[a-zA-Z]{6,24}$"))
+                !System.Text.RegularExpressions.Regex.IsMatch(account.Username, @"^[a-zA-Z0-9]{6,24}$"))
             {
-                errorMessages["Username"] = "Username must be 6-24 characters long and contain only letters.";
+                errorMessages["Username"] = "Username must be 6-24 characters long and contain only letters and numbers.";
             }
 
             if (!string.IsNullOrEmpty(account.Password) &&
-                !System.Text.RegularExpressions.Regex.IsMatch(account.Password, @"^(?=.[A-Z])(?=.\d)[A-Za-z\d]{8,24}$"))
+                !System.Text.RegularExpressions.Regex.IsMatch(account.Password, @"^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,24}$"))
             {
                 errorMessages["Password"] = "Password must be 8-24 characters, include an uppercase letter, a number, and contain no symbols.";
             }
-
         }
 
         private void StoreErrorsInTempData(Dictionary<string, string> errorMessages, Account account)
@@ -649,28 +654,56 @@ namespace FYPProject.Controllers
         {
             try
             {
-                using (var smtpClient = new SmtpClient("smtp.gmail.com", 587))
+                string fromEmail = "aihistoemail@gmail.com";
+                string fromPassword = "fmxa frop szee ahnr";
+                string subject = "Email Verification Code";
+
+                // HTML body with embedded logo and verification code
+                string body = $@"
+<html>
+    <body style='font-family: Arial, sans-serif; text-align: center;'>
+        <h2 style='color: #005792;'>Welcome to Histology</h2>
+        <p>Thank you for signing up! Please use the verification code below to verify your email address. This code will expire in <strong>10 minutes</strong>:</p>
+        <h3 style='color: #FF5722;'>{verificationCode}</h3>
+        <p>If you did not request this, please ignore this email. Your account is safe.</p>
+        <p>Thank you for using Histology. If you have any questions, feel free to contact our support team.</p>
+        <img src='cid:LogoImage' style='margin-top: 20px; width: 150px;' alt='Histology Logo' />
+        <p style='margin-top: 10px;'>Best regards,<br><strong>Histology Team</strong></p>
+    </body>
+</html>";
+
+                using (MailMessage mail = new MailMessage())
                 {
-                    smtpClient.Credentials = new NetworkCredential("AIHistoemail@gmail.com", "fmxa frop szee ahnr"); // Use the App Password here
-                    smtpClient.EnableSsl = true;
+                    mail.From = new MailAddress(fromEmail);
+                    mail.To.Add(recipientEmail);
+                    mail.Subject = subject;
+                    mail.IsBodyHtml = true;
 
-                    var mailMessage = new MailMessage
+                    // Create an alternate view for the HTML body
+                    AlternateView htmlView = AlternateView.CreateAlternateViewFromString(body, null, "text/html");
+
+                    // Embed the logo in the email
+                    LinkedResource logo = new LinkedResource("wwwroot/images/logo.png", "image/png");
+                    logo.ContentId = "LogoImage"; // Ensure this matches the `src` attribute in the HTML
+                    htmlView.LinkedResources.Add(logo);
+
+                    mail.AlternateViews.Add(htmlView);
+
+                    // Send the email using SMTP
+                    using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
                     {
-                        From = new MailAddress("AIHistoemail@gmail.com", "AiWithHistology"), // Sender email and name
-                        Subject = "Your Email Verification Code",
-                        Body = $"Hello,\n\nYour verification code is: {verificationCode}\n\nThank you for signing up!",
-                        IsBodyHtml = false
-                    };
-                    mailMessage.To.Add(recipientEmail);
-
-                    smtpClient.Send(mailMessage);
+                        smtp.Credentials = new NetworkCredential(fromEmail, fromPassword);
+                        smtp.EnableSsl = true;
+                        smtp.Send(mail);
+                    }
                 }
-                return true;
+
+                return true; // Email sent successfully
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error sending email: " + ex.Message);
-                return false;
+                return false; // Email sending failed
             }
         }
         [HttpGet]

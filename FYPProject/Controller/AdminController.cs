@@ -6,10 +6,13 @@ using FYPProject.Models;
 using Microsoft.AspNetCore.Http;
 using System.IO;
 using RP.SOI.DotNet.Utils;
+using FYPProject.Attributes;
 
 namespace FYPProject.Controllers
 {
+
     [Route("Histology")]
+
     public class AdminController : Controller
     {
         protected IActionResult JsonResponse(bool success, string message)
@@ -63,6 +66,7 @@ namespace FYPProject.Controllers
         }
 
         [HttpGet("/Histology/UpdatePhoto")]
+
         public async Task<IActionResult> UpdatePhoto(int id)
         {
             ViewBag.HideNavbar = false;
@@ -87,6 +91,7 @@ namespace FYPProject.Controllers
 
 
         [HttpPost("UpdatePhoto")]
+        [AdminOnly]
         public async Task<IActionResult> UpdatePhoto(int Id, IFormFile file, string description)
         {
             if (HttpContext.Session.GetString("UserRole") != "1")
@@ -175,6 +180,7 @@ namespace FYPProject.Controllers
 
 
         [HttpPost("ConfirmDelete")]
+        [AdminOnly]
         public async Task<IActionResult> ConfirmDelete(int Id)
         {
             if (HttpContext.Session.GetString("UserRole") != "1")
@@ -213,7 +219,7 @@ namespace FYPProject.Controllers
             ViewBag.HideNavbar = false;
             return View("/Views/Histology/AddPhoto.cshtml");
         }
-
+        [AdminOnly]
         [HttpPost("AddPhoto")]
         public async Task<IActionResult> AddPhoto(IFormFile file, string description)
         {
