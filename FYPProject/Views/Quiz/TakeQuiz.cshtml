@@ -128,6 +128,12 @@
 
     <!-- Client-side validation for the form -->
     <script>
+        document.addEventListener("keydown", function (e) {
+        if (e.key === "F5" || (e.ctrlKey && e.key === "r")) {
+            e.preventDefault();
+            alert("Page refresh is disabled.");
+        }
+    });
         document.addEventListener("DOMContentLoaded", function () {
             const form = document.getElementById('quizForm');
 
