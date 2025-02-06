@@ -48,10 +48,9 @@
 
         @@media (min-width:1px) and (max-width: 399px) {
             .mobilesmallsize {
-                font-size: 9px;
+                font-size: 11px;
             }
         }
-
     </style>
 </head>
 <body>
@@ -74,7 +73,10 @@
                 <input type="email" id="email" class="form-control">
             </div>
             <div class="form-actions word">
-                <button type="button" class="btn btn-danger reset-password mobilesmallsize">Reset Password</button>
+                <button type="button" class="btn btn-danger reset-password mobilesmallsize" data-bs-toggle="modal" data-bs-target="#resetPasswordModal">
+                    Reset Password
+                </button>
+
                 <div class="save-cancel word">
                     <button type="submit" class="btn btn-primary mobilesmallsize">Save</button>
                     <a href="/ControlPanel/ControlPanel" class="btn btn-secondary mobilesmallsize">Cancel</a>
@@ -82,12 +84,60 @@
             </div>
         </form>
     </div>
+    <div class="modal fade" id="resetPasswordModal" tabindex="-1" aria-labelledby="resetPasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="resetPasswordModalLabel">Confirm Password Reset</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to reset the password for this user?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmResetPassword">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="notification" style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+        background-color: #28a745; color: white; padding: 10px 20px; border-radius: 5px; z-index: 1000;">
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-               $(document).ready(function () {
+             $(document).ready(function () {
             const userId = new URLSearchParams(window.location.search).get('userId');
             console.log("Editing user with ID:", userId);
+
+
+            function showNotification(message, isError = false) {
+                console.log("Showing notification:", message);
+
+                const notification = $('#notification');
+                notification.text(message);
+                notification.css({
+                    'background-color': isError ? '#dc3545' : '#28a745',
+                    'color': 'white',
+                    'padding': '10px 20px',
+                    'border-radius': '5px',
+                    'text-align': 'center',
+                    'position': 'fixed',
+                    'top': '20px',
+                    'left': '50%',
+                    'transform': 'translateX(-50%)',
+                    'z-index': '1000',
+                    'display': 'block'
+                });
+
+                setTimeout(() => {
+                    notification.fadeOut();
+                }, 3000);
+            }
+
 
             fetch(`/ControlPanel/GetUserDetails?userId=${userId}`)
                 .then(response => response.json())
@@ -102,51 +152,77 @@
                 })
                 .catch(error => console.error("Error fetching user details:", error));
 
-                  $('.reset-password').on('click', function () {
-            if (confirm("Are you sure you want to reset the password?")) {
+
+            $('.reset-password').on('click', function () {
+                console.log("Reset Password button clicked");
+                $('#resetPasswordModal').modal('show');
+            });
+
+
+            $(document).on('click', '#confirmResetPassword', function () {
+                console.log("Confirm Reset Password button clicked");
+
                 fetch(`/ControlPanel/ResetPassword?userId=${userId}`, {
                     method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => {
+                    console.log("Fetch Response:", response);
+                    if (!response.ok) {
+                        throw new Error("Server returned an error!");
+                    }
+                    return response.json();
+                })
+                .then(result => {
+                    console.log("Reset password success:", result);
+
+                    $('#resetPasswordModal').modal('hide');
+                    showNotification(result.message);
+                })
+                .catch(error => {
+                    console.error("Error resetting password:", error);
+                    showNotification("Failed to reset password!", true);
+                });
+            });
+
+
+            $('#editForm').off('submit').on('submit', function (e) {
+                e.preventDefault();
+
+                const username = $('#username').val();
+                const email = $('#email').val();
+                const roleStatus = $('input[name="adminAccess"]:checked').val();
+
+                fetch(`/ControlPanel/UpdateUser`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        userId: parseInt(userId),
+                        username: username,
+                        roleStatus: roleStatus,
+                        email: email,
+                    }),
                 })
                 .then(response => response.json())
                 .then(result => {
-                    alert(result.message || "Password reset successfully.");
+                    showNotification(result.message);
                 })
-                .catch(error => console.error("Error resetting password:", error));
-            }
-        });
-                          $('#editForm').off('submit').on('submit', function (e) {
-            e.preventDefault(); // Prevent default form submission
-
-            const username = $('#username').val();
-            const email = $('#email').val();
-            const roleStatus = $('input[name="adminAccess"]:checked').val();
-
-            // Send the updated data to the backend
-            fetch(`/ControlPanel/UpdateUser`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    userId: parseInt(userId),
-                    username: username,
-                    roleStatus: roleStatus,
-                    email: email,
-                }),
-            })
-            .then(response => response.json())
-            .then(result => {
-                alert("Saved Successfully!"); // Display system message
-            })
-            .catch(error => {
-                console.error("Error updating user:", error);
-                alert("Failed to save changes!"); // Display system error message
+                .catch(error => {
+                    console.error("Error updating user:", error);
+                    showNotification("Failed to save changes!", true);
+                });
             });
+
+
+            $('body').append('<div id="notification"></div>');
         });
 
 
-
-        });
     </script>
 </body>
 </html>

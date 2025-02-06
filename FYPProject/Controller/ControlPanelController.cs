@@ -170,7 +170,6 @@ namespace FYPProject.Controllers
                     return BadRequest(new { message = "Invalid User ID provided." });
                 }
 
-
                 string query = "UPDATE User_Info SET Password = @DefaultPassword WHERE User_ID = @UserID";
 
                 using (SqlConnection conn = new SqlConnection(_connectionString))
@@ -184,7 +183,7 @@ namespace FYPProject.Controllers
                         int rowsAffected = cmd.ExecuteNonQuery();
                         if (rowsAffected > 0)
                         {
-                            return Ok(new { message = "Password reset successfully." });
+                            return Ok(new { message = "Password has been reset successfully." });
                         }
                         else
                         {
@@ -199,6 +198,8 @@ namespace FYPProject.Controllers
                 return StatusCode(500, new { message = "An error occurred while resetting the password." });
             }
         }
+
+
 
         [HttpPost]
         public IActionResult UpdateUser([FromBody] UpdateUserPayload payload)
@@ -225,7 +226,7 @@ namespace FYPProject.Controllers
                         int rowsAffected = cmd.ExecuteNonQuery();
                         if (rowsAffected > 0)
                         {
-                            return Ok(new { message = "User updated successfully." });
+                            return Ok(new { message = "User details updated successfully." });
                         }
                         else
                         {
@@ -241,17 +242,17 @@ namespace FYPProject.Controllers
             }
         }
 
-    }
 
-    public class DeleteUserPayload
-    {
-        public int UserId { get; set; }
-    }
-    public class UpdateUserPayload
-    {
-        public int UserId { get; set; }
-        public string Username { get; set; }
-        public string RoleStatus { get; set; }
-        public string Email { get; set; }
+        public class DeleteUserPayload
+        {
+            public int UserId { get; set; }
+        }
+        public class UpdateUserPayload
+        {
+            public int UserId { get; set; }
+            public string Username { get; set; }
+            public string RoleStatus { get; set; }
+            public string Email { get; set; }
+        }
     }
 }
