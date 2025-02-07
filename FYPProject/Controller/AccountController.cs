@@ -593,7 +593,6 @@ namespace FYPProject.Controllers
         }
 
 
-        // Helper methods
         private void ValidateAccount(Account account, string confirmPassword, Dictionary<string, string> errorMessages)
         {
             if (string.IsNullOrEmpty(account.Username))
@@ -616,13 +615,13 @@ namespace FYPProject.Controllers
             if (!string.IsNullOrEmpty(account.Username) &&
                 !System.Text.RegularExpressions.Regex.IsMatch(account.Username, @"^[a-zA-Z0-9]{6,24}$"))
             {
-                errorMessages["Username"] = "Username must be 6-24 characters long and contain only letters and numbers.";
+                errorMessages["Username"] = "Username must be 6-24 characters long and contain only alphabet";
             }
 
             if (!string.IsNullOrEmpty(account.Password) &&
-                !System.Text.RegularExpressions.Regex.IsMatch(account.Password, @"^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,24}$"))
+                !System.Text.RegularExpressions.Regex.IsMatch(account.Password, @"^(?=.[A-Z])(?=.\d)[A-Za-z\d\W_]{8,24}$"))
             {
-                errorMessages["Password"] = "Password must be 8-24 characters, include an uppercase letter, a number, and contain no symbols.";
+                errorMessages["Password"] = "Password must be 8-24 characters, include an uppercase alphabet and a number.";
             }
         }
 
@@ -1216,6 +1215,7 @@ namespace FYPProject.Controllers
         private bool IsCurrentPasswordCorrect(string userId, string currentPassword)
         {
             string storedPassword = null;
+            string hashedInputPassword = HashPasswordSHA256(currentPassword); // Ensure consistent hashing
 
             using (SqlConnection conn = new SqlConnection(_connectionString))
             {
@@ -1229,8 +1229,12 @@ namespace FYPProject.Controllers
                 }
             }
 
-            return storedPassword != null && storedPassword == currentPassword;
+            // Compare stored Base64-encoded hash with the input hash
+            return storedPassword != null && storedPassword.Equals(hashedInputPassword);
         }
+
+
+
 
         [HttpPost]
         public IActionResult ChangePassword(string currentPassword, string newPassword, string confirmPassword)
@@ -1258,20 +1262,24 @@ namespace FYPProject.Controllers
 
             try
             {
+                string hashedPassword = HashPasswordSHA256(newPassword); // Ensure proper hashing
+
                 using (SqlConnection conn = new SqlConnection(_connectionString))
                 {
                     conn.Open();
                     string updateQuery = "UPDATE User_Info SET Password = @Password WHERE User_Id = @UserId";
                     using (SqlCommand cmd = new SqlCommand(updateQuery, conn))
                     {
-                        cmd.Parameters.AddWithValue("@Password", newPassword);
+                        cmd.Parameters.AddWithValue("@Password", hashedPassword);
                         cmd.Parameters.AddWithValue("@UserId", userId);
                         cmd.ExecuteNonQuery();
                     }
                 }
 
-                TempData["SuccessMessage"] = "Your password has been successfully updated!";
-                return Json(new { success = true });
+               TempData["SuccessMessage"] = "Your password has been successfully updated!";
+            TempData.Keep("SuccessMessage"); // Keeps it only for the next request
+            return Json(new { success = true });
+
             }
             catch (Exception ex)
             {
@@ -1283,17 +1291,33 @@ namespace FYPProject.Controllers
 
 
 
+        private string HashPasswordSHA256(string password)
+        {
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                byte[] bytes = Encoding.UTF8.GetBytes(password);
+                byte[] hashBytes = sha256.ComputeHash(bytes);
+
+                // Ensure consistent encoding
+                return Convert.ToBase64String(hashBytes);
+            }
+        }
+
+
+
+
+
+
         private bool UserIsValidPassword(string password)
         {
-            var passwordPattern = "^(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d]{8,24}$";
+            var passwordPattern = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)[A-Za-z\\d]{8,24}$";
             bool isValid = System.Text.RegularExpressions.Regex.IsMatch(password, passwordPattern);
+
             Console.WriteLine($"User password validation result: {isValid}");
             return isValid;
         }
 
 
+
     }
 }
-
-
-

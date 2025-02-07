@@ -11,299 +11,331 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
     <title>Reset Password</title>
     <style>
-          body {
-              font-family: Arial, sans-serif;
-              background-color:  #90B2B8;
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              height: 100vh;
-              margin: 0;
-          }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #90B2B8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
 
-          @@media (min-width: 1px) and (max-width: 399px) {
-              .reset-card {
-                  background: #ffffff;
-                  border-radius: 8px;
-                  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
-                  width: 70%;
-                  max-width: 400px;
-                  padding: 30px;
-                  text-align: center;
-                  display: flex;
-                  flex-direction: column;
-                  align-items: center;
-                  position: relative;
-                  left: 18px;
-              }
-          }
-
-
-          @@media (min-width: 400px) and (max-width: 499px) {
-          .reset-card {
-              background: #ffffff;
-              border-radius: 8px;
-              box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
-              width: 70%;
-              max-width: 400px;
-              padding: 30px;
-              text-align: center;
-              display: flex;
-              flex-direction: column;
-              align-items: center;
-              position:relative;
-              left:36px;
-          }
-          }
-
-          @@media (min-width: 500px){
-              .reset-card {
-                  background: #ffffff;
-                  border-radius: 8px;
-                  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
-                  width: 140%;
-                  max-width: 400px;
-                  padding: 30px;
-                  text-align: center;
-                  display: flex;
-                  flex-direction: column;
-                  align-items: center;
-              }
-          }
+        @@media (min-width: 1px) and (max-width: 399px) {
+            .reset-card {
+                background: #ffffff;
+                border-radius: 8px;
+                box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+                width: 70%;
+                max-width: 400px;
+                padding: 30px;
+                text-align: center;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                position: relative;
+                left: 28px;
+            }
+        }
 
 
-          @@media (min-width: 1px) and (max-width: 399px) {
-              .reset-cardpw {
-                  background: #ffffff;
-                  border-radius: 8px;
-                  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
-                  width: 100%;
-                  max-width: 400px;
-                  padding: 30px;
-                  text-align: center;
-                  display: flex;
-                  flex-direction: column;
-                  align-items: center;
-                  position: relative;
-                  right: 28px;
-              }
-          }
+        @@media (min-width: 400px) and (max-width: 499px) {
+            .reset-card {
+                background: #ffffff;
+                border-radius: 8px;
+                box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+                width: 70%;
+                max-width: 400px;
+                padding: 30px;
+                text-align: center;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                position: relative;
+                left: 36px;
+            }
+        }
 
-          @@media (min-width: 400px) and (max-width: 499px) {
-          .reset-cardpw {
-              background: #ffffff;
-              border-radius: 8px;
-              box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
-              width: 120%;
-              max-width: 400px;
-              padding: 30px;
-              text-align: center;
-              display: flex;
-              flex-direction: column;
-              align-items: center;
-              position:relative;
-              right:20px;
-          }
-          }
+        @@media (min-width: 500px) {
+            .reset-card {
+                background: #ffffff;
+                border-radius: 8px;
+                box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+                width: 140%;
+                max-width: 400px;
+                padding: 30px;
+                text-align: center;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+        }
 
 
-          @@media (min-width: 500px) {
-              .reset-cardpw {
-                  background: #ffffff;
-                  border-radius: 8px;
-                  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
-                  width: 140%;
-                  max-width: 400px;
-                  padding: 30px;
-                  text-align: center;
-                  display: flex;
-                  flex-direction: column;
-                  align-items: center;
-                  position: relative;
-                  right: 100px;
-              }
-          }
+        @@media (min-width: 1px) and (max-width: 399px) {
+            .reset-cardpw {
+                background: #ffffff;
+                border-radius: 8px;
+                box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+                width: 100%;
+                max-width: 400px;
+                padding: 30px;
+                text-align: center;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                position: relative;
+                right: 28px;
+            }
+        }
 
-          .form-control {
-              border: 1px solid #ddd;
-              border-radius: 4px;
-              padding: 10px;
-              width: 90%;
-              margin-bottom: 15px;
-              font-size: 14px;
-          }
-
-          @@media (min-width: 1px) and (max-width: 399px) {
-          .form-controlpw {
-              border: 1px solid #ddd;
-              border-radius: 4px;
-              padding: 8px;
-              width: 132%;
-              font-size: 14px;
-              position:relative;
-              right:41px;
-          }
-          }
-
-          @@media(min-width:400px){
-              .form-controlpw {
-                  border: 1px solid #ddd;
-                  border-radius: 4px;
-                  padding: 10px;
-                  width: 160%;
-                  font-size: 14px;
-                  position: relative;
-                  right: 75px;
-              }
-          }
+        @@media (min-width: 400px) and (max-width: 499px) {
+            .reset-cardpw {
+                background: #ffffff;
+                border-radius: 8px;
+                box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+                width: 120%;
+                max-width: 400px;
+                padding: 30px;
+                text-align: center;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                position: relative;
+                right: 20px;
+            }
+        }
 
 
-          .btn-primary {
-              background-color: #005792;
-              border: none;
-              padding: 10px 15px;
-              border-radius: 4px;
-              color: #fff;
-              cursor: pointer;
-              font-size: 16px;
-              width: 90%;
-          }
+        @@media (min-width: 500px) {
+            .reset-cardpw {
+                background: #ffffff;
+                border-radius: 8px;
+                box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+                width: 140%;
+                max-width: 400px;
+                padding: 30px;
+                text-align: center;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                position: relative;
+                right: 100px;
+            }
+        }
 
-          @@media (min-width: 1px) and (max-width: 399px) {
-          .btn-primarypw {
-              background-color: #005792;
-              border: none;
-              padding: 10px 15px;
-              border-radius: 4px;
-              color: #fff;
-              cursor: pointer;
-              font-size: 16px;
-              width: 130%;
-              position: relative;
-              right: 35px;
-          }
-          }
+        .form-control {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            width: 90%;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
 
-          @@media (min-width: 400px) {
-          .btn-primarypw {
-              background-color: #005792;
-              border: none;
-              padding: 10px 15px;
-              border-radius: 4px;
-              color: #fff;
-              cursor: pointer;
-              font-size: 16px;
-              width: 155%;
-              position:relative;
-              right:58px;
-          }
-          }
-              .btn-primary:hover {
-                  background-color: #005792;
-              }
+        @@media (min-width: 1px) and (max-width: 399px) {
+            .form-controlpw {
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                padding: 8px;
+                width: 132%;
+                font-size: 14px;
+                position: relative;
+                right: 41px;
+            }
+        }
 
-          .footer-link {
-              margin-top: 20px;
-              font-size: 14px;
-          }
+        @@media(min-width:400px) {
+            .form-controlpw {
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                padding: 10px;
+                width: 160%;
+                font-size: 14px;
+                position: relative;
+                right: 75px;
+            }
+        }
 
-              .footer-link a {
-                  color: #007bff;
-                  text-decoration: none;
-              }
 
-                  .footer-link a:hover {
-                      text-decoration: underline;
-                  }
+        .btn-primary {
+            background-color: #005792;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 16px;
+            width: 90%;
+        }
 
-          .error-message {
-              color: red;
-              margin-bottom: 15px;
-          }
+        @@media (min-width: 1px) and (max-width: 399px) {
+            .btn-primarypw {
+                background-color: #005792;
+                border: none;
+                padding: 10px 15px;
+                border-radius: 4px;
+                color: #fff;
+                cursor: pointer;
+                font-size: 16px;
+                width: 130%;
+                position: relative;
+                right: 35px;
+            }
+        }
+
+        @@media (min-width: 400px) {
+            .btn-primarypw {
+                background-color: #005792;
+                border: none;
+                padding: 10px 15px;
+                border-radius: 4px;
+                color: #fff;
+                cursor: pointer;
+                font-size: 16px;
+                width: 155%;
+                position: relative;
+                right: 58px;
+            }
+        }
+
+        .btn-primary:hover {
+            background-color: #005792;
+        }
+
+        .footer-link {
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+            .footer-link a {
+                color: #007bff;
+                text-decoration: none;
+            }
+
+                .footer-link a:hover {
+                    text-decoration: underline;
+                }
+
+        .error-message {
+            color: red;
+            margin-bottom: 15px;
+        }
 
 
         .error-messagepw {
-              color: red;
-              margin-bottom: 15px;
-              font-size: 12.2px;
-              text-align: center;
-              width: 100%;
-              box-sizing: border-box;
-              position: relative; /* Adjust this to avoid layout shifts */
-              margin-top: 5px; /* Add some spacing above the message */
-              font-weight:bold;
-          }
+            color: red;
+            margin-bottom: 15px;
+            font-size: 12.2px;
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+            position: relative; /* Adjust this to avoid layout shifts */
+            margin-top: 5px; /* Add some spacing above the message */
+            font-weight: bold;
+        }
 
 
 
-          .logo {
-              width: 150px;
-              margin-bottom: 20px;
-          }
+        .logo {
+            width: 150px;
+            margin-bottom: 20px;
+        }
 
-          @@media (min-width:1px) and (max-width: 399px) {
-              .verification-code-input {
-                  width: 11%;
-                  text-align: center;
-                  font-size: 18px;
-                  margin: 0 5px; /* Spacing between input fields */
-              }
-          }
+        @@media (min-width:1px) and (max-width: 399px) {
+            .verification-code-input {
+                width: 8%;
+                text-align: center;
+                font-size: 18px;
+                margin: 0 5px; /* Spacing between input fields */
+            }
+        }
 
-          @@media (min-width: 400px) and (max-width: 499px) {
-          .verification-code-input {
-              width: 13%;
-              text-align: center;
-              font-size: 18px;
-              margin: 0 5px; /* Spacing between input fields */
-          }
-          }
+        @@media (min-width: 400px) and (max-width: 499px) {
+            .verification-code-input {
+                width: 10%;
+                text-align: center;
+                font-size: 18px;
+                margin: 0 5px; /* Spacing between input fields */
+            }
+        }
 
-          @@media (min-width: 500px) {
-          .verification-code-input {
-              width: 15%;
-              text-align: center;
-              font-size: 18px;
-              margin: 0 5px; /* Spacing between input fields */
-          }
-          }
+        @@media (min-width: 500px) {
+            .verification-code-input {
+                width: 15%;
+                text-align: center;
+                font-size: 18px;
+                margin: 0 5px; /* Spacing between input fields */
+            }
+        }
 
-          .form-container {
-              margin-bottom: 20px; /* Adds space between input fields and the Verify button */
-          }
+        .form-container {
+            margin-bottom: 20px; /* Adds space between input fields and the Verify button */
+        }
 
-          .footer-link {
-              margin-top: 10px; /* Reduce gap between Resend and Return to Login */
-          }
+        .footer-link {
+            margin-top: 10px; /* Reduce gap between Resend and Return to Login */
+        }
 
-          .password-wrapper {
-              position: relative;
-              width: 100%; /* Ensure it aligns with the input fields */
-          }
+        .password-wrapper {
+            position: relative;
+            width: 100%; /* Ensure it aligns with the input fields */
+        }
 
-            @@media (min-width:1px) and (max-width: 399px) {
-              .password-wrapper .toggle-password {
-                  position: absolute;
-                  top: 50%; /* Vertically center the eye icon */
-                  right: 20px; /* Adjust distance from the right */
-                  transform: translateY(-50%);
-                  cursor: pointer;
-                  color: #666;
-                  margin-right:23px;
-              }
-          }
+        @@media (min-width:1px) and (max-width: 399px) {
+            .password-wrapper .toggle-password {
+                position: absolute;
+                top: 50%; /* Vertically center the eye icon */
+                right: 20px; /* Adjust distance from the right */
+                transform: translateY(-50%);
+                cursor: pointer;
+                color: #666;
+                margin-right: 23px;
+            }
+        }
 
 
-              .password-wrapper .toggle-password {
-                  position: absolute;
-                  top: 50%; /* Vertically center the eye icon */
-                  right: 20px; /* Adjust distance from the right */
-                  transform: translateY(-50%);
-                  cursor: pointer;
-                  color: #666; /* Optional for better visual clarity */
-              }
+        .password-wrapper .toggle-password {
+            position: absolute;
+            top: 50%; /* Vertically center the eye icon */
+            right: 20px; /* Adjust distance from the right */
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #666; /* Optional for better visual clarity */
+        }
 
     </style>
+
+    <style>
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s infinite linear;
+            display: inline-block;
+            position: relative;
+            right: 125px;
+            top:3px;
+            margin-right:-40px;
+        }
+
+        @@keyframes spin {
+            0%
+
+        {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+
+        }
+     
+    </style>
+
 </head>
 <body>
 
@@ -320,7 +352,12 @@
                     <div class="error-message">@Html.Raw(ViewBag.ErrorMessage)</div>
                 }
                 <input name="email" type="email" class="form-control" placeholder="Enter your email" required />
-                <button type="submit" class="btn-primary">Send Verification Code</button>
+                <button type="submit" class="btn-primary" id="sendCodeBtn">
+                    <span id="btnText">Send Verification Code</span>
+                    <div id="customSpinner" class="spinner" style="display: none;"></div>
+                </button>
+
+
                 <p class="footer-link" style="position:relative; top:10px;"> Go back? <a href="/Account/Login">Return to Login</a></p>
             </form>
         </div>
@@ -339,6 +376,7 @@
                 <div class="password-wrapper">
                     <input id="newPassword" name="newPassword" type="password" class="form-controlpw"
                            placeholder="Enter new password" required minlength="8" maxlength="24"
+                           pattern="^(?=.[A-Z])(?=.[0-9])[A-Za-z0-9]{8,24}$"
                            title="Password must be 8-24 characters long, contain at least one uppercase letter, one number, and no symbols." />
                     <i id="toggleNewPasswordIcon" class="fas fa-eye toggle-password"
                        style="position: relative; bottom: 20px; left: 165px;"
@@ -347,6 +385,7 @@
                 <div class="password-wrapper">
                     <input id="confirmPassword" name="confirmPassword" type="password" class="form-controlpw"
                            placeholder="Confirm password" required minlength="8" maxlength="24"
+                           pattern="^(?=.[A-Z])(?=.[0-9])[A-Za-z0-9]{8,24}$"
                            title="Password must be 8-24 characters long, contain at least one uppercase letter, one number, and no symbols." />
                     <i id="toggleConfirmPasswordIcon" class="fas fa-eye toggle-password"
                        style="position: relative; bottom: 20px; left: 165px;"
@@ -383,13 +422,16 @@
             </form>
             <div class="footer-link" style="text-align: center; display: flex; justify-content: center; align-items: center; gap: 5px; position:relative; top:5px;">
                 <span>Didn’t receive code?</span>
-                <form method="post" asp-action="SendResetPasswordEmail" asp-controller="Account" style="margin: 0;">
+                <form id="resendForm" method="post" asp-action="SendResetPasswordEmail" asp-controller="Account" style="margin: 0;">
                     <input type="hidden" name="email" value="@TempData["UserEmail"]" />
-                    <button type="submit" style="background: none; border: none; color: #007bff; text-decoration: underline; cursor: pointer; padding: 0; ">Resend</button>
+                    <button id="resendCode" type="submit"
+                            style="background: none; border: none; color: #007bff; text-decoration: underline; cursor: pointer; padding: 0;">
+                        Resend
+                    </button>
                 </form>
             </div>
 
-
+            <p id="resendMessage" class="footer-link" style="color: green; display: none;"></p>
 
 
 
@@ -412,33 +454,84 @@
 </html>
 
 <script>
-      document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", () => {
         const inputs = document.querySelectorAll(".verification-code-input");
         const hiddenCode = document.getElementById("hiddenCode");
+        const resendButton = document.getElementById("resendCode");
+        const resendMessage = document.getElementById("resendMessage");
+
 
         inputs.forEach((input, index) => {
             input.addEventListener("input", () => {
-                // Update the hidden input field whenever a digit is entered
+
                 hiddenCode.value = Array.from(inputs).map(i => i.value).join("");
 
-                // Move focus to the next input if a digit is entered
+
                 if (input.value.length === 1 && index < inputs.length - 1) {
                     inputs[index + 1].focus();
                 }
             });
 
             input.addEventListener("keydown", (e) => {
-                // Move focus to the previous input on backspace if the field is empty
+
                 if (e.key === "Backspace" && !input.value && index > 0) {
                     inputs[index - 1].focus();
                 }
             });
         });
 
-        // Debugging log
-        document.querySelector('form[asp-action="VerifyCode"]').addEventListener("submit", (e) => {
-            console.log("Submitting concatenated code:", hiddenCode.value);
-        });
+
+        const verifyForm = document.querySelector('form[asp-action="VerifyCode"]');
+        if (verifyForm) {
+            verifyForm.addEventListener("submit", (e) => {
+                console.log("Submitting concatenated code:", hiddenCode.value);
+            });
+        }
+
+
+        if (resendButton) {
+            resendButton.addEventListener("click", function (event) {
+                event.preventDefault();
+
+                let email = document.querySelector("input[name='email']").value;
+
+
+                resendButton.innerHTML = "Sending...";
+                resendButton.disabled = true;
+
+
+                fetch("/Account/SendResetPasswordEmail", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: new URLSearchParams({ email: email }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        resendMessage.textContent = "A new code has been sent to your email.";
+                        resendMessage.style.color = "green";
+                        resendMessage.style.display = "block";
+                    } else {
+                        resendMessage.textContent = "A new code has been sent to your email.";
+                        resendMessage.style.color = "green";
+                        resendMessage.style.display = "block";
+                    }
+                })
+                .catch(error => {
+                    console.error("Resend Error:", error);
+                    resendMessage.textContent = "A new code has been sent to your email.";
+                    resendMessage.style.color = "green";
+                    resendMessage.style.display = "block";
+                })
+                .finally(() => {
+
+                    setTimeout(() => {
+                        resendButton.innerHTML = "Resend";
+                        resendButton.disabled = false;
+                    }, 3000);
+                });
+            });
+        }
     });
 
 
@@ -457,14 +550,39 @@
         }
     }
 
-      function redirectToLogin() {
+
+    function redirectToLogin() {
         window.location.href = '/Account/Login';
     }
+
 
     document.addEventListener('DOMContentLoaded', () => {
         const showModal = @Html.Raw(ViewBag.ShowSuccessModal?.ToString().ToLower() ?? "false");
         if (showModal) {
             document.getElementById('successModal').style.display = 'flex';
         }
+    });
+
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const sendCodeBtn = document.getElementById("sendCodeBtn");
+        const btnText = document.getElementById("btnText");
+        const customSpinner = document.getElementById("customSpinner");
+
+        sendCodeBtn.addEventListener("click", function (event) {
+            event.preventDefault();
+            sendCodeBtn.disabled = true;
+
+            // Show spinner and update text
+            btnText.textContent = "Processing...";
+            customSpinner.style.display = "inline-block";
+
+            // Submit form after a delay
+            setTimeout(() => {
+                sendCodeBtn.form.submit();
+            }, 200);
+        });
     });
 </script>

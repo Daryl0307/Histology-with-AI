@@ -76,7 +76,7 @@
             }
         }
 
-        @@media (min-width: 366px) and (max-width: 500px) {
+        @@media (min-width: 400px) and (max-width: 500px) {
             .form-control {
                 border: 1px solid #ddd;
                 border-radius: 4px;
@@ -86,6 +86,20 @@
                 font-size: 14px;
                 position: relative;
                 right: 43px;
+            }
+        }
+
+
+        @@media (min-width: 1px) and (max-width: 399px) {
+            .form-control {
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                padding: 10px;
+                width: 110% !important;
+                margin-bottom: 15px;
+                font-size: 14px;
+                position: relative;
+                right: 25px;
             }
         }
 
@@ -111,10 +125,22 @@
                 padding-right: 40px;
             }
 
-        @@media (min-width: 366px) and (max-width: 500px) {
+        @@media (min-width: 400px) and (max-width: 500px) {
             .password-wrapper .toggle-password {
                 position: absolute;
                 left: 240px;
+                top: 20px;
+                transform: translateY(-50%);
+                cursor: pointer;
+                font-size: 18px;s
+                color: #999;
+            }
+        }
+
+        @@media (min-width: 1px) and (max-width: 399px) {
+            .password-wrapper .toggle-password {
+                position: absolute;
+                left: 225px;
                 top: 20px;
                 transform: translateY(-50%);
                 cursor: pointer;
@@ -135,7 +161,7 @@
             }
         }
 
-        @@media (min-width: 366px) and (max-width: 500px) {
+        @@media (min-width: 400px) and (max-width: 500px) {
             .btn-primary {
                 background-color: #005792;
                 border: none;
@@ -144,9 +170,25 @@
                 color: #fff;
                 cursor: pointer;
                 font-size: 16px;
-                width: 130%; /* Matches the width of input fields */
+                width: 130%; 
                 position: relative;
                 right: 30px;
+            }
+        }
+
+
+        @@media (min-width: 1px) and (max-width: 399px) {
+            .btn-primary {
+                background-color: #005792;
+                border: none;
+                padding: 10px 15px;
+                border-radius: 4px;
+                color: #fff;
+                cursor: pointer;
+                font-size: 16px;
+                width: 120%;
+                position: relative;
+                right: 24px;
             }
         }
 
@@ -159,7 +201,7 @@
                 color: #fff;
                 cursor: pointer;
                 font-size: 16px;
-                width: 160%; /* Matches the width of input fields */
+                width: 160%; 
                 position: relative;
                 right: 68px;
             }
@@ -174,12 +216,22 @@
             font-size: 14px;
         }
 
-        @@media (min-width: 366px) and (max-width: 500px) {
+
+        @@media (min-width: 400px) and (max-width: 500px) {
             .footer-link a {
                 color: #007bff;
                 text-decoration: none;
                 position: relative;
                 left: 38px;
+            }
+        }
+
+        @@media (min-width: 1px) and (max-width: 399px) {
+            .footer-link a {
+                color: #007bff;
+                text-decoration: none;
+                position: relative;
+                left: 60px;
             }
         }
 
@@ -205,8 +257,8 @@
         }
 
         .logo {
-            width: 150px; /* Adjust the logo size */
-            margin-bottom: 20px; /* Add spacing below the logo */
+            width: 150px;
+            margin-bottom: 20px; 
         }
     </style>
 </head>

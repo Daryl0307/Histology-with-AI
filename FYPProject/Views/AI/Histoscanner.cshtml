@@ -249,6 +249,7 @@
         <div class="description">
             <h2>Welcome to the Histoscanner</h2>
             <p>The Histoscanner leverages AI to analyze tissue samples with precision and speed.</p>
+            <p>Please make sure to check with your lecturer what the support tissue types are before using!</p>
             <p>Please allow the model up to 5 seconds to initilize before inputting an image.</p>
         </div>
 
@@ -263,7 +264,7 @@
         <div id="label-container"></div>
     </div>
 
-    <!-- Lightbox -->
+    <!-- Insights card -->
     <div id="lightbox" class="lightbox">
         <button class="close-btn" onclick="closeLightbox()">✕</button>
         <img id="lightbox-img" src="" alt="Enlarged view">
@@ -325,19 +326,23 @@
             reader.readAsDataURL(file);
         }
 
-        async function predict() {
+                 async function predict() {
             if (!model) return console.error("Model not loaded.");
             labelContainer.innerHTML = "";
             let hasResults = false;
+            let lowAccuracy = true;
 
             const predictions = await model.predict(document.getElementById("imagePreview"));
             predictions.forEach(async (p) => {
+                const accuracyPercentage = (p.probability * 100).toFixed(2);
+
                 if (p.probability > 0.9) {
                     hasResults = true;
+                    lowAccuracy = false;
                     const tissueName = p.className.toLowerCase();
                     labelContainer.innerHTML += `
                         <div class="success-message">
-                            ${tissueName}: ${(p.probability * 100).toFixed(2)}% accuracy
+                            ${tissueName}: ${accuracyPercentage}% accuracy
                         </div>
                         <a href="/Tissue/Histopedia" class="insights-link">
                             View Detailed Insights for ${tissueName} Tissue
@@ -361,7 +366,22 @@
                 }
             });
 
-            if (hasResults) {
+            if (lowAccuracy) {
+                labelContainer.innerHTML = `
+                    <div class="error-message" style="
+                        color: red;
+                        font-size: 1.2em;
+                        margin: 15px 0;
+                        text-align: center;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;">
+                        Please retake the photo or seek help from a lecturer.
+                    </div>
+                `;
+            }
+
+            if (hasResults || lowAccuracy) {
                 labelContainer.style.display = "block";
             }
         }

@@ -141,7 +141,7 @@
                 </div>
             }
 
-            <form method="post" action="/Account/Signup">
+            <form method="post" action="/Account/Signup" onsubmit="disableSubmitButton()">
                 @Html.AntiForgeryToken()
 
                 <div class="form-group">
@@ -162,12 +162,18 @@
                     <i class="fas fa-eye toggle-password" onclick="togglePasswordVisibility('ConfirmPassword', this)"></i>
                 </div>
 
-                <button type="submit" class="btn-primary">Sign Up</button>
+                <button type="submit" id="submitButton" class="btn-primary">Sign Up</button>
             </form>
             <p>Already have an account? <a href="/Account/Login">Login here</a></p>
         </div>
     </div>
     <script>
+        function disableSubmitButton() {
+            const submitButton = document.getElementById('submitButton');
+            submitButton.disabled = true;
+            submitButton.innerText = 'Signing Up...'; // Optional: Change button text
+        }
+
         function togglePasswordVisibility(inputId, icon) {
             const passwordInput = document.getElementById(inputId);
             if (passwordInput.type === "password") {

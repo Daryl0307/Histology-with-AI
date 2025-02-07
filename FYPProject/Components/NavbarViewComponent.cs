@@ -29,8 +29,8 @@ namespace FYPProject.Components
             // Set ViewBag properties
             ViewBag.LogoImage = logoUrl;
             ViewBag.BackgroundImage = backgroundImageUrl;
-            ViewBag.IsLoggedIn = false; // Default to false for demonstration purposes
-            ViewBag.HasNotifications = false; // Default to false to prevent null
+            ViewBag.IsLoggedIn = false;
+            ViewBag.HasNotifications = false; 
 
             return View("~/Views/Shared/Components/Navbar/_Navbar.cshtml");
         }

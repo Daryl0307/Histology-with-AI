@@ -16,7 +16,6 @@ namespace FYPProject.Controllers
 
         private readonly ApplicationDBContext _context;
 
-        // Constructor to inject the database context
         public AIController(ApplicationDBContext context)
         {
             _context = context;
@@ -41,7 +40,6 @@ namespace FYPProject.Controllers
 
             try
             {
-                // Use raw SQL to ensure exact matching with the database
                 var query = @"SELECT Photo_ID, Photo_Description, Photo_URL, Tissue_ID, Question_ID
                       FROM Photos
                       WHERE LOWER(Photo_Description) = LOWER(@photoDescription)";
@@ -54,7 +52,7 @@ namespace FYPProject.Controllers
                         command.CommandText = query;
                         var parameter = command.CreateParameter();
                         parameter.ParameterName = "@photoDescription";
-                        parameter.Value = photoDescription; // Use parameter to prevent SQL injection
+                        parameter.Value = photoDescription;
                         command.Parameters.Add(parameter);
 
                         using (var reader = await command.ExecuteReaderAsync())
@@ -88,10 +86,6 @@ namespace FYPProject.Controllers
                 return StatusCode(500, new { message = "An error occurred while retrieving the photo.", error = ex.Message });
             }
         }
-
-
-
-
     }
 }
 
