@@ -5,6 +5,7 @@ using FYPProject.Models;
 using System;
 using System.Linq;
 using System.Data;
+using FYPProject.Attributes;
 
 using RP.SOI.DotNet.Utils;
 using System.Collections.Generic;
@@ -86,6 +87,7 @@ public class TissueController : Controller
 
         return View(list); // Pass the list directly to the view
     }
+    [AuthRequired]
 
     public IActionResult ManageLesson()
     {
