@@ -15,7 +15,6 @@ namespace FYPProject.Components
 
         public IViewComponentResult Invoke()
         {
-            // Fetch logo and background image URLs
             var logoUrl = _context.Photos
                 .Where(photo => photo.Photo_Description == "AILogo")
                 .Select(photo => photo.Photo_URL)
@@ -26,7 +25,6 @@ namespace FYPProject.Components
                 .Select(photo => photo.Photo_URL)
                 .FirstOrDefault() ?? "/images/default-background.png";
 
-            // Set ViewBag properties
             ViewBag.LogoImage = logoUrl;
             ViewBag.BackgroundImage = backgroundImageUrl;
             ViewBag.IsLoggedIn = false;

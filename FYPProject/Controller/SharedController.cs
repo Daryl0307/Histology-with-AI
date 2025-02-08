@@ -13,7 +13,6 @@ public class SharedController : Controller
 
     public IActionResult Navbar()
     {
-        // Fetch logo and background image URLs from the Photos table
         var logoUrl = _context.Photos
             .Where(photo => photo.Photo_Description == "AILogo")
             .Select(photo => photo.Photo_URL)
@@ -24,13 +23,11 @@ public class SharedController : Controller
             .Select(photo => photo.Photo_URL)
             .FirstOrDefault();
 
-        // Return partial view for navbar
         return PartialView("_Navbar");
     }
 
     public void SetSharedViewData()
     {
-        // Ensure logo and background image URLs are available globally for all views
         var logoUrl = _context.Photos
             .Where(photo => photo.Photo_Description == "AILogo")
             .Select(photo => photo.Photo_URL)
