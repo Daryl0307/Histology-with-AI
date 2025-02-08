@@ -18,12 +18,12 @@ namespace FYPProject.Components
             var logoUrl = _context.Photos
                 .Where(photo => photo.Photo_Description == "AILogo")
                 .Select(photo => photo.Photo_URL)
-                .FirstOrDefault() ?? "/images/default-logo.png";
+                .FirstOrDefault() ?? "/images/logo.png";
 
             var backgroundImageUrl = _context.Photos
                 .Where(photo => photo.Photo_Description == "BackgroundImage")
                 .Select(photo => photo.Photo_URL)
-                .FirstOrDefault() ?? "/images/default-background.png";
+                .FirstOrDefault() ?? "/images/BackgroundImage.png";
 
             ViewBag.LogoImage = logoUrl;
             ViewBag.BackgroundImage = backgroundImageUrl;
