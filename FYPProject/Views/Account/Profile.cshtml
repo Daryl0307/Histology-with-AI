@@ -189,7 +189,6 @@
 
 
 <style>
-    /* Base Styles */
 
     .alert {
         padding: 15px;
@@ -227,7 +226,6 @@
         padding: 20px;
     }
 
-    /* Enhanced Header Styling */
     .profile-header {
         position: relative;
         margin: 40px 0;
@@ -284,16 +282,18 @@
 
 
     .item-label {
-        width: 160px;
+        min-width: 150px;
         font-weight: 700;
-        color: #2d2d2d;
         font-size: 16px;
+        flex-shrink: 0;
     }
 
     .item-value {
-        flex: 1;
-        color: #1a1a1a;
-        font-weight: 500;
+        flex-grow: 1;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
     }
 
     .edit-button {
@@ -317,14 +317,13 @@
 
     .verification-badge {
         background: #e8f4ff;
-        color: #0066cc;
-        padding: 4px 10px;
+        color: #0066CC;
+        padding: 4px 10px; 
         border-radius: 4px;
         font-size: 13px;
-        margin-left: 10px;
+        margin-left: -1px; 
         font-weight: 500;
-        position;relative;
-        top:8px;
+        top: 8px; 
     }
 
     .role-tag {
@@ -335,7 +334,6 @@
         font-size: 14px;
     }
 
-    /* Modals */
     .custom-modal {
         display: none;
         position: fixed;
@@ -371,7 +369,6 @@
     }
 
 
-    /* Center loading text and spinner */
     .loading-btn {
         display: flex;
         align-items: center;
@@ -454,7 +451,6 @@
     }
 
 
-    /* Spinner Animation */
     .spinner {
         display: inline-block;
         width: 16px;
@@ -475,7 +471,6 @@
         }
     }
 
-    /* Centered Loading Animation */
     #loadingSpinner {
         display: none;
         position: fixed;
@@ -551,7 +546,6 @@
             margin-left: -1em;
         }
 
-    /* Updated Password Rules Styling */
     #matchRule {
         color: #dc3545;
     }
@@ -596,7 +590,7 @@
 
         .password-wrapper input {
             width: 100%;
-            padding-right: 40px; /* Space for the eye icon */
+            padding-right: 40px; 
         }
 
     .toggle-password {
@@ -806,16 +800,14 @@ function validatePasswordForm(event) {
     return false;
 }
 
-// Function to show success message dynamically
 function showSuccessMessage(message) {
     let successMessageDiv = document.createElement("div");
     successMessageDiv.className = "alert success";
     successMessageDiv.id = "successMessage";
     successMessageDiv.textContent = message;
 
-    document.body.prepend(successMessageDiv); // Insert at the top of the page
+    document.body.prepend(successMessageDiv); 
 
-    // Auto-hide after 5 seconds
     setTimeout(() => {
         successMessageDiv.style.opacity = "0";
         setTimeout(() => successMessageDiv.remove(), 500);
