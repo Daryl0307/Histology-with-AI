@@ -9,28 +9,8 @@
         });
 
     </script>
-}@if (TempData["Message"] != null)
-{
-    <div class="tempdata-popup @TempData["MsgType"]">
-        <div class="alert alert-@TempData["MsgType"]">
-            @TempData["Message"]
-            <button type="button" class="btn-close" onclick="closePopup();">&times;</button>
-        </div>
-    </div>
-
-    <script>
-        function closePopup() {
-            $('.tempdata-popup').removeClass('active');
-        }
-
-        $(document).ready(function () {
-            $('.tempdata-popup').addClass('active');
-            setTimeout(function () {
-                closePopup();
-            }, 3000); // Auto-close popup after 3 seconds
-        });
-    </script>
 }
+
 @{
     ViewData["Title"] = "Manage Lessons";
 }
