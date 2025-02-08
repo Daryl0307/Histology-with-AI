@@ -619,7 +619,8 @@ namespace FYPProject.Controllers
             }
 
             if (!string.IsNullOrEmpty(account.Password) &&
-                !System.Text.RegularExpressions.Regex.IsMatch(account.Password, @"^(?=.[A-Z])(?=.\d)[A-Za-z\d\W_]{8,24}$"))
+                !System.Text.RegularExpressions.Regex.IsMatch(account.Password, @"^(?=.*[A-Z])(?=.*\d).{8,24}$"
+))
             {
                 errorMessages["Password"] = "Password must be 8-24 characters, include an uppercase alphabet and a number.";
             }
