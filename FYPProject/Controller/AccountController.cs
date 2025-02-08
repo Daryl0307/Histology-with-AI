@@ -323,7 +323,6 @@ namespace FYPProject.Controllers
                 <p>Please use the verification code below to proceed. This code will expire in <strong>10 minutes</strong>:</p>
                 <h3 style='color: #FF5722;'>{verificationCode}</h3>
                 <p>If you did not request this, please ignore this email. Your account is safe.</p>
-                <p>Thank you for using Histology. If you have any questions, feel free to contact our support team.</p>
                 <img src='cid:LogoImage' style='margin-top: 20px; width: 150px;' alt='Histology Logo' />
                 <p style='margin-top: 10px;'>Best regards,<br><strong>Histology Team</strong></p>
             </body>
@@ -666,8 +665,6 @@ namespace FYPProject.Controllers
         <h2 style='color: #005792;'>Welcome to Histology</h2>
         <p>Thank you for signing up! Please use the verification code below to verify your email address. This code will expire in <strong>10 minutes</strong>:</p>
         <h3 style='color: #FF5722;'>{verificationCode}</h3>
-        <p>If you did not request this, please ignore this email. Your account is safe.</p>
-        <p>Thank you for using Histology. If you have any questions, feel free to contact our support team.</p>
         <img src='cid:LogoImage' style='margin-top: 20px; width: 150px;' alt='Histology Logo' />
         <p style='margin-top: 10px;'>Best regards,<br><strong>Histology Team</strong></p>
     </body>
