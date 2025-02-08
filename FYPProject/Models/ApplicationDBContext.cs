@@ -7,7 +7,7 @@ namespace FYPProject.Models
     {
         public ApplicationDBContext(DbContextOptions<ApplicationDBContext> options) : base(options) { }
 
-        // DbSet for all tables
+        
         public DbSet<Account> Accounts { get; set; }
         public DbSet<TissueInfo> TissueInfo { get; set; }
         public DbSet<Photos> Photos { get; set; }
@@ -15,7 +15,7 @@ namespace FYPProject.Models
         public DbSet<HomeContent> HomeContent { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // ✅ Fix for Photos table
+            
             modelBuilder.Entity<Photos>(entity =>
             {
                 entity.HasKey(e => e.Photo_ID);
@@ -26,7 +26,7 @@ namespace FYPProject.Models
 
                 entity.Ignore(p => p.PhotoFile); 
 
-                // ✅ Ensure EF Core does NOT create unexpected relationships
+                
                 entity.HasOne<TissueInfo>()
                     .WithMany()
                     .HasForeignKey(p => p.Tissue_ID)
@@ -69,7 +69,7 @@ namespace FYPProject.Models
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Url).HasColumnName("Url").HasMaxLength(255).IsRequired();
                 entity.Property(e => e.Description).HasColumnName("Description").HasMaxLength(500).IsRequired();
-                entity.Property(e => e.Photo_Data).HasColumnType("VARBINARY(MAX)"); // ✅ Store Image as BLOB
+                entity.Property(e => e.Photo_Data).HasColumnType("VARBINARY(MAX)"); 
             });
 
 

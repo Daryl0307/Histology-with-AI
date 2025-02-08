@@ -36,14 +36,14 @@ namespace FYPProject.Controllers
         public async Task<IActionResult> Home()
         {
             ViewBag.HideNavbar = false;
-
+            ViewBag.ActivePage = "Home";
             string sql = "SELECT * FROM HomeContent";
             var photos = await _context.HomeContent.FromSqlRaw(sql).ToListAsync();
 
             return View("/Views/Histology/Home.cshtml", photos);
         }
 
-        // Get photo
+        
         [HttpGet("GetPhotos")]
         public async Task<IActionResult> GetPhotos()
         {

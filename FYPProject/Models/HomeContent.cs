@@ -6,15 +6,15 @@ namespace FYPProject.Models
     public class HomeContent
     {
         [Key]
-        public int Id { get; set; } // ✅ Primary Key
+        public int Id { get; set; } 
 
         [Required]
         [StringLength(255)]
-        public string Url { get; set; } // ✅ Image/Content URL
+        public string Url { get; set; } 
 
         [Required]
         [StringLength(500)]
-        public string Description { get; set; } // ✅ Content Description
+        public string Description { get; set; } 
 
         public byte[]? Photo_Data { get; set; }
 

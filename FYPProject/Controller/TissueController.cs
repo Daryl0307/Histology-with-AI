@@ -24,7 +24,7 @@ public class TissueController : Controller
     {
         ViewBag.HideNavbar = false;
 
-        // SQL query to retrieve tissue and related photo data
+        
         string getTissue = @"
         SELECT 
             TI.Tissue_ID AS 'TissueId', 
@@ -39,10 +39,10 @@ public class TissueController : Controller
         WHERE 
             TI.Tissue_ID = {0};";
 
-        // Get data from database
+        
         var data = DBUtl.GetTable(getTissue, id);
 
-        // If no data is found, show a message
+        
         if (data.Rows.Count == 0)
         {
             TempData["Message"] = "No tissue found. Please check the tissue ID.";
@@ -59,7 +59,7 @@ public class TissueController : Controller
             TissueDescription = row["TissueDescription"].ToString(),
             PhotoURL = row["PhotoURL"].ToString()
         })
-        .ToList(); // This returns a list of TissueViewModels
+        .ToList(); 
 
             return View(tissueViewModels);
 
@@ -79,12 +79,12 @@ public class TissueController : Controller
         {
             TempData["Message"] = "No data found. Please check your query.";
             TempData["MsgType"] = "danger";
-            return View(new List<TissueViewModel>()); // Return empty list instead of null
+            return View(new List<TissueViewModel>()); 
         }
 
         
 
-        return View(list); // Pass the list directly to the view
+        return View(list); 
     }
 
     public IActionResult ManageLesson()
@@ -124,7 +124,7 @@ public class TissueController : Controller
         {
             TissueUpdateModel tissue = tissueList[0];
 
-            // Retrieve all photos related to the tissue ID
+            
             string getPhotos = @"SELECT Photo_ID AS 'Photo_ID', Photo_URL AS 'Photo_URL'
                              FROM Photos WHERE Tissue_ID = {0};";
             List<Photos> photoList = DBUtl.GetList<Photos>(getPhotos, id);
@@ -135,7 +135,7 @@ public class TissueController : Controller
             }
             else
             {
-                // Optionally log or check why photos are not retrieved
+                
                 TempData["Message"] = "No photos found for this tissue.";
                 TempData["MsgType"] = "warning";
                 RedirectToAction("ManageLesson");
@@ -158,7 +158,7 @@ public class TissueController : Controller
 
         if (!ModelState.IsValid)
         {
-            // Log the validation errors
+           
             foreach (var state in ModelState)
             {
                 Console.WriteLine($"{state.Key} :: {string.Join(", ", state.Value.Errors.Select(e => e.ErrorMessage))}");
@@ -192,19 +192,19 @@ public class TissueController : Controller
             
         }
 
-        // Get Quiz ID based on category
+        
         string getQuizIdsQuery = "SELECT Quiz_ID FROM Quiz WHERE Quiz_Category = '{0}'";
         List<int> quizIds = DBUtl.GetList<int>(getQuizIdsQuery, model.TissueName);
         int quizId = quizIds.Any() ? quizIds.First() : 0;
 
-        // Ensure the quiz exists, otherwise insert a new one
+        
         if (quizId == 0)
         {
             string insertQuizCategory = "INSERT INTO Quiz(Quiz_Category) OUTPUT INSERTED.Quiz_ID VALUES('{0}')";
             quizId = DBUtl.ExecSQLReturnId(insertQuizCategory, model.TissueName);
         }
 
-        // Update the tissue information
+        
         string updateTissueQuery = "UPDATE Tissue_Info SET Tissue_Name = '{0}', Tissue_Description = '{1}' WHERE Tissue_ID = {2}";
         int updateResult = DBUtl.ExecSQL(updateTissueQuery, model.TissueName, model.TissueDescription, model.TissueId);
 
@@ -226,7 +226,7 @@ public class TissueController : Controller
                 }
             }
 
-            // Update existing photos with the new Tissue_ID
+            
             if (photoIds.Count > 0)
             {
                 foreach (int pId in photoIds)
@@ -312,13 +312,13 @@ public class TissueController : Controller
 
                 if (insertedPhotoId > 0)
                 {
-                    photoIds.Add(insertedPhotoId); // Store each inserted Photo_ID
+                    photoIds.Add(insertedPhotoId); 
                 }
             }
         }
         else
         {
-            // Handle no photo upload
+            
             string picfilename = "No Picture Inserted";
             string insertPhoto = @"INSERT INTO Photos (Photo_URL, Quiz_ID) OUTPUT INSERTED.Photo_ID VALUES ('{0}', {1})";
             photoId = DBUtl.ExecSQLReturnId(insertPhoto, picfilename, quizId);
@@ -328,7 +328,7 @@ public class TissueController : Controller
             }
         }
 
-        // After inserting Tissue_Info, update all photos with Tissue_ID
+        
         if (photoIds.Count > 0)
         {
             string addTissueQuery = @"INSERT INTO Tissue_Info(Tissue_Name, Tissue_Description, Photo_ID) OUTPUT INSERTED.Tissue_ID VALUES ('{0}', '{1}', {2})";
@@ -366,7 +366,7 @@ public class TissueController : Controller
         }
 
         return RedirectToAction("ManageLesson");
-        // Redirect after successful submission
+        
     }
 
     public IActionResult DeleteTissue(int id)
@@ -437,15 +437,15 @@ public class TissueController : Controller
         {
             if (photo == null)
             {
-                return null; // Return null or a default value if no photo is provided
+                return null; 
             }
             else
             {
 
 
-                // Construct the subdirectory path based on the highest prediction result
+                
                 string subdirectory = Path.Combine(_env.WebRootPath, "images", category);
-                subdirectory = subdirectory.Replace("\\", "/"); // Normalize path
+                subdirectory = subdirectory.Replace("\\", "/"); 
 
                 if (!Directory.Exists(subdirectory))
                 {
@@ -454,13 +454,13 @@ public class TissueController : Controller
 
                 Console.WriteLine("Subdirectory: " + subdirectory);
 
-                // Construct the final path for the uploaded image
+                
                 string fext = Path.GetExtension(photo.FileName);
                 string uname = Guid.NewGuid().ToString();
                 string fname = uname + fext;
-                string fullpath = Path.Combine(subdirectory, fname).Replace("\\", "/"); // Normalize path
+                string fullpath = Path.Combine(subdirectory, fname).Replace("\\", "/"); 
 
-                // Save the image
+                
                 using (FileStream fs = new FileStream(fullpath, FileMode.Create))
                 {
                     photo.CopyTo(fs);

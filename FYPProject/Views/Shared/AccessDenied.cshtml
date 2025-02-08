@@ -69,9 +69,9 @@
     <script>
         function goBack() {
             if (document.referrer) {
-                window.history.back(); // Go back to the previous page
+                window.history.back(); 
             } else {
-                window.location.href = "@Url.Action("Home", "Histology")"; // Fallback: Redirect to home
+                window.location.href = "@Url.Action("Home", "Histology")"; 
             }
         }
     </script>

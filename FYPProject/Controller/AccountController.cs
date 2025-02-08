@@ -60,13 +60,13 @@ namespace FYPProject.Controllers
             {
                 try
                 {
-                    // Hash the password using SHA256 from DBUtl
+                    // Hash password using SHA256 from DBUtl
                     string hashedPassword = DBUtl.HashPassword(password);
 
                     using (SqlConnection conn = new SqlConnection(_connectionString))
                     {
                         conn.Open();
-                        // Get User_Id
+                        
                         string userIdQuery = @"
                 SELECT User_Id 
                 FROM User_Info 
@@ -86,7 +86,7 @@ namespace FYPProject.Controllers
                             HttpContext.Session.SetString("UserId", userIdObj.ToString());
                         }
 
-                        // Get Role_Status
+                        
                         string roleQuery = @"
                 SELECT Role_Status 
                 FROM User_Info 
@@ -109,7 +109,7 @@ namespace FYPProject.Controllers
                             HttpContext.Session.SetString("UserRole", userRole.ToString());
                         }
 
-                        // Get Username
+                        
                         string usernameQuery = @"
                 SELECT Username 
                 FROM User_Info 
@@ -444,7 +444,7 @@ namespace FYPProject.Controllers
         {
             ViewBag.HideNavbar = true;
 
-            // Check if passwords match
+            
             if (newPassword != confirmPassword)
             {
                 ViewBag.ErrorMessage = "Passwords do not match.";
@@ -453,7 +453,7 @@ namespace FYPProject.Controllers
                 return View("ResetPW");
             }
 
-            // Validate password using regex
+            
             if (!IsValidPassword(newPassword))
             {
                 ViewBag.ErrorMessage = "Password must be 8-24 characters long, contain at least one uppercase letter, one number, and no symbols.";
@@ -471,10 +471,10 @@ namespace FYPProject.Controllers
                     return RedirectToAction("ResetPW");
                 }
 
-                // Hash the new password using SHA256
+                
                 string hashedPassword = DBUtl.HashPassword(newPassword);
 
-                // Update the password in the database
+                
                 using (SqlConnection conn = new SqlConnection(_connectionString))
                 {
                     conn.Open();
@@ -496,7 +496,7 @@ namespace FYPProject.Controllers
                     }
                 }
 
-                // Clear TempData and show success message
+                
                 TempData.Clear();
                 ViewBag.ShowSuccessModal = true;
                 SetLogoUrl();
@@ -530,12 +530,11 @@ namespace FYPProject.Controllers
         public IActionResult Signup()
         {
             ViewBag.HideNavbar = true;
-            SetLogoUrl();
+            SetLogoUrl(); 
 
-            // Populate TempData if not already set
-            ViewData["Username"] = TempData["Username"] ?? string.Empty;
+            ViewData["Username"] = TempData["Username"] ?? string.Empty; 
             ViewData["Email"] = TempData["Email"] ?? string.Empty;
-
+            //Passes username and email from tempdata to viewdata
             return View();
         }
 
@@ -546,20 +545,20 @@ namespace FYPProject.Controllers
         {
             SetLogoUrl();
 
-            Dictionary<string, string> errorMessages = new();
+            Dictionary<string, string> errorMessages = new(); 
 
-            // Validation checks
-            ValidateAccount(account, confirmPassword, errorMessages);
+            
+            ValidateAccount(account, confirmPassword, errorMessages); //Validates user
 
-            // If validation errors exist, redirect back to Signup
+            
             if (errorMessages.Count > 0)
             {
                 StoreErrorsInTempData(errorMessages, account);
                 return RedirectToAction("Signup");
             }
 
-            // Check if the username or email already exists
-            if (IsAccountExists(account.Username, account.Email))
+           
+            if (IsAccountExists(account.Username, account.Email)) //check for existing username or email 
             {
                 TempData["Errors"] = new Dictionary<string, string>
 {
@@ -570,10 +569,10 @@ namespace FYPProject.Controllers
                 return RedirectToAction("Signup");
             }
 
-            // Generate a verification code
+           
             string verificationCode = GenerateVerificationCode();
 
-            // Send the verification email
+            
             if (!SendVerificationEmail(account.Email, verificationCode))
             {
                 TempData["Errors"] = new Dictionary<string, string>
@@ -583,11 +582,11 @@ namespace FYPProject.Controllers
                 return RedirectToAction("Signup");
             }
 
-            // Temporarily store the user data and verification code in TempData
-            TempData["VerificationCode"] = verificationCode;
+           
+            TempData["VerificationCode"] = verificationCode; 
             TempData["PendingUser"] = JsonConvert.SerializeObject(account);
 
-            // Redirect to the Verify Email page
+            
             return RedirectToAction("VerifyEmail");
         }
 
@@ -601,7 +600,7 @@ namespace FYPProject.Controllers
             if (string.IsNullOrEmpty(account.Password))
                 errorMessages["Password"] = "Password is required.";
 
-            if (!string.IsNullOrEmpty(account.Email) && !IsValidEmail(account.Email))
+            if (!string.IsNullOrEmpty(account.Email) && !IsValidEmail(account.Email))  
             {
                 errorMessages["Email"] = "Invalid email format.";
             }
@@ -648,7 +647,7 @@ namespace FYPProject.Controllers
         private static string GenerateVerificationCode()
         {
             Random random = new Random();
-            return random.Next(1000, 9999).ToString(); // Generates a random 4-digit code
+            return random.Next(1000, 9999).ToString(); 
         }
         private bool SendVerificationEmail(string recipientEmail, string verificationCode)
         {
@@ -658,7 +657,7 @@ namespace FYPProject.Controllers
                 string fromPassword = "fmxa frop szee ahnr";
                 string subject = "Email Verification Code";
 
-                // HTML body with embedded logo and verification code
+                
                 string body = $@"
 <html>
     <body style='font-family: Arial, sans-serif; text-align: center;'>
@@ -677,17 +676,17 @@ namespace FYPProject.Controllers
                     mail.Subject = subject;
                     mail.IsBodyHtml = true;
 
-                    // Create an alternate view for the HTML body
+                    
                     AlternateView htmlView = AlternateView.CreateAlternateViewFromString(body, null, "text/html");
 
-                    // Embed the logo in the email
+                   
                     LinkedResource logo = new LinkedResource("wwwroot/images/logo.png", "image/png");
-                    logo.ContentId = "LogoImage"; // Ensure this matches the `src` attribute in the HTML
+                    logo.ContentId = "LogoImage"; 
                     htmlView.LinkedResources.Add(logo);
 
                     mail.AlternateViews.Add(htmlView);
 
-                    // Send the email using SMTP
+                   
                     using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
                     {
                         smtp.Credentials = new NetworkCredential(fromEmail, fromPassword);
@@ -696,12 +695,12 @@ namespace FYPProject.Controllers
                     }
                 }
 
-                return true; // Email sent successfully
+                return true; 
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error sending email: " + ex.Message);
-                return false; // Email sending failed
+                return false; 
             }
         }
         [HttpGet]
@@ -710,7 +709,7 @@ namespace FYPProject.Controllers
             ViewBag.HideNavbar = true;
             SetLogoUrl();
 
-            // Render the verification page
+            
             return View();
         }
 
@@ -720,13 +719,13 @@ namespace FYPProject.Controllers
         {
             SetLogoUrl();
 
-            // Retrieve the stored verification code and user data from TempData
+            
             string expectedCode = TempData["VerificationCode"]?.ToString();
             Account pendingUser = TempData["PendingUser"] != null
                 ? JsonConvert.DeserializeObject<Account>(TempData["PendingUser"].ToString())
                 : null;
 
-            // Check if the verification session is valid
+            
             if (expectedCode == null || pendingUser == null)
             {
                 TempData["Errors"] = new Dictionary<string, string>
@@ -736,10 +735,10 @@ namespace FYPProject.Controllers
                 return RedirectToAction("Signup");
             }
 
-            // Verify if the entered code matches the stored verification code
+            
             if (verificationCode == expectedCode)
             {
-                // Insert the user into the database after successful verification
+               
                 string hashedPassword = DBUtl.HashPassword(pendingUser.Password);
                 string insertSql = $"INSERT INTO User_Info (Username, Password, Email) VALUES ('{pendingUser.Username}', '{hashedPassword}', '{pendingUser.Email}')";
 
@@ -782,10 +781,10 @@ namespace FYPProject.Controllers
                 return RedirectToAction("Signup");
             }
 
-            // Generate a new verification code
+           
             string newVerificationCode = GenerateVerificationCode();
 
-            // Send the new verification email
+            
             if (!SendVerificationEmail(pendingUser.Email, newVerificationCode))
             {
                 TempData["Errors"] = new Dictionary<string, string>
@@ -795,10 +794,10 @@ namespace FYPProject.Controllers
                 return RedirectToAction("VerifyEmail");
             }
 
-            // Overwrite the previous code in TempData
+            
             TempData["VerificationCode"] = newVerificationCode;
 
-            // Keep the user data in TempData for verification
+            
             TempData["PendingUser"] = JsonConvert.SerializeObject(pendingUser);
 
             TempData["Success"] = "A new verification code has been sent to your email address.";

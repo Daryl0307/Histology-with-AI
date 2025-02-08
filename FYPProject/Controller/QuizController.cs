@@ -35,15 +35,15 @@ public class QuizController : Controller
                                     "SELECT S.User_Id AS UserId, Quiz_Category AS QuizCategory, ui.Username, " +
                                     "Date_Attempted AS DateAttempted, Score, " +
                                     "ROW_NUMBER() OVER ( " +
-                                    "PARTITION BY S.User_Id " +  // <-- Added space
-                                    "ORDER BY Score DESC,  Date_Attempted DESC) AS RowNum " +  // <-- Added space
-                                    "FROM Quiz_Statistics S " +  // <-- Added alias S
+                                    "PARTITION BY S.User_Id " +  
+                                    "ORDER BY Score DESC,  Date_Attempted DESC) AS RowNum " +  
+                                    "FROM Quiz_Statistics S " +  
                                     "INNER JOIN User_Info ui ON ui.User_ID = S.User_ID " +
-                                    "WHERE Quiz_Category = '{0}' ) " +  // <-- Added space
+                                    "WHERE Quiz_Category = '{0}' ) " +  
                                     "SELECT UserId, Username, QuizCategory, DateAttempted, Score " +
                                     "FROM RankedAttempts " +
                                     "WHERE RowNum = 1" +
-                                    "ORDER BY Score DESC; ", quizCategory);  // <-- Passing quizCategory properly
+                                    "ORDER BY Score DESC; ", quizCategory);  
 
         string getHighestScoreUser = @"SELECT TOP 1 ui.Username
 FROM Quiz_Statistics S
@@ -134,7 +134,7 @@ ORDER BY S.Score DESC;
             return View();
         }
 
-        // Group answers by Question_ID
+        
         var groupedQuizzes = data.AsEnumerable()
             .GroupBy(row => Convert.ToInt32(row["Question_ID"]))
             .Select(group =>
@@ -152,7 +152,7 @@ ORDER BY S.Score DESC;
                     {
                         QuizCategory = group.First()["Quiz_Category"].ToString(),
                     },
-                    Photo_URL = group.First()["Photo_URL"].ToString(), // Assign Photo_URL directly to the model
+                    Photo_URL = group.First()["Photo_URL"].ToString(), 
                     Answer = group.Select(row => new Answer
                     {
                         AnswerText = row["AnswerText"].ToString(),
@@ -359,7 +359,7 @@ ORDER BY S.Score DESC;
                     QuestionMark = questionKey.QuestionMark,
                     QuizId = questionKey.QuizId
                 },
-                // Removed Photos property and assigned Photo_URL directly
+                
                 Photo_URL = questionKey.Photo_Url,
                 Answer = firstQuestionGroup.Select(row => new Answer
                 {
@@ -474,7 +474,7 @@ ORDER BY S.Score DESC;
             Quiz.Quiz_Category = '{0}' AND 
             q.Question_ID NOT IN (SELECT Question_Id FROM UserAnsweredQuestions WHERE User_Id = {1})
         ORDER BY 
-            NEWID();"; // Randomize the next question
+            NEWID();"; 
 
         var rawResults = DBUtl.GetTable(questionWithAnswersSql, quizCategory, userId);
 
@@ -520,7 +520,7 @@ ORDER BY S.Score DESC;
                             QuestionMark = questionKey.QuestionMark,
                             QuizId = questionKey.QuizId
                         },
-                        // Removed Photos property and assigned Photo_URL directly
+                        
                         Photo_URL = questionKey.Photo_Url,
                         Answer = nextQuestionGroup.Select(row => new Answer
                         {
@@ -549,7 +549,7 @@ ORDER BY S.Score DESC;
             return RedirectToAction("QuizSummary", new { quizCategory });
         }
 
-        return View(); // Default view if no data
+        return View(); 
     }
 
 
@@ -564,7 +564,7 @@ ORDER BY S.Score DESC;
 
         string userIdstring = HttpContext.Session.GetString("UserId");
         int userId = Convert.ToInt32(userIdstring);
-        // Fetch responses for the quiz
+       
         string summarySql = @"
     SELECT q.Question_ID,q.QuestionText, a.AnswerText, CAST(r.Is_Correct AS BIT) AS'IsCorrect', Score
     FROM Quiz_Responses r
@@ -662,7 +662,7 @@ ORDER BY S.Score DESC;
         string questionTypeSql = @"SELECT QuestionType FROM Question WHERE Question_Id = {0}";
         string questionType = Convert.ToString(DBUtl.GetValue(questionTypeSql, id));
         ViewBag.QuestionType = questionType;
-        ViewBag.AnswerCount = answerList.Count; // Passing the count of answers
+        ViewBag.AnswerCount = answerList.Count; 
 
         return View(answerList);
     }
@@ -763,13 +763,13 @@ ORDER BY S.Score DESC;
     }
     */
 
-    //SQL Format
+   
 
     [HttpPost]
     public IActionResult AddQuiz(QuizViewModel model)
     {
-        ModelState.Remove("PhotoFiles"); // Removing single photo model validation
-        ModelState.Remove("Photo_URL"); // Removing photo URL validation
+        ModelState.Remove("PhotoFiles"); 
+        ModelState.Remove("Photo_URL"); 
         if (!ModelState.IsValid)
         {
             ViewBag.HideNavbar = false;
@@ -806,14 +806,14 @@ ORDER BY S.Score DESC;
 
             if (quizId >= 1)
             {
-                if (model.PhotoFiles != null && model.PhotoFiles.Any()) // Check if there are any photos
+                if (model.PhotoFiles != null && model.PhotoFiles.Any()) 
                 {
-                    // Loop through all uploaded files
+                    
                     foreach (var file in model.PhotoFiles)
                     {
                         if (file.Length > 0)
                         {
-                            string picfilename = DoPhotoUpload(file, model.Quiz.QuizCategory); // Process each photo file
+                            string picfilename = DoPhotoUpload(file, model.Quiz.QuizCategory); 
                             string insertPhoto = @"INSERT INTO Photos (Photo_URL, Quiz_ID, Question_ID) VALUES ('{0}', {1}, {2})";
                             int result = DBUtl.ExecSQL(insertPhoto, picfilename, quizId, newQuestionId);
                         }
@@ -821,7 +821,7 @@ ORDER BY S.Score DESC;
                 }
                 else
                 {
-                    string picfilename = "No Picture Inserted"; // Default value if no photos
+                    string picfilename = "No Picture Inserted"; 
                     string insertPhoto = @"INSERT INTO Photos (Photo_URL, Quiz_ID, Question_ID) VALUES ('{0}', {1}, {2})";
                     int result = DBUtl.ExecSQL(insertPhoto, picfilename, quizId, newQuestionId);
                 }
@@ -873,7 +873,7 @@ ORDER BY S.Score DESC;
         int result = DBUtl.ExecSQL(questionsql, id);
         ViewBag.QuestionId = id;
 
-        // Get the question type and the number of correct answers
+        
         string questionTypeSql = @"SELECT Q.QuestionType FROM Question Q WHERE Q.Question_ID = {0}";
         string questionType = Convert.ToString(DBUtl.GetValue(questionTypeSql, id));
 
@@ -1005,7 +1005,7 @@ ORDER BY S.Score DESC;
 
             TempData["Message"] = "Please correct the errors.";
             TempData["MsgType"] = "danger";
-            return View("UpdateAnswer", model); // Return the view with the model
+            return View("UpdateAnswer", model); 
         }
 
         string questionTypeSql = @"SELECT Q.QuestionType FROM Answer INNER JOIN Question Q ON Q.Question_ID = Answer.Question_ID WHERE Answer.Question_ID = {0} AND Answer_ID = {1}";
@@ -1053,14 +1053,14 @@ ORDER BY S.Score DESC;
         int incorrectAnswersCount = Convert.ToInt32(DBUtl.GetValue(existingAnswersSql, questionid));
         string noofanswersql = @"SELECT COUNT(*) FROM Answer WHERE Question_ID = {0}";
         int noofanswer = Convert.ToInt32(DBUtl.GetValue(noofanswersql, questionid));
-        // Check if at least one correct answer exists for the question
+        
         string correctAnswersSql = @"SELECT COUNT(*) FROM Answer WHERE Question_ID = {0} AND Is_Correct = 1";
         int correctAnswersCount = Convert.ToInt32(DBUtl.GetValue(correctAnswersSql, questionid));
 
 
 
 
-        // Doesn't allow 0 for marks input
+        
         if (model.Is_Correct && model.Marks == 0)
         {
             TempData["Message"] = "Please input more than 0 marks.";
@@ -1122,7 +1122,7 @@ ORDER BY S.Score DESC;
 
 
 
-        // Explicitly return RedirectToAction
+        
         return RedirectToAction("Management", new { quizCategory = category });
     }
 
@@ -1132,7 +1132,7 @@ ORDER BY S.Score DESC;
     {
         ViewBag.HideNavbar = false;
 
-        // Get the record from the database using the id
+       
         string quizSql = @"SELECT Q.Question_ID, Quiz.Quiz_Category, Q.QuestionText, Q.QuestionType, Q.QuestionMarks, P.Photo_URL FROM Question Q INNER JOIN Quiz ON Q.Quiz_ID = Quiz.Quiz_ID INNER JOIN Photos P ON P.Question_ID = Q.Question_ID WHERE Q.Question_ID ={0}";
         List<QuizViewModelForManagement> lstQuiz = DBUtl.GetList<QuizViewModelForManagement>(quizSql, id);
         ViewData["Tissue_Info"] = GetListTissue();
@@ -1382,15 +1382,15 @@ ORDER BY S.Score DESC;
         {
             if (photo == null)
             {
-                return null; // Return null or a default value if no photo is provided
+                return null; 
             }
             else
             {
 
 
-                // Construct the subdirectory path based on the highest prediction result
+                
                 string subdirectory = Path.Combine(_env.WebRootPath, "images", category);
-                subdirectory = subdirectory.Replace("\\", "/"); // Normalize path
+                subdirectory = subdirectory.Replace("\\", "/"); 
 
                 if (!Directory.Exists(subdirectory))
                 {
@@ -1399,11 +1399,11 @@ ORDER BY S.Score DESC;
 
                 Console.WriteLine("Subdirectory: " + subdirectory);
 
-                // Construct the final path for the uploaded image
+                
                 string fext = Path.GetExtension(photo.FileName);
                 string uname = Guid.NewGuid().ToString();
                 string fname = uname + fext;
-                string fullpath = Path.Combine(subdirectory, fname).Replace("\\", "/"); // Normalize path
+                string fullpath = Path.Combine(subdirectory, fname).Replace("\\", "/"); 
 
                 // Save the image
                 using (FileStream fs = new FileStream(fullpath, FileMode.Create))

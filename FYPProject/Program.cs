@@ -9,14 +9,14 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container
 builder.Services.AddControllersWithViews();
 
-// Add Entity Framework Core and configure it with a connection string
+// For local database (To be deleted when migrating to cloud)
 builder.Services.AddDbContext<FYPProject.Models.ApplicationDBContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Register IHttpContextAccessor for session handling in Razor views
+// Used for navbar
 builder.Services.AddHttpContextAccessor();
 
-// Configure authentication using cookie-based authentication
+// Used for accessdenied attribute
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
@@ -24,7 +24,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.AccessDeniedPath = "/AccessDenied/Error/";
     });
 
-// Enable session handling
+// Idle timeout using sessions (currently set at 30 minutes)
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
@@ -33,30 +33,30 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-// Configure authentication cookie options
+
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.Events.OnRedirectToLogin = context =>
     {
-        context.Response.StatusCode = 401; // Return 401 instead of redirecting
+        context.Response.StatusCode = 401; 
         return Task.CompletedTask;
     };
 });
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts(); // Enforce HTTPS in production
 }
 
-// Serve default files (e.g., index.html) and enable static files
+// Allow using image from root folder (important)
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
-// Serve static files from the "wwwroot/images" folder
+
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
@@ -64,13 +64,13 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/images"
 });
 
-// Middleware execution order: session should be before authentication
+// Sessions (for role status)
 app.UseSession();
 app.UseAuthentication();
 app.UseRouting();
 app.UseAuthorization();
 
-// Map controller routes (Changed default action to Index)
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

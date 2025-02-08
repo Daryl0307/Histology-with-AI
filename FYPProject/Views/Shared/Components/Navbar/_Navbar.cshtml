@@ -1,24 +1,24 @@
 ﻿<header class="navbar" style="@(ViewBag.HideNavbar ? "display: none;" : "display: block;")">
     <div class="navbar-container">
-        <!-- Logo -->
+        
         <div class="navbar-logo">
             <img src="@ViewBag.LogoImage" alt="AI Logo" />
         </div>
 
-        <!-- Site Title -->
+        
         <div class="navbar-title">
             <h1>Learn Histology with AI!</h1>
         </div>
 
-        <!-- Hamburger Icon for Mobile -->
+        <!-- Mobile layouts for hamburger -->
         <div class="navbar-hamburger" id="hamburger-icon">
             <i class="fa fa-bars" style="font-size: 24px; cursor: pointer;"></i>
         </div>
     </div>
 
-    <!-- Navigation Menu -->
+    
     <nav class="navbar-menu" id="navbar-menu">
-        <!-- Close Button ("X") for Mobile Menu -->
+        
         <div class="menu-close" id="menu-close">
             <i class="fa fa-times" style="font-size: 24px; cursor: pointer;"></i>
         </div>
@@ -60,7 +60,7 @@
         </ul>
     </nav>
 
-    <!-- Profile Icon -->
+    
     <div class="navbar-profile">
         <i class="fa fa-user" id="profile-icon" style="font-size: 24px; cursor: pointer;"></i>
         <div id="profile-dropdown" class="profile-dropdown hidden">
@@ -192,7 +192,7 @@
             display: none;
         }
 
-        /* Mobile Styles */
+         @*Mobile layouts*@
         @@media (max-width: 768px) {
             .navbar-menu {
                 position: fixed;
@@ -249,7 +249,7 @@
             }
         }
 
-        /* Hide Hamburger on Desktop */
+        @* Hamburger only for mobile *@
         @@media (min-width: 769px) {
             .navbar-hamburger {
                 display: none;
@@ -283,7 +283,7 @@
             }
         }
     </style>
-
+    @* Script for profile and hamburger *@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const profileIcon = document.getElementById("profile-icon");
@@ -292,22 +292,22 @@
             const navbarMenu = document.getElementById("navbar-menu");
             const menuClose = document.getElementById("menu-close");
 
-            // Toggle dropdown visibility
+            
             profileIcon.addEventListener("click", function () {
                 dropdown.classList.toggle("show");
             });
 
-            // Toggle menu visibility
+            
             hamburgerIcon.addEventListener("click", function () {
                 navbarMenu.classList.toggle("active");
             });
 
-            // Close menu when clicking the "X" button
+            
             menuClose.addEventListener("click", function () {
                 navbarMenu.classList.remove("active");
             });
 
-            // Close dropdown and menu when clicking outside
+            
             document.addEventListener("click", function (event) {
                 if (!profileIcon.contains(event.target) && !dropdown.contains(event.target)) {
                     dropdown.classList.remove("show");

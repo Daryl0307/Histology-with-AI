@@ -33,7 +33,7 @@
             width: 400px;
             padding: 30px;
             text-align: center;
-            margin: auto; /* Ensure the card is centered */
+            margin: auto; 
         }
 
             .login-card img {
@@ -86,28 +86,28 @@
             margin-bottom: 20px;
         }
 
-        /* Media Query for Mobile Devices */
+        
         @@media only screen and (max-width: 600px) {
             .login-card {
-                width: 90%; /* Adjust width for smaller screens */
-                padding: 20px; /* Reduce padding for smaller screens */
+                width: 90%; 
+                padding: 20px; 
             }
 
                 .login-card img {
-                    height: 100px; /* Reduce logo size for smaller screens */
+                    height: 100px; 
                 }
 
             h1 {
-                font-size: 24px; /* Reduce heading size for smaller screens */
+                font-size: 24px; 
             }
 
             .form-control {
-                padding: 8px; /* Adjust input padding for smaller screens */
+                padding: 8px; 
             }
 
             .btn-primary {
-                padding: 10px 15px; /* Adjust button padding for smaller screens */
-                font-size: 16px; /* Reduce button font size for smaller screens */
+                padding: 10px 15px;
+                font-size: 16px; 
             }
         }
 
@@ -171,7 +171,7 @@
         function disableSubmitButton() {
             const submitButton = document.getElementById('submitButton');
             submitButton.disabled = true;
-            submitButton.innerText = 'Signing Up...'; // Optional: Change button text
+            submitButton.innerText = 'Signing Up...'; 
         }
 
         function togglePasswordVisibility(inputId, icon) {
