@@ -60,7 +60,6 @@ namespace FYPProject.Controllers
             {
                 try
                 {
-                    // Hash password using SHA256 from DBUtl
                     string hashedPassword = DBUtl.HashPassword(password);
 
                     using (SqlConnection conn = new SqlConnection(_connectionString))
@@ -128,7 +127,6 @@ namespace FYPProject.Controllers
                             }
                         }
 
-                        // Get Email
                         string emailQuery = @"
                 SELECT Email 
                 FROM User_Info 
@@ -170,26 +168,6 @@ namespace FYPProject.Controllers
             return View();
         }
 
-
-
-
-
-
-
-        //private string HashPassword(string password)
-        //{
-        //    using (SHA256 sha256 = SHA256.Create())
-        //    {
-        //        byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-        //        StringBuilder builder = new StringBuilder();
-        //        foreach (byte b in bytes)
-        //        {
-        //            builder.Append(b.ToString("x2"));
-        //        }
-        //        return builder.ToString();
-        //    }
-        //}
-
         public IActionResult ResetPW()
         {
             ViewBag.HideNavbar = true;
@@ -201,7 +179,7 @@ namespace FYPProject.Controllers
         public IActionResult SendResetPasswordEmail(string email)
         {
             ViewBag.HideNavbar = true;
-            SetLogoUrl(); // Ensure the logo URL is set
+            SetLogoUrl();
 
             if (string.IsNullOrEmpty(email))
             {
@@ -216,7 +194,6 @@ namespace FYPProject.Controllers
 
             try
             {
-                // Check if the email exists in the database
                 bool emailExists = false;
                 using (SqlConnection conn = new SqlConnection(_connectionString))
                 {
@@ -234,19 +211,14 @@ namespace FYPProject.Controllers
                     ViewBag.ErrorMessage = "The entered email does not exist in our records. Please try again.";
                     return View("ResetPW");
                 }
-
-                // Generate a random 4-digit verification code
                 Random random = new Random();
                 int verificationCode = random.Next(1000, 9999);
 
-                // Store the verification code and email in TempData
                 TempData["VerificationCode"] = verificationCode.ToString();
                 TempData["UserEmail"] = email;
 
-                // Send the email
                 SendEmail(email, verificationCode);
 
-                // Keep TempData values for the next request
                 TempData.Keep("VerificationCode");
                 TempData.Keep("UserEmail");
 
@@ -262,51 +234,6 @@ namespace FYPProject.Controllers
                 return View("ResetPW");
             }
         }
-        //[HttpGet]
-        //public IActionResult TestEmail()
-        //{
-        //    try
-        //    {
-        //        // Replace with a valid recipient email for testing
-        //        string toEmail = "leeyongchuan0374@gmail.com"; // Test recipient
-        //        string fromEmail = "studio037418@gmail.com";   // Your Gmail
-        //        string fromPassword = "hfir ebuz npyp xpio";  // Your App Password
-        //        string subject = "SMTP Test";
-        //        string body = "This is a test email to verify SMTP configuration.";
-
-        //        using (MailMessage mail = new MailMessage())
-        //        {
-        //            mail.From = new MailAddress(fromEmail);
-        //            mail.To.Add(toEmail);
-        //            mail.Subject = subject;
-        //            mail.Body = body;
-
-        //            // Use Gmail's SMTP settings
-        //            using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
-        //            {
-        //                smtp.Credentials = new NetworkCredential(fromEmail, fromPassword);
-        //                smtp.EnableSsl = true;
-        //                smtp.Timeout = 10000; // Set a timeout of 10 seconds
-        //                smtp.Send(mail);
-        //            }
-        //        }
-
-        //        return Content("Test email sent successfully!");
-        //    }
-        //    catch (SmtpException smtpEx)
-        //    {
-        //        // Log SMTP-specific errors
-        //        Console.WriteLine($"SMTP Exception: {smtpEx.Message}");
-        //        return Content($"SMTP error: {smtpEx.Message}");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        // Log generic errors
-        //        Console.WriteLine($"General Exception: {ex.Message}");
-        //        return Content($"Error sending email: {ex.Message}");
-        //    }
-        //}
-
 
         private void SendEmail(string toEmail, int verificationCode)
         {
@@ -534,7 +461,6 @@ namespace FYPProject.Controllers
 
             ViewData["Username"] = TempData["Username"] ?? string.Empty; 
             ViewData["Email"] = TempData["Email"] ?? string.Empty;
-            //Passes username and email from tempdata to viewdata
             return View();
         }
 
@@ -548,7 +474,7 @@ namespace FYPProject.Controllers
             Dictionary<string, string> errorMessages = new(); 
 
             
-            ValidateAccount(account, confirmPassword, errorMessages); //Validates user
+            ValidateAccount(account, confirmPassword, errorMessages); 
 
             
             if (errorMessages.Count > 0)
@@ -558,7 +484,7 @@ namespace FYPProject.Controllers
             }
 
            
-            if (IsAccountExists(account.Username, account.Email)) //check for existing username or email 
+            if (IsAccountExists(account.Username, account.Email)) 
             {
                 TempData["Errors"] = new Dictionary<string, string>
 {
@@ -1212,7 +1138,7 @@ namespace FYPProject.Controllers
         private bool IsCurrentPasswordCorrect(string userId, string currentPassword)
         {
             string storedPassword = null;
-            string hashedInputPassword = HashPasswordSHA256(currentPassword); // Ensure consistent hashing
+            string hashedInputPassword = HashPasswordSHA256(currentPassword); 
 
             using (SqlConnection conn = new SqlConnection(_connectionString))
             {
@@ -1226,7 +1152,6 @@ namespace FYPProject.Controllers
                 }
             }
 
-            // Compare stored Base64-encoded hash with the input hash
             return storedPassword != null && storedPassword.Equals(hashedInputPassword);
         }
 
@@ -1259,7 +1184,7 @@ namespace FYPProject.Controllers
 
             try
             {
-                string hashedPassword = HashPasswordSHA256(newPassword); // Ensure proper hashing
+                string hashedPassword = HashPasswordSHA256(newPassword);
 
                 using (SqlConnection conn = new SqlConnection(_connectionString))
                 {
@@ -1274,7 +1199,7 @@ namespace FYPProject.Controllers
                 }
 
                TempData["SuccessMessage"] = "Your password has been successfully updated!";
-            TempData.Keep("SuccessMessage"); // Keeps it only for the next request
+            TempData.Keep("SuccessMessage"); 
             return Json(new { success = true });
 
             }
@@ -1295,7 +1220,6 @@ namespace FYPProject.Controllers
                 byte[] bytes = Encoding.UTF8.GetBytes(password);
                 byte[] hashBytes = sha256.ComputeHash(bytes);
 
-                // Ensure consistent encoding
                 return Convert.ToBase64String(hashBytes);
             }
         }
